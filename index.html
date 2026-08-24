@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INF 125 Live · Session 1</title>
+<style>
+:root{--gold:#ffc800;--black:#050505;--cream:#f8f5ea;--muted:#aaa;--card:#151515}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--black);color:white}
+button,input,textarea{font:inherit} button{cursor:pointer}
+#app{min-height:100vh}.top{height:8px;background:var(--gold)}
+.wrap{max-width:1100px;margin:auto;padding:24px}
+.kicker{color:var(--gold);font-weight:800;letter-spacing:.12em;font-size:13px}
+h1{font-size:clamp(38px,7vw,76px);line-height:.95;margin:18px 0} h2{font-size:clamp(28px,5vw,54px);margin:12px 0}
+.lead{font-size:clamp(19px,2.5vw,28px);color:#ddd;max-width:850px}
+.gold{color:var(--gold)} .panel{border:2px solid var(--gold);border-radius:20px;padding:22px;margin:20px 0;background:#0d0d0d}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0}
+.choice{border:2px solid #444;background:#111;color:white;padding:20px;border-radius:16px;font-weight:800;min-height:80px}
+.choice:hover,.choice.selected{border-color:var(--gold);color:var(--gold)}
+.primary{background:var(--gold);color:black;border:0;border-radius:14px;padding:16px 22px;font-weight:900}
+.secondary{background:#222;color:white;border:1px solid #555;border-radius:14px;padding:14px 18px}
+.nav{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:24px;flex-wrap:wrap}
+textarea,input[type=text]{width:100%;padding:14px;border-radius:12px;border:1px solid #555;background:#111;color:white;margin:8px 0 16px}
+label{font-weight:800;color:var(--gold)} .small{font-size:14px;color:#bbb}
+.timer{font-size:72px;font-weight:900;color:var(--gold);text-align:center}
+.bar{height:34px;background:#222;border-radius:8px;overflow:hidden;margin:7px 0}.bar>span{display:block;height:100%;background:var(--gold);color:#000;font-weight:900;padding:7px}
+.wordcloud{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:center;min-height:300px}
+.wordcloud span{color:var(--gold);font-weight:900}.hide{display:none}
+.mode{position:fixed;right:12px;top:18px;background:#222;color:white;border:1px solid #555;border-radius:10px;padding:8px 12px;z-index:3}
+@media(max-width:600px){.wrap{padding:18px}.nav button{flex:1}.choice{min-height:64px}}
+</style>
+</head>
+<body><div class="top"></div><button class="mode" id="modeBtn">Instructor view</button><div id="app"></div>
+<script>
+const steps=[
+{type:"hero",title:"AI LITERACY",lead:"AI literacy starts with noticing.",prompt:"How much AI has already shaped your day?"},
+{type:"poll",title:"How many AI-supported systems have you interacted with since waking up?",key:"count",choices:["0","1–2","3–5","6–10","10+","No idea"]},
+{type:"reveal",title:"Still confident in your number?",lead:"AI often disappears into ordinary technology.",items:["Phone unlock","Weather","Maps","Spam filter","Search","Social feed","Music","Bank alert","Autocomplete","Photo editing","Shopping","Streaming"]},
+{type:"prompt",title:"Meet someone near you",lead:"60 seconds each. No polished answer required.",items:["Your name + major or area of interest","Where did you encounter AI, automation, recommendations, or algorithmic decision-making this week?","Was it helpful, questionable, invisible, or confusing?"]},
+{type:"poll",title:"Where will AI affect your future work MOST?",key:"future",choices:["Creating","Making decisions","Analyzing information","Communicating","Automating work","No idea yet"]},
+{type:"challenge",title:"Canvas Race",lead:"Find the first thing due in INF 125. Then find the rubric or grading criteria.",seconds:90},
+{type:"prompt",title:"Find three more things",items:["Week 01 Readings & Resources","Where to get help / contact your instructor","Where grades + feedback live"],lead:"Do not guess. Check the module."},
+{type:"lens",title:"A reusable AI literacy lens"},
+{type:"demo",title:"LIVE DEMO · Maps",lead:"What information might the system use? What does it output? What can it miss? What is still the human's job?"},
+{type:"poll",title:"Would you trust a polished AI answer before checking it?",key:"trust",choices:["Yes","Probably","I'd verify it","No"]},
+{type:"prompt",title:"Confidence ≠ credibility",lead:"Fluency is not evidence.",items:["What is missing?","What might be wrong?","What should I verify?","What do I think?"]},
+{type:"form",title:"Everyday AI Lens Check"},
+{type:"poll",title:"Privacy scenario",lead:"An internship AI tool asks for your résumé, job posting, transcript, student ID, and contact information.",key:"privacy",choices:["Résumé only","Résumé + job posting","Everything requested","Nothing until I understand privacy"]},
+{type:"spectrum",title:"Support learning—or replace it?",lead:"Rate each use from 1 = completely appropriate to 4 = definitely inappropriate."},
+{type:"exit",title:"Exit Ticket",lead:"Your starting point—not your final answer."},
+{type:"cloud",title:"AI literacy means…",lead:"Our Day 1 starting point."},
+{type:"next",title:"Before next class"},
+{type:"hero",title:"NOTICE AI.",lead:"What is this system doing?",prompt:"What should I question or verify?"}
+];
+let idx=+(localStorage.inf125Step||0), instructor=false, timerInt=null;
+const data=JSON.parse(localStorage.inf125Data||'{}');
+function save(){localStorage.inf125Data=JSON.stringify(data);localStorage.inf125Step=idx}
+function nav(){return `<div class="nav"><button class="secondary" onclick="prev()">← Previous</button><span class="small">${idx+1} / ${steps.length}</span><button class="primary" onclick="next()">Next →</button></div>`}
+function choose(key,val){data[key]=val;save();render()}
+function poll(s){return `<div class="grid">${s.choices.map(c=>`<button class="choice ${data[s.key]==c?'selected':''}" onclick='choose(${JSON.stringify(s.key)},${JSON.stringify(c)})'>${c}</button>`).join("")}</div>${instructor?results(s.key,s.choices):""}`}
+function results(key,choices){let own=data[key]; return `<div class="panel"><b>Instructor preview</b><p class="small">This standalone prototype stores only this browser's response. For class-wide live aggregation, connect the included Apps Script backend.</p>${choices.map(c=>`<div>${c}${c===own?" · this device":""}</div>`).join("")}</div>`}
+function field(k,label){return `<label>${label}</label><textarea oninput="data['${k}']=this.value;save()">${data[k]||""}</textarea>`}
+function render(){
+ clearInterval(timerInt); const s=steps[idx]; let h=`<div class="wrap"><div class="kicker">INF 125 · SESSION 01 · ${instructor?"INSTRUCTOR":"STUDENT"}</div><h1>${s.title}</h1>${s.lead?`<p class="lead">${s.lead}</p>`:""}`;
+ if(s.type==="hero")h+=`<div class="panel"><h2 class="gold">${s.prompt||""}</h2></div>`;
+ if(s.type==="poll")h+=poll(s);
+ if(s.type==="reveal")h+=`<div class="grid">${s.items.map(x=>`<div class="choice">${x}</div>`).join("")}</div><div class="panel"><h2>Who wants to change their answer?</h2></div>`;
+ if(s.type==="prompt")h+=`<div class="panel">${(s.items||[]).map(x=>`<h2>${x}</h2>`).join("")}</div>`;
+ if(s.type==="challenge")h+=`<div class="timer" id="timer">${s.seconds}</div><button class="primary" onclick="startTimer(${s.seconds})">Start 90-second timer</button>`;
+ if(s.type==="lens")h+=`<div class="grid">${["DATA","MODEL / TOOL","OUTPUT","HUMAN INTERPRETATION","DECISION / ACTION"].map(x=>`<div class="choice">${x}</div>`).join("")}</div><div class="panel"><h2>Where can error, bias, misunderstanding, or responsibility enter?</h2></div>`;
+ if(s.type==="demo")h+=`<div class="panel"><h2>Switch to live Maps.</h2><p class="lead">DATA → MODEL / TOOL → OUTPUT → HUMAN INTERPRETATION → DECISION / ACTION</p><h2 class="gold">The system can support judgment. It does not remove responsibility.</h2></div>`;
+ if(s.type==="form")h+=field("example","What specific AI-supported tool, feature, system, output, or decision are you analyzing?")+field("task","What TASK does it support?")+field("info","What INFORMATION might it use?")+field("output","What OUTPUT does it produce?")+field("benefit","One BENEFIT")+field("risk","One RISK or LIMITATION")+field("stakeholder","One STAKEHOLDER or affected perspective")+field("human","What should a RESPONSIBLE HUMAN verify, explain, question, or decide?")+`<button class="primary" onclick="save()">Save my notes</button>`;
+ if(s.type==="spectrum")h+=`<div class="panel"><h2>Vote 1–4 for each:</h2>${["AI fixes grammar","AI suggests an outline","AI proposes thesis ideas","AI writes the reflection","AI writes it; student edits it"].map((x,i)=>`<p><b>${x}</b><br>${[1,2,3,4].map(n=>`<button class="choice" style="min-height:45px;padding:8px;margin:4px" onclick="choose('sp${i}',${n})">${n}</button>`).join("")}</p>`).join("")}</div>`;
+ if(s.type==="exit")h+=field("exit1","One place I already encounter AI is…")+field("exit2","One question I should ask before trusting an AI output is…")+field("exit3","At the start of this course, AI literacy means…")+`<button class="primary" onclick="save()">Save exit ticket</button>`;
+ if(s.type==="cloud"){let words=(data.exit3||"notice question evidence verify responsible judgment").split(/\s+/).filter(x=>x.length>3);h+=`<div class="wordcloud">${words.map((w,i)=>`<span style="font-size:${22+(i%4)*8}px">${w.replace(/[.,]/g,"")}</span>`).join("")}</div><p class="small">Prototype cloud from this device. Use the Apps Script backend for whole-class results.</p>`}
+ if(s.type==="next")h+=`<div class="panel"><h2>Review Week 01 Readings & Resources</h2><h2>Complete the first reflection / course expectations check</h2><h2>Save one everyday AI example for portfolio evidence</h2><h2>Bring one question or example next class</h2></div>`;
+ h+=nav()+`</div>`; document.getElementById("app").innerHTML=h;
+}
+function next(){idx=Math.min(steps.length-1,idx+1);save();render()} function prev(){idx=Math.max(0,idx-1);save();render()}
+function startTimer(sec){let n=sec,el=document.getElementById("timer");el.textContent=n;clearInterval(timerInt);timerInt=setInterval(()=>{n--;el.textContent=n;if(n<=0)clearInterval(timerInt)},1000)}
+document.getElementById("modeBtn").onclick=()=>{instructor=!instructor;document.getElementById("modeBtn").textContent=instructor?"Student view":"Instructor view";render()}
+render();
+</script></body></html>
