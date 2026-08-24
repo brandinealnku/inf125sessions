@@ -53,11 +53,26 @@ const steps=[
 ];
 let idx=+(localStorage.inf125Step||0), instructor=false, timerInt=null;
 const data=JSON.parse(localStorage.inf125Data||'{}');
+const deviceId = localStorage.inf125Device || (localStorage.inf125Device = (crypto.randomUUID ? crypto.randomUUID() : 'dev-'+Math.random().toString(36).slice(2)));
+const hasAppsScript = typeof google !== 'undefined' && google.script && google.script.run;
 function save(){localStorage.inf125Data=JSON.stringify(data);localStorage.inf125Step=idx}
+function submitLive(question,response){
+  if(!hasAppsScript) return;
+  google.script.run.withFailureHandler(err=>console.error('submitResponse failed',err)).submitResponse({device:deviceId,question,response});
+}
+function saveLens(){
+  save();
+  submitLive('lens_check',{example:data.example||'',task:data.task||'',info:data.info||'',output:data.output||'',benefit:data.benefit||'',risk:data.risk||'',stakeholder:data.stakeholder||'',human:data.human||''});
+  alert('Saved');
+}
+function saveExit(){
+  save();
+  ['exit1','exit2','exit3'].forEach(k=>submitLive(k,data[k]||''));
+  alert('Exit ticket saved');
+}
 function nav(){return `<div class="nav"><button class="secondary" onclick="prev()">← Previous</button><span class="small">${idx+1} / ${steps.length}</span><button class="primary" onclick="next()">Next →</button></div>`}
-function choose(key,val){data[key]=val;save();render()}
-function poll(s){return `<div class="grid">${s.choices.map(c=>`<button class="choice ${data[s.key]==c?'selected':''}" onclick='choose(${JSON.stringify(s.key)},${JSON.stringify(c)})'>${c}</button>`).join("")}</div>${instructor?results(s.key,s.choices):""}`}
-function results(key,choices){let own=data[key]; return `<div class="panel"><b>Instructor preview</b><p class="small">This standalone prototype stores only this browser's response. For class-wide live aggregation, connect the included Apps Script backend.</p>${choices.map(c=>`<div>${c}${c===own?" · this device":""}</div>`).join("")}</div>`}
+function choose(key,val){data[key]=val;save();submitLive(key,val);render()}
+function poll(s){return `<div class="grid">${s.choices.map(c=>`<button class="choice ${data[s.key]==c?'selected':''}" onclick='choose(${JSON.stringify(s.key)},${JSON.stringify(c)})'>${c}</button>`).join("")}</div>${instructor?`<div class="panel" id="results-${s.key}"><b>Live class results</b><p class="small">Loading…</p></div>`:""}`}
 function field(k,label){return `<label>${label}</label><textarea oninput="data['${k}']=this.value;save()">${data[k]||""}</textarea>`}
 function render(){
  clearInterval(timerInt); const s=steps[idx]; let h=`<div class="wrap"><div class="kicker">INF 125 · SESSION 01 · ${instructor?"INSTRUCTOR":"STUDENT"}</div><h1>${s.title}</h1>${s.lead?`<p class="lead">${s.lead}</p>`:""}`;
@@ -68,15 +83,36 @@ function render(){
  if(s.type==="challenge")h+=`<div class="timer" id="timer">${s.seconds}</div><button class="primary" onclick="startTimer(${s.seconds})">Start 90-second timer</button>`;
  if(s.type==="lens")h+=`<div class="grid">${["DATA","MODEL / TOOL","OUTPUT","HUMAN INTERPRETATION","DECISION / ACTION"].map(x=>`<div class="choice">${x}</div>`).join("")}</div><div class="panel"><h2>Where can error, bias, misunderstanding, or responsibility enter?</h2></div>`;
  if(s.type==="demo")h+=`<div class="panel"><h2>Switch to live Maps.</h2><p class="lead">DATA → MODEL / TOOL → OUTPUT → HUMAN INTERPRETATION → DECISION / ACTION</p><h2 class="gold">The system can support judgment. It does not remove responsibility.</h2></div>`;
- if(s.type==="form")h+=field("example","What specific AI-supported tool, feature, system, output, or decision are you analyzing?")+field("task","What TASK does it support?")+field("info","What INFORMATION might it use?")+field("output","What OUTPUT does it produce?")+field("benefit","One BENEFIT")+field("risk","One RISK or LIMITATION")+field("stakeholder","One STAKEHOLDER or affected perspective")+field("human","What should a RESPONSIBLE HUMAN verify, explain, question, or decide?")+`<button class="primary" onclick="save()">Save my notes</button>`;
+ if(s.type==="form")h+=field("example","What specific AI-supported tool, feature, system, output, or decision are you analyzing?")+field("task","What TASK does it support?")+field("info","What INFORMATION might it use?")+field("output","What OUTPUT does it produce?")+field("benefit","One BENEFIT")+field("risk","One RISK or LIMITATION")+field("stakeholder","One STAKEHOLDER or affected perspective")+field("human","What should a RESPONSIBLE HUMAN verify, explain, question, or decide?")+`<button class="primary" onclick="saveLens()">Save my notes</button>`;
  if(s.type==="spectrum")h+=`<div class="panel"><h2>Vote 1–4 for each:</h2>${["AI fixes grammar","AI suggests an outline","AI proposes thesis ideas","AI writes the reflection","AI writes it; student edits it"].map((x,i)=>`<p><b>${x}</b><br>${[1,2,3,4].map(n=>`<button class="choice" style="min-height:45px;padding:8px;margin:4px" onclick="choose('sp${i}',${n})">${n}</button>`).join("")}</p>`).join("")}</div>`;
- if(s.type==="exit")h+=field("exit1","One place I already encounter AI is…")+field("exit2","One question I should ask before trusting an AI output is…")+field("exit3","At the start of this course, AI literacy means…")+`<button class="primary" onclick="save()">Save exit ticket</button>`;
- if(s.type==="cloud"){let words=(data.exit3||"notice question evidence verify responsible judgment").split(/\s+/).filter(x=>x.length>3);h+=`<div class="wordcloud">${words.map((w,i)=>`<span style="font-size:${22+(i%4)*8}px">${w.replace(/[.,]/g,"")}</span>`).join("")}</div><p class="small">Prototype cloud from this device. Use the Apps Script backend for whole-class results.</p>`}
+ if(s.type==="exit")h+=field("exit1","One place I already encounter AI is…")+field("exit2","One question I should ask before trusting an AI output is…")+field("exit3","At the start of this course, AI literacy means…")+`<button class="primary" onclick="saveExit()">Save exit ticket</button>`;
+ if(s.type==="cloud"){h+=`<div class="wordcloud" id="live-cloud"><span>Loading class responses…</span></div><p class="small">Live whole-class Day 1 responses when served from Apps Script.</p>`}
  if(s.type==="next")h+=`<div class="panel"><h2>Review Week 01 Readings & Resources</h2><h2>Complete the first reflection / course expectations check</h2><h2>Save one everyday AI example for portfolio evidence</h2><h2>Bring one question or example next class</h2></div>`;
  h+=nav()+`</div>`; document.getElementById("app").innerHTML=h;
 }
 function next(){idx=Math.min(steps.length-1,idx+1);save();render()} function prev(){idx=Math.max(0,idx-1);save();render()}
 function startTimer(sec){let n=sec,el=document.getElementById("timer");el.textContent=n;clearInterval(timerInt);timerInt=setInterval(()=>{n--;el.textContent=n;if(n<=0)clearInterval(timerInt)},1000)}
-document.getElementById("modeBtn").onclick=()=>{instructor=!instructor;document.getElementById("modeBtn").textContent=instructor?"Student view":"Instructor view";render()}
-render();
+function refreshInstructor(){
+  if(!hasAppsScript || !instructor) return;
+  const s=steps[idx];
+  if(s.type==='poll'){
+    google.script.run.withSuccessHandler(result=>{
+      const el=document.getElementById('results-'+s.key); if(!el) return;
+      const total=Object.values(result).reduce((a,b)=>a+b,0);
+      el.innerHTML='<b>Live class results · '+total+' responses</b>'+s.choices.map(c=>{const n=result[c]||0,p=total?Math.round(n/total*100):0;return `<div style="margin-top:10px"><b>${c}</b> · ${n} (${p}%)<div class="bar"><span style="width:${p}%">${p}%</span></div></div>`}).join('');
+    }).getResults(s.key);
+  }
+  if(s.type==='cloud'){
+    google.script.run.withSuccessHandler(rows=>{
+      const el=document.getElementById('live-cloud'); if(!el) return;
+      const freq={}; rows.join(' ').toLowerCase().match(/[a-z][a-z'-]{3,}/g)?.forEach(w=>freq[w]=(freq[w]||0)+1);
+      const words=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,35);
+      el.innerHTML=words.length?words.map(([w,n])=>`<span style="font-size:${20+Math.min(32,n*5)}px">${w}</span>`).join(' '):'<span>No responses yet</span>';
+    }).getTextResponses('exit3');
+  }
+}
+function refreshIfNeeded(){setTimeout(refreshInstructor,250)}
+document.getElementById("modeBtn").onclick=()=>{instructor=!instructor;document.getElementById("modeBtn").textContent=instructor?"Student view":"Instructor view";render();refreshIfNeeded()}
+setInterval(refreshInstructor,5000);
+render();refreshIfNeeded();
 </script></body></html>
