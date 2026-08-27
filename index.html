@@ -1,118 +1,102 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>INF 125 Live · Session 1</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INF 125 · Live Learning OS</title>
 <style>
-:root{--gold:#ffc800;--black:#050505;--cream:#f8f5ea;--muted:#aaa;--card:#151515}
-*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--black);color:white}
-button,input,textarea{font:inherit} button{cursor:pointer}
-#app{min-height:100vh}.top{height:8px;background:var(--gold)}
-.wrap{max-width:1100px;margin:auto;padding:24px}
-.kicker{color:var(--gold);font-weight:800;letter-spacing:.12em;font-size:13px}
-h1{font-size:clamp(38px,7vw,76px);line-height:.95;margin:18px 0} h2{font-size:clamp(28px,5vw,54px);margin:12px 0}
-.lead{font-size:clamp(19px,2.5vw,28px);color:#ddd;max-width:850px}
-.gold{color:var(--gold)} .panel{border:2px solid var(--gold);border-radius:20px;padding:22px;margin:20px 0;background:#0d0d0d}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0}
-.choice{border:2px solid #444;background:#111;color:white;padding:20px;border-radius:16px;font-weight:800;min-height:80px}
-.choice:hover,.choice.selected{border-color:var(--gold);color:var(--gold)}
-.primary{background:var(--gold);color:black;border:0;border-radius:14px;padding:16px 22px;font-weight:900}
-.secondary{background:#222;color:white;border:1px solid #555;border-radius:14px;padding:14px 18px}
-.nav{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:24px;flex-wrap:wrap}
-textarea,input[type=text]{width:100%;padding:14px;border-radius:12px;border:1px solid #555;background:#111;color:white;margin:8px 0 16px}
-label{font-weight:800;color:var(--gold)} .small{font-size:14px;color:#bbb}
-.timer{font-size:72px;font-weight:900;color:var(--gold);text-align:center}
-.bar{height:34px;background:#222;border-radius:8px;overflow:hidden;margin:7px 0}.bar>span{display:block;height:100%;background:var(--gold);color:#000;font-weight:900;padding:7px}
-.wordcloud{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:center;min-height:300px}
-.wordcloud span{color:var(--gold);font-weight:900}.hide{display:none}
-.mode{position:fixed;right:12px;top:18px;background:#222;color:white;border:1px solid #555;border-radius:10px;padding:8px 12px;z-index:3}
-@media(max-width:600px){.wrap{padding:18px}.nav button{flex:1}.choice{min-height:64px}}
+:root{--gold:#ffc800;--black:#070707;--panel:#121212;--panel2:#1a1a1a;--line:#343434;--text:#fff;--muted:#b6b6b6;--good:#d7ff8f}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--black);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.topline{height:8px;background:var(--gold)}
+.shell{max-width:1180px;margin:auto;padding:28px}.eyebrow{color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.status{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 28px}.pill{border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--muted);font-size:13px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--good);margin-right:6px}
+h1{font-size:clamp(38px,7vw,78px);line-height:.96;letter-spacing:-.04em;margin:14px 0 18px;max-width:1000px}h2{font-size:clamp(26px,4vw,46px);line-height:1.03;margin:12px 0}h3{font-size:21px;margin:4px 0 8px}.lead{font-size:clamp(18px,2.3vw,27px);line-height:1.35;color:#dedede;max-width:920px}.muted{color:var(--muted)}.gold{color:var(--gold)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;margin:20px 0}.heroPanel{border:2px solid var(--gold);background:#0d0d0d}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:20px 0}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;min-height:110px}.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:24px 0}.flow .card{display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;min-height:120px}.arrow{display:none}
+.choice{width:100%;text-align:left;background:var(--panel);color:#fff;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:800;min-height:74px}.choice:hover,.choice.selected{border-color:var(--gold);color:var(--gold);background:#171300}.choice:disabled{cursor:default;opacity:.9}
+.primary,.secondary,.danger{border-radius:13px;padding:13px 18px;font-weight:900}.primary{background:var(--gold);color:#000;border:0}.secondary{background:#202020;color:#fff;border:1px solid #555}.danger{background:#281111;color:#fff;border:1px solid #713333}.primary:disabled{opacity:.4;cursor:not-allowed}
+textarea,input[type=text]{width:100%;border:1px solid #555;background:#111;color:#fff;border-radius:13px;padding:14px;margin-top:10px}textarea{min-height:120px;resize:vertical}.join{max-width:620px;margin:7vh auto}.join input{font-size:21px;padding:17px}.join .primary{width:100%;font-size:19px;margin-top:12px}
+.nav{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:30px;flex-wrap:wrap}.navGroup{display:flex;gap:9px;flex-wrap:wrap}.progress{color:var(--muted);font-size:13px}.barRow{margin:14px 0}.barLabel{display:flex;justify-content:space-between;gap:12px;font-weight:800}.bar{height:28px;background:#242424;border-radius:8px;overflow:hidden;margin-top:7px}.bar span{height:100%;display:block;background:var(--gold);min-width:0}.countBig{font-size:64px;font-weight:950;color:var(--gold);letter-spacing:-.05em}.response{border-left:4px solid var(--gold);padding:10px 14px;margin:10px 0;background:#101010;border-radius:0 10px 10px 0}.response small{color:var(--muted)}
+.instructorOnly{display:none}.instructor .instructorOnly{display:block}.studentOnly{display:block}.instructor .studentOnly{display:none}.console{position:sticky;bottom:0;background:rgba(7,7,7,.96);border-top:1px solid #333;padding:14px 0;margin-top:28px;backdrop-filter:blur(10px)}.consoleInner{max-width:1180px;margin:auto;padding:0 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.consoleStats{display:flex;gap:10px;flex-wrap:wrap}.tiny{font-size:12px;color:var(--muted)}.waiting{text-align:center;padding:9vh 0}.waiting .pulse{font-size:80px}.scenario{border-left:6px solid var(--gold)}
+@media(max-width:780px){.shell{padding:20px}.flow{grid-template-columns:1fr}.flow .card{min-height:72px}.consoleInner{padding:0 20px}.nav button{flex:1}.countBig{font-size:52px}}
 </style>
 </head>
-<body><div class="top"></div><button class="mode" id="modeBtn">Instructor view</button><div id="app"></div>
+<body>
+<div class="topline"></div>
+<div id="app"></div>
 <script>
+const SESSION='Session 2';
+const SESSION_TITLE='How AI Works';
+const hasAppsScript=typeof google!=='undefined'&&google.script&&google.script.run;
+const deviceId=localStorage.inf125Device||(localStorage.inf125Device=(crypto.randomUUID?crypto.randomUUID():'dev-'+Math.random().toString(36).slice(2)));
+let name=localStorage.inf125Name||'';
+let instructor=new URLSearchParams(location.search).get('instructor')==='1';
+let state={step:0,resultsVisible:false,status:'waiting'};
+let localState=JSON.parse(localStorage.inf125Session2State||'{"step":0,"resultsVisible":false,"status":"waiting"}');
+let answers=JSON.parse(localStorage.inf125Session2Answers||'{}');
+let participantCount=0;
+let refreshTimer=null;
+
 const steps=[
-{type:"hero",title:"AI LITERACY",lead:"AI literacy starts with noticing.",prompt:"How much AI has already shaped your day?"},
-{type:"poll",title:"How many AI-supported systems have you interacted with since waking up?",key:"count",choices:["0","1–2","3–5","6–10","10+","No idea"]},
-{type:"reveal",title:"Still confident in your number?",lead:"AI often disappears into ordinary technology.",items:["Phone unlock","Weather","Maps","Spam filter","Search","Social feed","Music","Bank alert","Autocomplete","Photo editing","Shopping","Streaming"]},
-{type:"prompt",title:"Meet someone near you",lead:"60 seconds each. No polished answer required.",items:["Your name + major or area of interest","Where did you encounter AI, automation, recommendations, or algorithmic decision-making this week?","Was it helpful, questionable, invisible, or confusing?"]},
-{type:"poll",title:"Where will AI affect your future work MOST?",key:"future",choices:["Creating","Making decisions","Analyzing information","Communicating","Automating work","No idea yet"]},
-{type:"challenge",title:"Canvas Race",lead:"Find the first thing due in INF 125. Then find the rubric or grading criteria.",seconds:90},
-{type:"prompt",title:"Find three more things",items:["Week 01 Readings & Resources","Where to get help / contact your instructor","Where grades + feedback live"],lead:"Do not guess. Check the module."},
-{type:"lens",title:"A reusable AI literacy lens"},
-{type:"demo",title:"LIVE DEMO · Maps",lead:"What information might the system use? What does it output? What can it miss? What is still the human's job?"},
-{type:"poll",title:"Would you trust a polished AI answer before checking it?",key:"trust",choices:["Yes","Probably","I'd verify it","No"]},
-{type:"prompt",title:"Confidence ≠ credibility",lead:"Fluency is not evidence.",items:["What is missing?","What might be wrong?","What should I verify?","What do I think?"]},
-{type:"form",title:"Everyday AI Lens Check"},
-{type:"poll",title:"Privacy scenario",lead:"An internship AI tool asks for your résumé, job posting, transcript, student ID, and contact information.",key:"privacy",choices:["Résumé only","Résumé + job posting","Everything requested","Nothing until I understand privacy"]},
-{type:"spectrum",title:"Support learning—or replace it?",lead:"Rate each use from 1 = completely appropriate to 4 = definitely inappropriate."},
-{type:"exit",title:"Exit Ticket",lead:"Your starting point—not your final answer."},
-{type:"cloud",title:"AI literacy means…",lead:"Our Day 1 starting point."},
-{type:"next",title:"Before next class"},
-{type:"hero",title:"NOTICE AI.",lead:"What is this system doing?",prompt:"What should I question or verify?"}
+ {type:'welcome',label:'OPEN',title:'30 people. One experiment.',lead:'Today you will not just hear how AI works. You will build, test, challenge, and revise a model of it.'},
+ {type:'prompt',label:'THINK',key:'needs',title:'What would an AI need to know before you trusted this answer?',lead:'You ask an AI system: “Should I drop my calculus course?” Name one piece of information the system would need.',placeholder:'One thing the AI would need to know is…'},
+ {type:'teach',label:'TEACH',title:'AI systems are easier to reason about when we separate the parts.',lead:'For today, use this five-part lens.',flow:['DATA','MODEL / TOOL','OUTPUT','HUMAN INTERPRETATION','DECISION / ACTION']},
+ {type:'challenge',label:'DO',key:'flowbuild',title:'Build the system.',lead:'In your own words, describe what belongs in each part of the calculus-advice system.',fields:[['data','DATA: What information goes in?'],['model','MODEL / TOOL: What processes or generates the recommendation?'],['output','OUTPUT: What comes back?'],['human','HUMAN INTERPRETATION: What must a person consider?'],['decision','DECISION / ACTION: What happens next?']]},
+ {type:'vote',label:'PREDICT',key:'drop1',title:'Should the AI recommend dropping the course?',lead:'Known information: GPA 2.8 · Calculus grade D · Major: Computer Science',choices:['Recommend DROP','Recommend STAY','Not enough information']},
+ {type:'reveal',label:'REVEAL',key:'drop1',title:'The class has committed. Now look at the system, not just the answer.',lead:'What assumptions might be hiding behind these recommendations?',choices:['Recommend DROP','Recommend STAY','Not enough information']},
+ {type:'vote',label:'UPDATE',key:'drop2',title:'New information. Does your recommendation change?',lead:'Calculus is a prerequisite for three courses the student planned to take next semester.',choices:['Recommend DROP','Recommend STAY','Still not enough information']},
+ {type:'compare',label:'DISCUSS',keys:['drop1','drop2'],title:'The AI problem changed when the information changed.',lead:'The question stayed almost identical. The available context did not. What does that tell us about data, models, and human judgment?'},
+ {type:'scenario',label:'DO',key:'failure',title:'Where can this system fail?',lead:'Choose the point you think creates the greatest risk in this advising example.',choices:['DATA: missing or biased information','MODEL / TOOL: bad assumptions or patterns','OUTPUT: misleading recommendation','HUMAN INTERPRETATION: over-trust or misunderstanding','DECISION / ACTION: consequences are poorly considered']},
+ {type:'prompt',label:'THINK',key:'responsibility',title:'What is still the human’s job?',lead:'Complete the sentence in one strong thought.',placeholder:'Even with AI support, a human still needs to…'},
+ {type:'exit',label:'EXIT',key:'exit',title:'What changed in your thinking today?',lead:'Write one thing you understand differently now about how AI systems work.',placeholder:'Before today I thought… Now I think…'},
+ {type:'finish',label:'DONE',title:'AI can support a decision. It does not remove responsibility.',lead:'DATA → MODEL / TOOL → OUTPUT → HUMAN INTERPRETATION → DECISION / ACTION'}
 ];
-let idx=+(localStorage.inf125Step||0), instructor=false, timerInt=null;
-const data=JSON.parse(localStorage.inf125Data||'{}');
-const deviceId = localStorage.inf125Device || (localStorage.inf125Device = (crypto.randomUUID ? crypto.randomUUID() : 'dev-'+Math.random().toString(36).slice(2)));
-const hasAppsScript = typeof google !== 'undefined' && google.script && google.script.run;
-function save(){localStorage.inf125Data=JSON.stringify(data);localStorage.inf125Step=idx}
-function submitLive(question,response){
-  if(!hasAppsScript) return;
-  google.script.run.withFailureHandler(err=>console.error('submitResponse failed',err)).submitResponse({device:deviceId,question,response});
-}
-function saveLens(){
-  save();
-  submitLive('lens_check',{example:data.example||'',task:data.task||'',info:data.info||'',output:data.output||'',benefit:data.benefit||'',risk:data.risk||'',stakeholder:data.stakeholder||'',human:data.human||''});
-  alert('Saved');
-}
-function saveExit(){
-  save();
-  ['exit1','exit2','exit3'].forEach(k=>submitLive(k,data[k]||''));
-  alert('Exit ticket saved');
-}
-function nav(){return `<div class="nav"><button class="secondary" onclick="prev()">← Previous</button><span class="small">${idx+1} / ${steps.length}</span><button class="primary" onclick="next()">Next →</button></div>`}
-function choose(key,val){data[key]=val;save();submitLive(key,val);render()}
-function poll(s){return `<div class="grid">${s.choices.map(c=>`<button class="choice ${data[s.key]==c?'selected':''}" onclick='choose(${JSON.stringify(s.key)},${JSON.stringify(c)})'>${c}</button>`).join("")}</div>${instructor?`<div class="panel" id="results-${s.key}"><b>Live class results</b><p class="small">Loading…</p></div>`:""}`}
-function field(k,label){return `<label>${label}</label><textarea oninput="data['${k}']=this.value;save()">${data[k]||""}</textarea>`}
-function render(){
- clearInterval(timerInt); const s=steps[idx]; let h=`<div class="wrap"><div class="kicker">INF 125 · SESSION 01 · ${instructor?"INSTRUCTOR":"STUDENT"}</div><h1>${s.title}</h1>${s.lead?`<p class="lead">${s.lead}</p>`:""}`;
- if(s.type==="hero")h+=`<div class="panel"><h2 class="gold">${s.prompt||""}</h2></div>`;
- if(s.type==="poll")h+=poll(s);
- if(s.type==="reveal")h+=`<div class="grid">${s.items.map(x=>`<div class="choice">${x}</div>`).join("")}</div><div class="panel"><h2>Who wants to change their answer?</h2></div>`;
- if(s.type==="prompt")h+=`<div class="panel">${(s.items||[]).map(x=>`<h2>${x}</h2>`).join("")}</div>`;
- if(s.type==="challenge")h+=`<div class="timer" id="timer">${s.seconds}</div><button class="primary" onclick="startTimer(${s.seconds})">Start 90-second timer</button>`;
- if(s.type==="lens")h+=`<div class="grid">${["DATA","MODEL / TOOL","OUTPUT","HUMAN INTERPRETATION","DECISION / ACTION"].map(x=>`<div class="choice">${x}</div>`).join("")}</div><div class="panel"><h2>Where can error, bias, misunderstanding, or responsibility enter?</h2></div>`;
- if(s.type==="demo")h+=`<div class="panel"><h2>Switch to live Maps.</h2><p class="lead">DATA → MODEL / TOOL → OUTPUT → HUMAN INTERPRETATION → DECISION / ACTION</p><h2 class="gold">The system can support judgment. It does not remove responsibility.</h2></div>`;
- if(s.type==="form")h+=field("example","What specific AI-supported tool, feature, system, output, or decision are you analyzing?")+field("task","What TASK does it support?")+field("info","What INFORMATION might it use?")+field("output","What OUTPUT does it produce?")+field("benefit","One BENEFIT")+field("risk","One RISK or LIMITATION")+field("stakeholder","One STAKEHOLDER or affected perspective")+field("human","What should a RESPONSIBLE HUMAN verify, explain, question, or decide?")+`<button class="primary" onclick="saveLens()">Save my notes</button>`;
- if(s.type==="spectrum")h+=`<div class="panel"><h2>Vote 1–4 for each:</h2>${["AI fixes grammar","AI suggests an outline","AI proposes thesis ideas","AI writes the reflection","AI writes it; student edits it"].map((x,i)=>`<p><b>${x}</b><br>${[1,2,3,4].map(n=>`<button class="choice" style="min-height:45px;padding:8px;margin:4px" onclick="choose('sp${i}',${n})">${n}</button>`).join("")}</p>`).join("")}</div>`;
- if(s.type==="exit")h+=field("exit1","One place I already encounter AI is…")+field("exit2","One question I should ask before trusting an AI output is…")+field("exit3","At the start of this course, AI literacy means…")+`<button class="primary" onclick="saveExit()">Save exit ticket</button>`;
- if(s.type==="cloud"){h+=`<div class="wordcloud" id="live-cloud"><span>Loading class responses…</span></div><p class="small">Live whole-class Day 1 responses when served from Apps Script.</p>`}
- if(s.type==="next")h+=`<div class="panel"><h2>Review Week 01 Readings & Resources</h2><h2>Complete the first reflection / course expectations check</h2><h2>Save one everyday AI example for portfolio evidence</h2><h2>Bring one question or example next class</h2></div>`;
- h+=nav()+`</div>`; document.getElementById("app").innerHTML=h;
-}
-function next(){idx=Math.min(steps.length-1,idx+1);save();render()} function prev(){idx=Math.max(0,idx-1);save();render()}
-function startTimer(sec){let n=sec,el=document.getElementById("timer");el.textContent=n;clearInterval(timerInt);timerInt=setInterval(()=>{n--;el.textContent=n;if(n<=0)clearInterval(timerInt)},1000)}
-function refreshInstructor(){
-  if(!hasAppsScript || !instructor) return;
-  const s=steps[idx];
-  if(s.type==='poll'){
-    google.script.run.withSuccessHandler(result=>{
-      const el=document.getElementById('results-'+s.key); if(!el) return;
-      const total=Object.values(result).reduce((a,b)=>a+b,0);
-      el.innerHTML='<b>Live class results · '+total+' responses</b>'+s.choices.map(c=>{const n=result[c]||0,p=total?Math.round(n/total*100):0;return `<div style="margin-top:10px"><b>${c}</b> · ${n} (${p}%)<div class="bar"><span style="width:${p}%">${p}%</span></div></div>`}).join('');
-    }).getResults(s.key);
-  }
-  if(s.type==='cloud'){
-    google.script.run.withSuccessHandler(rows=>{
-      const el=document.getElementById('live-cloud'); if(!el) return;
-      const freq={}; rows.join(' ').toLowerCase().match(/[a-z][a-z'-]{3,}/g)?.forEach(w=>freq[w]=(freq[w]||0)+1);
-      const words=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,35);
-      el.innerHTML=words.length?words.map(([w,n])=>`<span style="font-size:${20+Math.min(32,n*5)}px">${w}</span>`).join(' '):'<span>No responses yet</span>';
-    }).getTextResponses('exit3');
-  }
-}
-function refreshIfNeeded(){setTimeout(refreshInstructor,250)}
-document.getElementById("modeBtn").onclick=()=>{instructor=!instructor;document.getElementById("modeBtn").textContent=instructor?"Student view":"Instructor view";render();refreshIfNeeded()}
-setInterval(refreshInstructor,5000);
-render();refreshIfNeeded();
-</script></body></html>
+
+function save(){localStorage.inf125Session2Answers=JSON.stringify(answers);localStorage.inf125Name=name}
+function current(){return steps[Math.max(0,Math.min(steps.length-1,state.step||0))]}
+function api(fn,args,ok){if(!hasAppsScript){if(ok)ok(null);return}const runner=google.script.run.withFailureHandler(err=>console.error(fn,err)).withSuccessHandler(ok||(()=>{}));runner[fn](...(args||[]))}
+function submit(key,response){answers[key]=response;save();if(hasAppsScript)api('submitResponse',[{session:SESSION,device:deviceId,name:name||'Anonymous',question:key,response:response}]);render()}
+function join(){const el=document.getElementById('joinName');const v=(el?.value||'').trim();if(!v)return;name=v.slice(0,40);save();if(hasAppsScript)api('joinSession',[{session:SESSION,device:deviceId,name}],()=>pollState());else{state=localState;render()}}
+function setState(patch){const next={session:SESSION,step:patch.step??state.step,resultsVisible:patch.resultsVisible??state.resultsVisible,status:patch.status??state.status};if(hasAppsScript)api('setSessionState',[next,s=>{if(s){state=s;render();refreshData()}}]);else{localState=next;state=next;localStorage.inf125Session2State=JSON.stringify(localState);render()}}
+function next(){setState({step:Math.min(steps.length-1,state.step+1),resultsVisible:false,status:'live'})}
+function prev(){setState({step:Math.max(0,state.step-1),resultsVisible:false})}
+function toggleResults(){setState({resultsVisible:!state.resultsVisible})}
+function startClass(){setState({step:0,status:'live',resultsVisible:false})}
+function resetClass(){if(!confirm('Reset Session 2 responses and return everyone to the waiting screen?'))return;if(hasAppsScript)api('resetSession',[SESSION,()=>{state={step:0,resultsVisible:false,status:'waiting'};render();refreshData()}]);else{localStorage.removeItem('inf125Session2Answers');localStorage.removeItem('inf125Session2State');answers={};localState={step:0,resultsVisible:false,status:'waiting'};state=localState;render()}}
+
+function shell(inner){const mode=instructor?'INSTRUCTOR':'STUDENT';return `<main class="shell"><div class="eyebrow">INF 125 · ${SESSION_TITLE} · ${mode}</div><div class="status"><span class="pill"><span class="dot"></span>${hasAppsScript?'LIVE CLASSROOM':'BROWSER PREVIEW'}</span><span class="pill">${SESSION}</span>${name&&!instructor?`<span class="pill">${esc(name)}</span>`:''}</div>${inner}</main>${instructor?consoleBar():''}`}
+function consoleBar(){return `<div class="console"><div class="consoleInner"><div class="consoleStats"><span class="pill"><b>${participantCount}</b> joined</span><span class="pill">Step ${state.step+1}/${steps.length}</span><span class="pill">${state.resultsVisible?'Results visible':'Results hidden'}</span></div><div class="navGroup"><button class="secondary" onclick="prev()">← Back</button><button class="secondary" onclick="toggleResults()">${state.resultsVisible?'Hide results':'Reveal results'}</button><button class="primary" onclick="next()">Next →</button><button class="danger" onclick="resetClass()">Reset</button></div></div></div>`}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function choiceGrid(s,key=s.key){return `<div class="grid">${s.choices.map(c=>`<button class="choice ${answers[key]===c?'selected':''}" onclick='submit(${JSON.stringify(key)},${JSON.stringify(c)})'>${esc(c)}</button>`).join('')}</div>`}
+function textPrompt(s){return `<div class="panel heroPanel"><textarea id="text-${esc(s.key)}" placeholder="${esc(s.placeholder||'Type your response…')}">${esc(answers[s.key]||'')}</textarea><div class="nav"><span class="tiny">Your response is saved to this session.</span><button class="primary" onclick="submit(${JSON.stringify(s.key)},document.getElementById(${JSON.stringify('text-'+s.key)}).value.trim())">Submit response</button></div></div>${answers[s.key]?'<p class="gold"><b>✓ Submitted</b></p>':''}`}
+function challenge(s){return `<div class="grid">${s.fields.map(([k,label])=>`<div class="card"><label class="eyebrow">${esc(label)}</label><textarea id="f-${k}" style="min-height:95px">${esc((answers[s.key]||{})[k]||'')}</textarea></div>`).join('')}</div><button class="primary" onclick="submitChallenge()">Save my model</button>${answers[s.key]?'<p class="gold"><b>✓ Model saved</b></p>':''}`}
+function submitChallenge(){const out={};current().fields.forEach(([k])=>out[k]=document.getElementById('f-'+k).value.trim());submit(current().key,out)}
+function bars(result,choices){const total=Object.values(result||{}).reduce((a,b)=>a+Number(b||0),0);return `<div class="panel"><div class="countBig">${total}</div><div class="muted">class responses</div>${choices.map(c=>{const n=Number((result||{})[c]||0),p=total?Math.round(n/total*100):0;return `<div class="barRow"><div class="barLabel"><span>${esc(c)}</span><span>${n} · ${p}%</span></div><div class="bar"><span style="width:${p}%"></span></div></div>`}).join('')}</div>`}
+function renderResultsArea(key,choices){return `<div id="results-${esc(key)}">${state.resultsVisible?'<div class="panel"><span class="muted">Loading class results…</span></div>':'<div class="panel"><h3>Results are hidden.</h3><p class="muted">Commit to your own answer before seeing the class.</p></div>'}</div>`}
+function renderResponsesArea(key){return `<div id="textresults-${esc(key)}"><div class="panel"><span class="muted">Loading responses…</span></div></div>`}
+
+function renderStep(){const s=current();let body=`<div class="eyebrow">${esc(s.label)}</div><h1>${esc(s.title)}</h1>${s.lead?`<p class="lead">${esc(s.lead)}</p>`:''}`;
+ if(s.type==='welcome')body+=`<div class="panel heroPanel"><h2 class="gold">Your screen is part of the classroom today.</h2><p class="lead">When the instructor advances the session, this page will move with the room.</p></div>`;
+ if(s.type==='prompt'){body+=instructor?renderResponsesArea(s.key):textPrompt(s)}
+ if(s.type==='teach')body+=`<div class="flow">${s.flow.map(x=>`<div class="card">${esc(x)}</div>`).join('')}</div><div class="panel"><h2>Ask five questions:</h2><p class="lead">What information went in? What processed it? What came out? How did a person interpret it? What decision followed?</p></div>`;
+ if(s.type==='challenge')body+=instructor?`<div class="panel"><h2>Students are building the five-part system on their own screens.</h2><p class="lead">Circulate. Look for places where students confuse the model/tool with the output or skip the human interpretation step.</p></div>`:challenge(s);
+ if(s.type==='vote'||s.type==='scenario'){body+=instructor?renderResultsArea(s.key,s.choices):choiceGrid(s)}
+ if(s.type==='reveal'){body+=renderResultsArea(s.key,s.choices);body+=`<div class="panel scenario"><h2>Discuss:</h2><p class="lead">What information are we assuming the system has? What consequences are missing from this recommendation?</p></div>`}
+ if(s.type==='compare'){body+=`<div class="grid"><div><h3>Before new context</h3><div id="results-${s.keys[0]}"><div class="panel muted">Loading…</div></div></div><div><h3>After new context</h3><div id="results-${s.keys[1]}"><div class="panel muted">Loading…</div></div></div></div><div class="panel heroPanel"><h2 class="gold">The model did not become “more intelligent.” The information available to the decision changed.</h2></div>`}
+ if(s.type==='exit'){body+=instructor?renderResponsesArea(s.key):textPrompt(s)}
+ if(s.type==='finish')body+=`<div class="flow">${['DATA','MODEL / TOOL','OUTPUT','HUMAN INTERPRETATION','DECISION / ACTION'].map(x=>`<div class="card">${x}</div>`).join('')}</div><div class="panel heroPanel"><h2 class="gold">Your job is not merely to use AI. Your job is to understand enough of the system to question it.</h2></div>`;
+ return shell(body)}
+
+function render(){document.body.classList.toggle('instructor',instructor);const app=document.getElementById('app');if(!instructor&&!name){app.innerHTML=shell(`<section class="join"><div class="eyebrow">JOIN LIVE CLASS</div><h1>INF 125</h1><p class="lead">Enter your first name or a classroom nickname.</p><input id="joinName" type="text" maxlength="40" autocomplete="off" placeholder="Your name or nickname" onkeydown="if(event.key==='Enter')join()"><button class="primary" onclick="join()">Join class →</button><p class="tiny">Use the same browser during class so your responses update instead of duplicating.</p></section>`);return}
+ if(state.status==='waiting'&&!instructor){app.innerHTML=shell(`<div class="waiting"><div class="pulse">●</div><h1>You're in.</h1><p class="lead">${participantCount||'The class'} ${participantCount===1?'person is':'people are'} connected. This screen will change when class begins.</p></div>`);return}
+ if(state.status==='waiting'&&instructor){app.innerHTML=shell(`<h1>Classroom ready.</h1><p class="lead">Project this view, have students join the same Web App URL, then start when the room is connected.</p><div class="panel heroPanel"><div class="countBig">${participantCount}</div><h2>students connected</h2><button class="primary" onclick="startClass()">Start Session 2 →</button></div>`);return}
+ app.innerHTML=renderStep();setTimeout(refreshData,100)}
+
+function pollState(){if(hasAppsScript){api('getSessionState',[SESSION,s=>{if(!s)return;const changed=s.step!==state.step||s.resultsVisible!==state.resultsVisible||s.status!==state.status;state=s;if(changed)render();refreshData()}])}else{state=localState;render()}}
+function refreshData(){if(!hasAppsScript)return;api('getParticipantCount',[SESSION,n=>{participantCount=Number(n||0);const el=document.querySelector('.consoleStats .pill b');if(el)el.textContent=participantCount;if(state.status==='waiting')render()}]);const s=current();
+ if((s.type==='vote'||s.type==='scenario'||s.type==='reveal')&&(instructor||state.resultsVisible)){api('getResults',[SESSION,s.key,r=>{const el=document.getElementById('results-'+s.key);if(el)el.innerHTML=bars(r,s.choices)}])}
+ if(s.type==='compare'){const choices1=steps.find(x=>x.key===s.keys[0])?.choices||[];const choices2=steps.find(x=>x.key===s.keys[1])?.choices||[];api('getResults',[SESSION,s.keys[0],r=>{const el=document.getElementById('results-'+s.keys[0]);if(el)el.innerHTML=bars(r,choices1)}]);api('getResults',[SESSION,s.keys[1],r=>{const el=document.getElementById('results-'+s.keys[1]);if(el)el.innerHTML=bars(r,choices2)}])}
+ if(instructor&&(s.type==='prompt'||s.type==='exit')){api('getTextResponses',[SESSION,s.key,rows=>{const el=document.getElementById('textresults-'+s.key);if(!el)return;el.innerHTML=`<div class="panel"><div class="countBig">${rows.length}</div><div class="muted">responses</div>${rows.slice(-12).map(r=>`<div class="response">${esc(r.text)}<br><small>${esc(r.name)}</small></div>`).join('')||'<p class="muted">Waiting for responses…</p>'}</div>`}])}}
+
+render();
+if(hasAppsScript){api('getSessionState',[SESSION,s=>{if(s)state=s;render();refreshData()}]);refreshTimer=setInterval(pollState,2200)}else{state=localState;render()}
+</script>
+</body>
+</html>
