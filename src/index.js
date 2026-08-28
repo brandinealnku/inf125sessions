@@ -37,19 +37,21 @@ export default {
     }
     const normalizedPath=url.pathname.replace(/\/+$/,'')||'/';
     if(normalizedPath==='/instructor'||(normalizedPath==='/'&&url.searchParams.get('instructor')==='1')){
-      const assetUrl=new URL(request.url);
-      assetUrl.pathname='/instructor.html';
-      assetUrl.search='';
-      const response=await env.ASSETS.fetch(new Request(assetUrl.toString(),request));
-      const html=await response.text();
-      const patched=html.replace('</body>','<script src="/instructor-refresh-patch.js"></script></body>');
-      return new Response(patched,{status:response.status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+      const assetUrl=new URL(request.url);assetUrl.pathname='/instructor-v07.html';assetUrl.search='';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(),request));
     }
     if(normalizedPath==='/display'){
-      const target=new URL(request.url);
-      target.pathname='/';
-      target.searchParams.set('display','1');
-      return Response.redirect(target.toString(),302);
+      const target=new URL(request.url);target.pathname='/';target.searchParams.set('display','1');return Response.redirect(target.toString(),302);
+    }
+    if(normalizedPath==='/'){
+      const response=await env.ASSETS.fetch(request);
+      const type=response.headers.get('content-type')||'';
+      if(type.includes('text/html')){
+        const html=await response.text();
+        const patched=html.replace('</body>','<script src="/frictionless-v07.js"></script></body>');
+        return new Response(patched,{status:response.status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+      }
+      return response;
     }
     return env.ASSETS.fetch(request);
   }
