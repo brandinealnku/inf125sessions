@@ -28,4 +28,29 @@ export class ClassroomSession {
     return json({error:'Not found'},404);
   }
 }
-export default { async fetch(request, env) { const url=new URL(request.url); if(url.pathname.startsWith('/api/session/')){const parts=url.pathname.split('/').filter(Boolean),sessionId=parts[2]||'session-2',id=env.CLASSROOM.idFromName(sessionId);return env.CLASSROOM.get(id).fetch(request)} const normalizedPath=url.pathname.replace(/\/+$/,'')||'/'; if(normalizedPath==='/instructor'||(normalizedPath==='/'&&url.searchParams.get('instructor')==='1')){const assetUrl=new URL(request.url);assetUrl.pathname='/instructor.html';assetUrl.search='';return env.ASSETS.fetch(new Request(assetUrl.toString(),request))} if(normalizedPath==='/display'){const target=new URL(request.url);target.pathname='/';target.searchParams.set('display','1');return Response.redirect(target.toString(),302)} return env.ASSETS.fetch(request); } };
+export default {
+  async fetch(request, env) {
+    const url=new URL(request.url);
+    if(url.pathname.startsWith('/api/session/')){
+      const parts=url.pathname.split('/').filter(Boolean),sessionId=parts[2]||'session-2',id=env.CLASSROOM.idFromName(sessionId);
+      return env.CLASSROOM.get(id).fetch(request);
+    }
+    const normalizedPath=url.pathname.replace(/\/+$/,'')||'/';
+    if(normalizedPath==='/instructor'||(normalizedPath==='/'&&url.searchParams.get('instructor')==='1')){
+      const assetUrl=new URL(request.url);
+      assetUrl.pathname='/instructor.html';
+      assetUrl.search='';
+      const response=await env.ASSETS.fetch(new Request(assetUrl.toString(),request));
+      const html=await response.text();
+      const patched=html.replace('</body>','<script src="/instructor-refresh-patch.js"></script></body>');
+      return new Response(patched,{status:response.status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+    }
+    if(normalizedPath==='/display'){
+      const target=new URL(request.url);
+      target.pathname='/';
+      target.searchParams.set('display','1');
+      return Response.redirect(target.toString(),302);
+    }
+    return env.ASSETS.fetch(request);
+  }
+};
