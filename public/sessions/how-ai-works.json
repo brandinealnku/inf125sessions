@@ -1,0 +1,135 @@
+{
+  "id": "session-2",
+  "version": "0.3",
+  "course": "INF 125",
+  "title": "How AI Works",
+  "subtitle": "75-minute live learning session",
+  "durationMinutes": 75,
+  "framework": [
+    "DATA",
+    "MODEL / TOOL",
+    "OUTPUT",
+    "HUMAN INTERPRETATION",
+    "DECISION / ACTION"
+  ],
+  "steps": [
+    {
+      "minutes": 5,
+      "type": "welcome",
+      "label": "OPEN",
+      "title": "30 people. One experiment.",
+      "lead": "Today you will build, test, challenge, and revise a model of how AI works.",
+      "instructorCue": "Welcome students, get everyone connected, and frame the room as one shared experiment."
+    },
+    {
+      "minutes": 7,
+      "type": "prompt",
+      "label": "RETRIEVE",
+      "key": "needs",
+      "title": "What would an AI need to know before you trusted this answer?",
+      "lead": "You ask an AI system: “Should I drop my calculus course?” Name one piece of information it would need.",
+      "placeholder": "One thing the AI would need to know is…",
+      "instructorCue": "Give 60–90 seconds of quiet thinking. Spotlight two contrasting responses."
+    },
+    {
+      "minutes": 10,
+      "type": "teach",
+      "label": "TEACH",
+      "title": "Separate the system into five parts.",
+      "lead": "This lens will help us reason about almost any AI-supported decision.",
+      "flow": [
+        "DATA",
+        "MODEL / TOOL",
+        "OUTPUT",
+        "HUMAN INTERPRETATION",
+        "DECISION / ACTION"
+      ],
+      "instructorCue": "Teach the five-part lens with a familiar example before returning to the advising case."
+    },
+    {
+      "minutes": 10,
+      "type": "build",
+      "label": "DO",
+      "key": "flowbuild",
+      "title": "Build the advising system.",
+      "lead": "Describe what belongs in each part of the calculus-advice system.",
+      "fields": [["data", "DATA"], ["model", "MODEL / TOOL"], ["output", "OUTPUT"], ["human", "HUMAN INTERPRETATION"], ["decision", "DECISION / ACTION"]],
+      "instructorCue": "Students work individually first, then compare with a neighbor. Ask what they disagree about."
+    },
+    {
+      "minutes": 6,
+      "type": "vote",
+      "label": "PREDICT",
+      "key": "drop1",
+      "title": "Should the AI recommend dropping the course?",
+      "lead": "Known information: GPA 2.8 · Calculus grade D · Major: Computer Science",
+      "choices": ["Recommend DROP", "Recommend STAY", "Not enough information"],
+      "instructorCue": "Lock responses after most students vote. Do not reveal immediately."
+    },
+    {
+      "minutes": 7,
+      "type": "reveal",
+      "label": "REVEAL + DISCUSS",
+      "key": "drop1",
+      "title": "The class has committed.",
+      "lead": "Now look at the system, not just the answer.",
+      "choices": ["Recommend DROP", "Recommend STAY", "Not enough information"],
+      "prompt": "What assumptions are hiding behind these recommendations?",
+      "instructorCue": "Reveal the distribution. Ask students to defend the least popular answer before discussing assumptions."
+    },
+    {
+      "minutes": 7,
+      "type": "vote",
+      "label": "UPDATE",
+      "key": "drop2",
+      "title": "New information. Does your recommendation change?",
+      "lead": "Calculus is a prerequisite for three courses the student planned to take next semester.",
+      "choices": ["Recommend DROP", "Recommend STAY", "Still not enough information"],
+      "instructorCue": "Ask students to vote again without discussion first, then notice who changed positions."
+    },
+    {
+      "minutes": 8,
+      "type": "compare",
+      "label": "DISCUSS",
+      "title": "The information changed. So did the problem.",
+      "lead": "What does the shift tell us about data, models, and human judgment?",
+      "compare": [
+        {"key": "drop1", "choices": ["Recommend DROP", "Recommend STAY", "Not enough information"], "label": "Before"},
+        {"key": "drop2", "choices": ["Recommend DROP", "Recommend STAY", "Still not enough information"], "label": "After"}
+      ],
+      "hero": "The model did not become “more intelligent.” The information available to the decision changed.",
+      "instructorCue": "Connect the class shift explicitly to data quality, context, and decision consequences."
+    },
+    {
+      "minutes": 6,
+      "type": "vote",
+      "label": "FAILURE TEST",
+      "key": "failure",
+      "title": "Where can this system fail?",
+      "lead": "Choose the point you think creates the greatest risk.",
+      "choices": ["DATA: missing or biased information", "MODEL / TOOL: bad assumptions or patterns", "OUTPUT: misleading recommendation", "HUMAN INTERPRETATION: over-trust or misunderstanding", "DECISION / ACTION: consequences poorly considered"],
+      "instructorCue": "Use the distribution to show that responsible AI is a system problem, not only a model problem."
+    },
+    {
+      "minutes": 5,
+      "type": "prompt",
+      "label": "THINK",
+      "key": "responsibility",
+      "title": "What is still the human’s job?",
+      "lead": "Complete the sentence in one strong thought.",
+      "placeholder": "Even with AI support, a human still needs to…",
+      "instructorCue": "Spotlight two strong responses and connect them to human responsibility."
+    },
+    {
+      "minutes": 4,
+      "type": "prompt",
+      "label": "EXIT + CLOSE",
+      "key": "exit",
+      "title": "What changed in your thinking today?",
+      "lead": "Write one thing you understand differently now about how AI systems work.",
+      "placeholder": "Before today I thought… Now I think…",
+      "closing": "AI can support a decision. It does not remove responsibility.",
+      "instructorCue": "Collect the exit signal, restate the five-part lens, and close exactly at 75 minutes."
+    }
+  ]
+}
