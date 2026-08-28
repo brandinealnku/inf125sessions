@@ -1,29 +1,45 @@
 {
   "id": "session-2",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "course": "INF 125",
   "title": "Can AI Predict You?",
-  "subtitle": "75-minute live recommendation-algorithm experiment",
+  "subtitle": "A 75-minute live recommendation-algorithm experiment",
   "durationMinutes": 75,
   "framework": ["DATA", "MODEL / TOOL", "OUTPUT", "HUMAN INTERPRETATION", "DECISION / ACTION"],
+  "maya": {
+    "name": "Maya",
+    "role": "First-year student",
+    "avatar": "M",
+    "signals": [
+      ["MUSIC", "Sabrina Carpenter · Drake · Chappell Roan"],
+      ["WATCHES", "fashion · gaming · comedy · dorm life"],
+      ["PATTERN", "usually active after 10 PM"],
+      ["SOCIAL", "followed several new classmates this week"],
+      ["ORDERS", "pizza twice this week"],
+      ["CAMPUS", "gaming club once · lives on campus"],
+      ["CONTEXT", "8 AM class tomorrow"]
+    ]
+  },
   "steps": [
     {
       "minutes": 5,
       "type": "vote",
       "label": "COLD OPEN",
       "key": "predict_me_open",
-      "title": "🔮 I already made a prediction about you.",
+      "scene": "prediction",
+      "title": "I already made a prediction about you.",
       "lead": "Before you answer anything, make a call: could the apps you use every day predict you surprisingly well, or would they get the important parts of you wrong?",
-      "choices": ["⚡ PROVE IT — an app could predict me pretty well", "🙅 NO CHANCE — it would get important things about me wrong"],
+      "choices": ["PROVE IT — an app could predict me pretty well", "NO CHANCE — it would get important things about me wrong"],
       "hero": "YOUR PHONE HAS BEEN COLLECTING CLUES. TODAY, YOU BECOME THE ALGORITHM.",
-      "instructorCue": "Do not explain or resolve the vote. Let students see the room split, then say: 'Good. Today we're going to find out who's right.' Keep this question unresolved so you can return to it near the end. This session deliberately uses a prediction challenge instead of the recurring how-many-times opening poll."
+      "instructorCue": "Do not explain or resolve the vote. Let students see the room split, then say: Good. Today we're going to find out who's right. Keep this question unresolved so you can return to it near the end."
     },
     {
       "minutes": 7,
       "type": "prompt",
       "label": "RETRIEVE + PERSONALIZE",
       "key": "algorithm_profile",
-      "title": "🧠 What does your algorithm think you are?",
+      "scene": "signals",
+      "title": "What does your algorithm think you are?",
       "lead": "If an app had to describe you using only the traces you leave behind, what is ONE piece of information it could use? Think: what you watch, skip, search, buy, follow, pause on, where you go, or when you are online.",
       "placeholder": "One signal an app could use to predict me is…",
       "instructorCue": "Give students a minute to respond. Spotlight contrasting examples. Group responses verbally into behavior, identity, social, context, and history. Ask: which signals feel harmless, and which start to feel creepy?"
@@ -32,29 +48,32 @@
       "minutes": 10,
       "type": "teach",
       "label": "TEACH",
-      "title": "✨ AI is not magic. It is a system.",
+      "scene": "system",
+      "title": "AI is not magic. It is a system.",
       "lead": "Use one five-part lens to explain how Spotify, TikTok, Netflix, shopping recommendations, campus apps, and many other AI systems work.",
-      "flow": ["👀 DATA\nwatched · liked · skipped · searched", "🧩 MODEL / TOOL\npatterns learned from examples", "🎯 OUTPUT\nranking · score · prediction · recommendation", "🤔 HUMAN INTERPRETATION\ntrust · ignore · question · misunderstand", "👉 DECISION / ACTION\nclick · buy · watch · share · go"],
-      "instructorCue": "Teach one box at a time. Emphasize that pattern is not the same as understanding. Use a simple example: people who watched A + B + C often watched D. Then connect the output to a visible recommendation like '87% match' or 'For You'."
+      "flow": ["DATA\nwatched · liked · skipped · searched", "MODEL / TOOL\npatterns learned from examples", "OUTPUT\nranking · score · prediction · recommendation", "HUMAN INTERPRETATION\ntrust · ignore · question · misunderstand", "DECISION / ACTION\nclick · buy · watch · share · go"],
+      "instructorCue": "Teach one box at a time. Emphasize that pattern is not the same as understanding. Use a simple example: people who watched A + B + C often watched D. Then connect the output to a visible recommendation like 87% match or For You."
     },
     {
       "minutes": 10,
       "type": "build",
       "label": "BUILD THE ALGORITHM",
       "key": "viking_feed_model",
-      "title": "🎛️ You are now the algorithm.",
-      "lead": "Build VIKING FEED, a fictional system that recommends one thing for Maya, a first-year student, to do tonight. Maya listens to Sabrina Carpenter, Drake, and Chappell Roan; watches fashion, gaming, comedy, and dorm-life videos; is active after 10 PM; followed several new classmates this week; ordered pizza twice; attended gaming club once; lives on campus; and has an 8 AM class tomorrow.",
-      "fields": [["data", "👀 DATA — Which details matter most?"], ["model", "🧩 MODEL / TOOL — What patterns should it use?"], ["output", "🎯 OUTPUT — What should it recommend?"], ["human", "🤔 HUMAN INTERPRETATION — How should Maya read the recommendation?"], ["decision", "👉 DECISION / ACTION — What could Maya do next?"]],
-      "instructorCue": "Show the four possibilities aloud: 🎤 Live Music Night, 🎮 Gaming Tournament, 🍕 Late-Night Pizza Social, 🧘 Sunset Yoga. Students work alone first, then compare with a neighbor. Ask pairs what they disagreed about and why."
+      "scene": "maya",
+      "title": "You are now the algorithm.",
+      "lead": "Build VIKING FEED, a fictional system that recommends one thing for Maya to do tonight. Decide what evidence matters, what patterns you would use, and what the system should recommend.",
+      "fields": [["data", "DATA — Which details matter most?"], ["model", "MODEL / TOOL — What patterns should it use?"], ["output", "OUTPUT — What should it recommend?"], ["human", "HUMAN INTERPRETATION — How should Maya read it?"], ["decision", "DECISION / ACTION — What could Maya do next?"]],
+      "instructorCue": "Show Maya's profile and the four possibilities: Live Music Night, Gaming Tournament, Late-Night Pizza Social, Sunset Yoga. Students work alone first, then compare with a neighbor. Ask pairs what they disagreed about and why."
     },
     {
       "minutes": 6,
       "type": "vote",
       "label": "PREDICT",
       "key": "maya_before",
-      "title": "🔮 What should Viking Feed recommend?",
+      "scene": "recommendations",
+      "title": "What should Viking Feed recommend?",
       "lead": "Based only on Maya’s current profile, make the recommendation. Commit before seeing what the rest of the class chose.",
-      "choices": ["🎤 Live Music Night", "🎮 Gaming Tournament", "🍕 Late-Night Pizza Social", "🧘 Sunset Yoga", "🤷 Not enough information"],
+      "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Not enough information"],
       "instructorCue": "Let the room vote silently. Lock responses once most students have committed. Build suspense before revealing. Ask students to notice that they are making assumptions from incomplete data."
     },
     {
@@ -62,9 +81,10 @@
       "type": "reveal",
       "label": "REVEAL + CHALLENGE",
       "key": "maya_before",
-      "title": "📊 The class has spoken.",
+      "scene": "reveal",
+      "title": "The class has spoken.",
       "lead": "Now inspect the recommendation system instead of arguing only about the winning answer.",
-      "choices": ["🎤 Live Music Night", "🎮 Gaming Tournament", "🍕 Late-Night Pizza Social", "🧘 Sunset Yoga", "🤷 Not enough information"],
+      "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Not enough information"],
       "prompt": "What assumptions are hiding behind our recommendations? Did attending gaming club once mean Maya loves gaming? Do two pizza orders mean she wants a pizza social? Does music taste predict what event she wants tonight?",
       "instructorCue": "Reveal the distribution. Ask someone to defend the least popular choice. Then run the assumption test: separate what the data actually says from what students inferred. Land on the phrase: DATA is not the same as MEANING."
     },
@@ -73,29 +93,33 @@
       "type": "vote",
       "label": "UPDATE",
       "key": "maya_after",
-      "title": "⚡ New information changes everything.",
-      "lead": "Update 1: Maya went to gaming club because her roommate asked her. Update 2: she has been looking for ways to meet people outside her residence hall. Update 3: she has a major exam at 8 AM tomorrow. What should Viking Feed recommend now?",
-      "choices": ["🎤 Live Music Night", "🎮 Gaming Tournament", "🍕 Late-Night Pizza Social", "🧘 Sunset Yoga", "🏠 Stay home", "🤷 Still not enough information"],
-      "instructorCue": "Reveal the three updates one at a time verbally, pausing after each. Ask students to vote again without discussing first. Then ask for a show of hands: who changed their mind? Emphasize that the model did not suddenly become more intelligent—the information available changed."
+      "scene": "update",
+      "title": "New information changes everything.",
+      "lead": "Three new pieces of context just arrived. Recalculate your recommendation.",
+      "updates": ["Gaming club happened because Maya's roommate asked her to go.", "Maya has been looking for ways to meet people outside her residence hall.", "Maya has a major exam at 8 AM tomorrow."],
+      "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Stay home", "Still not enough information"],
+      "instructorCue": "Reveal the three updates one at a time verbally, pausing after each. Ask students to vote again without discussing first. Then use the live changed-minds metric. Emphasize that the model did not suddenly become more intelligent—the information available changed."
     },
     {
       "minutes": 8,
       "type": "compare",
       "label": "BEFORE vs AFTER",
-      "title": "🔁 The information changed. So did the decision.",
-      "lead": "Compare the room’s first recommendation with the second. What changed in the system?",
-      "compare": [{"key": "maya_before", "choices": ["🎤 Live Music Night", "🎮 Gaming Tournament", "🍕 Late-Night Pizza Social", "🧘 Sunset Yoga", "🤷 Not enough information"], "label": "BEFORE NEW CONTEXT"}, {"key": "maya_after", "choices": ["🎤 Live Music Night", "🎮 Gaming Tournament", "🍕 Late-Night Pizza Social", "🧘 Sunset Yoga", "🏠 Stay home", "🤷 Still not enough information"], "label": "AFTER NEW CONTEXT"}],
-      "hero": "NEW DATA → NEW OUTPUT → NEW DECISION. The model did not become ‘more intelligent.’ The information available to the decision changed.",
-      "instructorCue": "Use the side-by-side distributions as the visual centerpiece. Connect the shift explicitly to data quality, context, model assumptions, output, interpretation, and consequences. Ask which of the five parts changed—and whether more than one changed."
+      "scene": "movement",
+      "title": "The information changed. So did the decision.",
+      "lead": "Compare the room’s first recommendation with the second. Watch how the room moved when context changed.",
+      "compare": [{"key": "maya_before", "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Not enough information"], "label": "BEFORE NEW CONTEXT"}, {"key": "maya_after", "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Stay home", "Still not enough information"], "label": "AFTER NEW CONTEXT"}],
+      "hero": "NEW DATA → NEW OUTPUT → NEW DECISION. The model did not become more intelligent. The information available to the decision changed.",
+      "instructorCue": "Use the changed-minds number and side-by-side distributions as the visual centerpiece. Connect the shift explicitly to data quality, context, model assumptions, output, interpretation, and consequences."
     },
     {
       "minutes": 6,
       "type": "vote",
       "label": "FAILURE TEST",
       "key": "failure",
-      "title": "🚨 Find the failure.",
+      "scene": "challenge",
+      "title": "Find the failure.",
       "lead": "Viking Feed makes thousands of recommendations. Where could the greatest risk enter the system?",
-      "choices": ["👀 DATA — missing, wrong, or biased information", "🧩 MODEL / TOOL — bad patterns or wrong objective", "🎯 OUTPUT — misleading or overconfident recommendation", "🤔 HUMAN INTERPRETATION — over-trust or misunderstanding", "👉 DECISION / ACTION — unintended consequences"],
+      "choices": ["DATA — missing, wrong, or biased information", "MODEL / TOOL — bad patterns or wrong objective", "OUTPUT — misleading or overconfident recommendation", "HUMAN INTERPRETATION — over-trust or misunderstanding", "DECISION / ACTION — unintended consequences"],
       "instructorCue": "Treat this like a game-show question, then reveal the distribution. Explain that there may not be one correct answer. Responsible AI is a whole-system problem, not only a model problem."
     },
     {
@@ -103,8 +127,9 @@
       "type": "prompt",
       "label": "HUMAN RESPONSIBILITY",
       "key": "responsibility",
-      "title": "🧍 AI recommends. Who is responsible?",
-      "lead": "Imagine Viking Feed flashes: ‘97% MATCH — Go to the Pizza Social.’ Complete the sentence below.",
+      "scene": "responsibility",
+      "title": "AI recommends. Who is responsible?",
+      "lead": "Imagine Viking Feed flashes: 97% MATCH — Go to the Pizza Social. Complete the sentence below.",
       "placeholder": "Even with AI support, a human still needs to…",
       "instructorCue": "Spotlight two or three strong anonymous responses. Pull out ideas like question, verify, consider context, understand consequences, and know when the AI might be wrong."
     },
@@ -113,7 +138,8 @@
       "type": "prompt",
       "label": "RETURN TO THE PREDICTION",
       "key": "exit",
-      "title": "🔮 So… can AI predict you?",
+      "scene": "closing",
+      "title": "So… can AI predict you?",
       "lead": "Think back to your first choice: PROVE IT or NO CHANCE. After building and breaking a recommendation system, what would you say now—and what changed your thinking?",
       "placeholder": "At the start I thought… Now I think… because…",
       "closing": "AI IS NOT MAGIC. It is data, patterns, outputs, people, and decisions.",
