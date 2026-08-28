@@ -1,0 +1,25 @@
+name: Temporary Cloudflare Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'wrangler.jsonc'
+      - 'package.json'
+      - '.github/workflows/temporary-deploy.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Deploy temporary Worker
+        run: npx wrangler@latest deploy --temporary
