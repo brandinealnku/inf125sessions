@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "inf125-live",
-  "main": "src/index-v0103.js",
+  "main": "src/index-v0104.js",
   "compatibility_date": "2026-08-27",
   "routes": [
     {
