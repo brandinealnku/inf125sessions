@@ -1,5 +1,4 @@
 (function(){
-  const root=document.documentElement;
   const style=document.createElement('style');
   style.textContent=`
     .rail>.kicker:first-child{font-size:0}.rail>.kicker:first-child:after{content:'SHOWRUNNER';font-size:11px;letter-spacing:.15em;color:var(--muted)}
@@ -45,18 +44,19 @@
   const close=drawer.querySelector('.showrunner-close');
   function open(){drawer.classList.add('open');toggle.setAttribute('aria-expanded','true');close.focus()}
   function shut(){drawer.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.focus()}
+  function ready(){return typeof session!=='undefined'&&Array.isArray(session.steps)&&session.steps.length>0}
   function render(){
-    if(!window.session||!Array.isArray(session.steps)||!session.steps.length)return;
-    const active=snapshot?.state?.step||0;
+    if(!ready())return;
+    const active=(typeof snapshot!=='undefined'&&snapshot.state)?snapshot.state.step||0:0;
     list.innerHTML=session.steps.map((s,i)=>`<button type="button" data-step="${i}" class="${i===active?'active':''}"><span class="sr-time">${elapsed(i)}–${elapsed(i)+s.minutes}</span><span><span class="sr-label">${esc(s.label)}</span><span class="sr-title">${esc(s.title)}</span></span></button>`).join('');
   }
-  toggle.addEventListener('click',open);
+  toggle.addEventListener('click',()=>{render();open()});
   close.addEventListener('click',shut);
   drawer.addEventListener('click',e=>{if(e.target===drawer)shut();const b=e.target.closest('[data-step]');if(b){go(Number(b.dataset.step));shut()}});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&drawer.classList.contains('open'))shut()});
 
   const rail=document.getElementById('rail');
   if(rail)new MutationObserver(render).observe(rail,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  const tryRender=()=>{render();if(!(window.session&&session.steps&&session.steps.length))setTimeout(tryRender,120)};
+  const tryRender=()=>{render();if(!ready())setTimeout(tryRender,120)};
   tryRender();
 })();
