@@ -15,7 +15,7 @@ export class ClassroomSession {
     const sessionState = async () => (await this.state.storage.get('state')) || {
       step: 0,
       resultsVisible: false,
-      status: 'waiting',
+      status: 'live',
       updatedAt: Date.now()
     };
 
@@ -79,7 +79,7 @@ export class ClassroomSession {
 
     if (method === 'POST' && url.pathname.endsWith('/reset')) {
       await this.state.storage.deleteAll();
-      const initial = { step: 0, resultsVisible: false, status: 'waiting', updatedAt: Date.now() };
+      const initial = { step: 0, resultsVisible: false, status: 'live', updatedAt: Date.now() };
       await this.state.storage.put('state', initial);
       return json({ ok: true, state: initial });
     }
