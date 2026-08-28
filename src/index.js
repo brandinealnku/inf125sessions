@@ -12,12 +12,16 @@ export class ClassroomSession {
       headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
     });
 
-    const sessionState = async () => (await this.state.storage.get('state')) || {
+    const initialState = () => ({
       step: 0,
       resultsVisible: false,
       status: 'live',
+      locked: false,
+      timerEndsAt: null,
+      spotlight: null,
       updatedAt: Date.now()
-    };
+    });
+    const sessionState = async () => (await this.state.storage.get('state')) || initialState();
 
     if (method === 'GET' && url.pathname.endsWith('/snapshot')) {
       const state = await sessionState();
@@ -51,11 +55,14 @@ export class ClassroomSession {
     }
 
     if (method === 'POST' && url.pathname.endsWith('/answer')) {
+      const current = await sessionState();
+      if (current.locked) return json({ error: 'Responses are locked' }, 423);
       const body = await request.json();
       const answers = (await this.state.storage.get('answers')) || {};
       const key = String(body.question || '');
       answers[key] ||= {};
       answers[key][body.device] = {
+        device: body.device,
         name: String(body.name || 'Anonymous').slice(0, 40),
         response: body.response,
         updatedAt: Date.now()
@@ -68,9 +75,33 @@ export class ClassroomSession {
       const body = await request.json();
       const current = await sessionState();
       const next = {
+        ...current,
         step: Number.isFinite(body.step) ? body.step : current.step,
         resultsVisible: typeof body.resultsVisible === 'boolean' ? body.resultsVisible : current.resultsVisible,
         status: body.status || current.status,
+        locked: typeof body.locked === 'boolean' ? body.locked : current.locked,
+        timerEndsAt: body.timerEndsAt === null || Number.isFinite(body.timerEndsAt) ? body.timerEndsAt : current.timerEndsAt,
+        spotlight: body.spotlight === null || typeof body.spotlight === 'object' ? body.spotlight : current.spotlight,
+        updatedAt: Date.now()
+      };
+      await this.state.storage.put('state', next);
+      return json(next);
+    }
+
+    if (method === 'POST' && url.pathname.endsWith('/spotlight')) {
+      const body = await request.json();
+      const answers = (await this.state.storage.get('answers')) || {};
+      const row = answers?.[String(body.question || '')]?.[String(body.device || '')];
+      if (!row) return json({ error: 'Response not found' }, 404);
+      const current = await sessionState();
+      const next = {
+        ...current,
+        spotlight: {
+          question: String(body.question || ''),
+          response: row.response,
+          name: row.name,
+          anonymous: body.anonymous !== false
+        },
         updatedAt: Date.now()
       };
       await this.state.storage.put('state', next);
@@ -79,7 +110,7 @@ export class ClassroomSession {
 
     if (method === 'POST' && url.pathname.endsWith('/reset')) {
       await this.state.storage.deleteAll();
-      const initial = { step: 0, resultsVisible: false, status: 'live', updatedAt: Date.now() };
+      const initial = initialState();
       await this.state.storage.put('state', initial);
       return json({ ok: true, state: initial });
     }
@@ -95,8 +126,12 @@ export default {
       const parts = url.pathname.split('/').filter(Boolean);
       const sessionId = parts[2] || 'session-2';
       const id = env.CLASSROOM.idFromName(sessionId);
-      const stub = env.CLASSROOM.get(id);
-      return stub.fetch(request);
+      return env.CLASSROOM.get(id).fetch(request);
+    }
+    if (url.pathname === '/instructor' || url.pathname === '/display') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/index.html';
+      return env.ASSETS.fetch(new Request(assetUrl, request));
     }
     return env.ASSETS.fetch(request);
   }
