@@ -128,11 +128,21 @@ export default {
       const id = env.CLASSROOM.idFromName(sessionId);
       return env.CLASSROOM.get(id).fetch(request);
     }
-    if (url.pathname === '/instructor' || url.pathname === '/display') {
-      const assetUrl = new URL(request.url);
-      assetUrl.pathname = '/index.html';
-      return env.ASSETS.fetch(new Request(assetUrl, request));
+
+    const normalizedPath = url.pathname.replace(/\/+$/, '') || '/';
+    if (normalizedPath === '/instructor') {
+      const target = new URL(request.url);
+      target.pathname = '/';
+      target.searchParams.set('instructor', '1');
+      return Response.redirect(target.toString(), 302);
     }
+    if (normalizedPath === '/display') {
+      const target = new URL(request.url);
+      target.pathname = '/';
+      target.searchParams.set('display', '1');
+      return Response.redirect(target.toString(), 302);
+    }
+
     return env.ASSETS.fetch(request);
   }
 };
