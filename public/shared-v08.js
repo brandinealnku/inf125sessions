@@ -1,9 +1,15 @@
 window.Classroom=(function(){
   const device=localStorage.classroomDevice||(localStorage.classroomDevice=(crypto.randomUUID?crypto.randomUUID():'dev-'+Math.random().toString(36).slice(2)));
-  let session={id:'session-2',steps:[],durationMinutes:75},snapshot={state:{step:0,locked:false,resultsVisible:false,timerEndsAt:null,spotlight:null,roomMoment:null},participantCount:0,participants:[],answers:{},sessionEdits:{}};
+  const params=new URLSearchParams(location.search),requested=params.get('session')||'session-2';
+  let session={id:requested,steps:[],durationMinutes:75},snapshot={state:{step:0,locked:false,resultsVisible:false,timerEndsAt:null,spotlight:null,roomMoment:null},participantCount:0,participants:[],answers:{},sessionEdits:{}};
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-  async function loadSession(){session=await fetch('/sessions/how-ai-works.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Session failed to load');return r.json()});return session}
-  async function api(path,options={}){const r=await fetch('/api/session/'+session.id+path,{headers:{'content-type':'application/json'},...options});if(!r.ok)throw new Error(await r.text());return r.json()}
+  async function loadSession(){
+    try{const r=await fetch('/api/builder/session/'+encodeURIComponent(requested),{cache:'no-store'});if(r.ok){session=await r.json();return session}}
+    catch(_){ }
+    if(requested!=='session-2')throw new Error('Session not found');
+    session=await fetch('/sessions/how-ai-works.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Session failed to load');return r.json()});return session;
+  }
+  async function api(path,options={}){const r=await fetch('/api/session/'+encodeURIComponent(session.id)+path,{headers:{'content-type':'application/json'},...options});if(!r.ok)throw new Error(await r.text());return r.json()}
   async function refresh(){snapshot=await api('/snapshot');return snapshot}
   function raw(i=snapshot.state.step||0){return session.steps[Math.max(0,Math.min(session.steps.length-1,i))]||{}}
   function current(){const i=Math.max(0,Math.min(session.steps.length-1,snapshot.state.step||0)),base=raw(i),edit=snapshot.sessionEdits?.[i]||{};return{...base,...edit,runbook:{...(base.runbook||{}),say:edit.say??base.runbook?.say,askNext:edit.askNext??base.runbook?.askNext,landHere:edit.landHere??base.runbook?.landHere,transition:edit.transition??base.runbook?.transition}}}
@@ -19,5 +25,7 @@ window.Classroom=(function(){
   async function answer(question,response,name){return api('/answer',{method:'POST',body:JSON.stringify({device,name,question,response})})}
   async function join(name){await api('/join',{method:'POST',body:JSON.stringify({device,name})});return refresh()}
   async function heartbeat(){try{await api('/heartbeat',{method:'POST',body:JSON.stringify({device})})}catch(_){}}
-  return{get session(){return session},get snapshot(){return snapshot},device,esc,loadSession,api,refresh,raw,current,elapsed,answers,aggregate,aggregateMeta,changedMinds,participation,timerText,state,edit,answer,join,heartbeat};
+  function sessionUrl(path){const u=new URL(path,location.origin);u.searchParams.set('session',session.id);return u.pathname+u.search}
+  document.addEventListener('click',e=>{const a=e.target.closest?.('a');if(!a)return;const u=new URL(a.href,location.origin);if(u.origin===location.origin&&['/student','/instructor','/room','/display'].includes(u.pathname)&&!u.searchParams.has('session')){u.searchParams.set('session',session.id);a.href=u.toString()}});
+  return{get session(){return session},get snapshot(){return snapshot},device,esc,loadSession,api,refresh,raw,current,elapsed,answers,aggregate,aggregateMeta,changedMinds,participation,timerText,state,edit,answer,join,heartbeat,sessionUrl};
 })();
