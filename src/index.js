@@ -35,11 +35,7 @@ export class ClassroomSession {
     if (method === 'POST' && url.pathname.endsWith('/join')) {
       const body = await request.json();
       const participants = (await this.state.storage.get('participants')) || {};
-      participants[body.device] = {
-        device: body.device,
-        name: String(body.name || 'Anonymous').slice(0, 40),
-        lastSeen: Date.now()
-      };
+      participants[body.device] = { device: body.device, name: String(body.name || 'Anonymous').slice(0, 40), lastSeen: Date.now() };
       await this.state.storage.put('participants', participants);
       return json({ ok: true, state: await sessionState() });
     }
@@ -61,12 +57,7 @@ export class ClassroomSession {
       const answers = (await this.state.storage.get('answers')) || {};
       const key = String(body.question || '');
       answers[key] ||= {};
-      answers[key][body.device] = {
-        device: body.device,
-        name: String(body.name || 'Anonymous').slice(0, 40),
-        response: body.response,
-        updatedAt: Date.now()
-      };
+      answers[key][body.device] = { device: body.device, name: String(body.name || 'Anonymous').slice(0, 40), response: body.response, updatedAt: Date.now() };
       await this.state.storage.put('answers', answers);
       return json({ ok: true });
     }
@@ -94,16 +85,7 @@ export class ClassroomSession {
       const row = answers?.[String(body.question || '')]?.[String(body.device || '')];
       if (!row) return json({ error: 'Response not found' }, 404);
       const current = await sessionState();
-      const next = {
-        ...current,
-        spotlight: {
-          question: String(body.question || ''),
-          response: row.response,
-          name: row.name,
-          anonymous: body.anonymous !== false
-        },
-        updatedAt: Date.now()
-      };
+      const next = { ...current, spotlight: { question: String(body.question || ''), response: row.response, name: row.name, anonymous: body.anonymous !== false }, updatedAt: Date.now() };
       await this.state.storage.put('state', next);
       return json(next);
     }
@@ -130,11 +112,11 @@ export default {
     }
 
     const normalizedPath = url.pathname.replace(/\/+$/, '') || '/';
-    if (normalizedPath === '/instructor') {
-      const target = new URL(request.url);
-      target.pathname = '/';
-      target.searchParams.set('instructor', '1');
-      return Response.redirect(target.toString(), 302);
+    if (normalizedPath === '/instructor' || (normalizedPath === '/' && url.searchParams.get('instructor') === '1')) {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/instructor.html';
+      assetUrl.search = '';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
     if (normalizedPath === '/display') {
       const target = new URL(request.url);
