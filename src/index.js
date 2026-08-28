@@ -28,8 +28,8 @@ export class ClassroomSession {
     }
     if (method === 'POST' && url.pathname.endsWith('/edit')) {
       const body=await request.json(), step=Math.max(0,Number(body.step)||0), all=await edits(), clean={};
-      const allowed=['label','title','lead','studentTask','roomInstruction','say','askNext','landHere','transition'];
-      for(const k of allowed) if(typeof body.fields?.[k]==='string') clean[k]=body.fields[k].slice(0,2000);
+      const allowed=['label','title','lead','studentTask','roomInstruction','say','askNext','landHere','transition','visualType','mediaUrl','mediaFit','mediaOverlay','mediaReveal'];
+      for(const k of allowed) if(typeof body.fields?.[k]==='string') clean[k]=body.fields[k].slice(0,k==='mediaUrl'?3000:2000);
       all[step]={...(all[step]||{}),...clean,updatedAt:Date.now()}; await this.state.storage.put('sessionEdits',all);
       const current=await sessionState(); await this.state.storage.put('state',{...current,updatedAt:Date.now()}); return json({ok:true,step,fields:all[step]});
     }
