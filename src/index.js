@@ -56,11 +56,11 @@ export default {
       const parts=path.split('/').filter(Boolean),sessionId=parts[2]||'session-2',id=env.CLASSROOM.idFromName(sessionId);
       return env.CLASSROOM.get(id).fetch(request);
     }
+    if(path==='/'&&url.searchParams.get('instructor')==='1') return Response.redirect(new URL('/instructor',url).toString(),302);
+    if(path==='/'&&url.searchParams.get('display')==='1') return Response.redirect(new URL('/room',url).toString(),302);
     if(path==='/'||path==='/student') return asset('/student.html',request,env);
     if(path==='/instructor') return asset('/instructor-v08.html',request,env);
     if(path==='/room'||path==='/display') return asset('/room.html',request,env);
-    if(path==='/'&&url.searchParams.get('instructor')==='1') return Response.redirect(new URL('/instructor',url).toString(),302);
-    if(path==='/'&&url.searchParams.get('display')==='1') return Response.redirect(new URL('/room',url).toString(),302);
     return env.ASSETS.fetch(request);
   }
 };
