@@ -13,12 +13,10 @@ export default {
     if (!type.includes('text/html')) return response;
 
     let html = await response.text();
-    if (!html.includes('/v0104-polish.css')) {
-      html = html.replace('</head>', '<link rel="stylesheet" href="/v0104-polish.css"></head>');
-    }
-    if (!html.includes('/week2-seeds.js')) {
-      html = html.replace('</body>', '<script src="/week2-seeds.js"></script></body>');
-    }
+    if (!html.includes('/v0104-polish.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0104-polish.css"><link rel="stylesheet" href="/v0105-editor.css"></head>');
+    else if (!html.includes('/v0105-editor.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0105-editor.css"></head>');
+    if (!html.includes('/week2-seeds.js')) html = html.replace('</body>', '<script src="/week2-seeds.js"></script></body>');
+    if (!html.includes('/v0105-editor.js')) html = html.replace('</body>', '<script src="/v0105-editor.js"></script></body>');
     const headers = new Headers(response.headers);
     headers.delete('content-length');
     headers.set('cache-control', 'no-store');
