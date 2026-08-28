@@ -1,0 +1,113 @@
+export class ClassroomSession {
+  constructor(state, env) { this.state = state; this.env = env; }
+  async fetch(request) {
+    const url = new URL(request.url), method = request.method.toUpperCase();
+    const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'content-type':'application/json; charset=utf-8','cache-control':'no-store' } });
+    const initialState = () => ({ step:0, resultsVisible:false, status:'live', locked:false, timerEndsAt:null, spotlight:null, teachingMode:'think', roomMoment:null, updatedAt:Date.now() });
+    const sessionState = async () => (await this.state.storage.get('state')) || initialState();
+    const edits = async () => (await this.state.storage.get('sessionEdits')) || {};
+
+    if (url.pathname.startsWith('/library')) {
+      const library = (await this.state.storage.get('library')) || {};
+      if (method === 'GET' && url.pathname === '/library/sessions') {
+        const sessions = Object.values(library).map(s => ({ id:s.id, title:s.title, course:s.course||'', durationMinutes:s.durationMinutes||75, updatedAt:s.updatedAt||0, stepCount:Array.isArray(s.steps)?s.steps.length:0 })).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+        return json({ sessions });
+      }
+      if (method === 'GET' && url.pathname.startsWith('/library/session/')) {
+        const id = decodeURIComponent(url.pathname.split('/').pop() || '');
+        return library[id] ? json(library[id]) : json({ error:'Session not found' },404);
+      }
+      if (method === 'POST' && url.pathname === '/library/session') {
+        const body = await request.json();
+        const clean = cleanDefinition(body);
+        if (!clean.id) return json({error:'Session id is required'},400);
+        clean.updatedAt = Date.now();
+        clean.createdAt = library[clean.id]?.createdAt || clean.createdAt || Date.now();
+        library[clean.id] = clean;
+        await this.state.storage.put('library',library);
+        return json({ok:true,session:clean});
+      }
+      if (method === 'POST' && /\/library\/session\/[^/]+\/duplicate$/.test(url.pathname)) {
+        const parts=url.pathname.split('/').filter(Boolean), sourceId=decodeURIComponent(parts[2]||''), source=library[sourceId];
+        if(!source)return json({error:'Session not found'},404);
+        const body=await request.json().catch(()=>({})), id=slug(body.id||`${sourceId}-copy-${Date.now().toString(36)}`);
+        if(!id)return json({error:'New session id is required'},400);
+        const copy=structuredClone(source); copy.id=id; copy.title=String(body.title||`${source.title} — Copy`).slice(0,160); copy.createdAt=Date.now(); copy.updatedAt=Date.now();
+        library[id]=copy; await this.state.storage.put('library',library); return json({ok:true,session:copy});
+      }
+      if (method === 'DELETE' && url.pathname.startsWith('/library/session/')) {
+        const id=decodeURIComponent(url.pathname.split('/').pop()||'');
+        if(!library[id])return json({error:'Session not found'},404);
+        delete library[id]; await this.state.storage.put('library',library); return json({ok:true});
+      }
+      return json({error:'Builder endpoint not found'},404);
+    }
+
+    if (method === 'GET' && url.pathname.endsWith('/snapshot')) {
+      const state=await sessionState(), participants=(await this.state.storage.get('participants'))||{}, answers=(await this.state.storage.get('answers'))||{}, cutoff=Date.now()-120000;
+      const active=Object.values(participants).filter(p=>p.lastSeen>=cutoff);
+      return json({state,participantCount:active.length,participants:active,answers,sessionEdits:await edits()});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/join')) {
+      const body=await request.json(),participants=(await this.state.storage.get('participants'))||{};
+      participants[body.device]={device:body.device,name:String(body.name||'Anonymous').slice(0,40),lastSeen:Date.now()};
+      await this.state.storage.put('participants',participants); return json({ok:true,state:await sessionState()});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/heartbeat')) {
+      const body=await request.json(),participants=(await this.state.storage.get('participants'))||{};
+      if(participants[body.device]){participants[body.device].lastSeen=Date.now();await this.state.storage.put('participants',participants)} return json({ok:true});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/answer')) {
+      const current=await sessionState(); if(current.locked)return json({error:'Responses are locked'},423);
+      const body=await request.json(),answers=(await this.state.storage.get('answers'))||{},key=String(body.question||''); answers[key]||={};
+      answers[key][body.device]={device:body.device,name:String(body.name||'Anonymous').slice(0,40),response:body.response,updatedAt:Date.now()};
+      await this.state.storage.put('answers',answers); return json({ok:true});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/edit')) {
+      const body=await request.json(), step=Math.max(0,Number(body.step)||0), all=await edits(), clean={};
+      const allowed=['label','title','lead','studentTask','roomInstruction','say','askNext','landHere','transition','visualType','visualScene','visualAccent','visualCaption','mediaUrl','mediaFit','mediaOverlay','mediaReveal'];
+      for(const k of allowed) if(typeof body.fields?.[k]==='string') clean[k]=body.fields[k].slice(0,k==='mediaUrl'?3000:2000);
+      all[step]={...(all[step]||{}),...clean,updatedAt:Date.now()}; await this.state.storage.put('sessionEdits',all);
+      const current=await sessionState(); await this.state.storage.put('state',{...current,updatedAt:Date.now()}); return json({ok:true,step,fields:all[step]});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/state')) {
+      const body=await request.json(),current=await sessionState(),allowedModes=['think','commit','reveal','discuss','challenge','reflect','close'];
+      const next={...current,step:Number.isFinite(body.step)?body.step:current.step,resultsVisible:typeof body.resultsVisible==='boolean'?body.resultsVisible:current.resultsVisible,status:body.status||current.status,locked:typeof body.locked==='boolean'?body.locked:current.locked,timerEndsAt:body.timerEndsAt===null||Number.isFinite(body.timerEndsAt)?body.timerEndsAt:current.timerEndsAt,spotlight:body.spotlight===null||typeof body.spotlight==='object'?body.spotlight:current.spotlight,teachingMode:allowedModes.includes(body.teachingMode)?body.teachingMode:(current.teachingMode||'think'),roomMoment:body.roomMoment===null||typeof body.roomMoment==='object'?body.roomMoment:current.roomMoment,updatedAt:Date.now()};
+      await this.state.storage.put('state',next); return json(next);
+    }
+    if (method === 'POST' && url.pathname.endsWith('/spotlight')) {
+      const body=await request.json(),answers=(await this.state.storage.get('answers'))||{},row=answers?.[String(body.question||'')]?.[String(body.device||'')]; if(!row)return json({error:'Response not found'},404);
+      const current=await sessionState(),next={...current,spotlight:{question:String(body.question||''),response:row.response,name:row.name,anonymous:body.anonymous!==false},roomMoment:{type:'contrast'},updatedAt:Date.now()};
+      await this.state.storage.put('state',next); return json(next);
+    }
+    if (method === 'POST' && url.pathname.endsWith('/reset')) { await this.state.storage.deleteAll(); const initial=initialState(); await this.state.storage.put('state',initial); return json({ok:true,state:initial}); }
+    return json({error:'Not found'},404);
+  }
+}
+
+export default {
+  async fetch(request, env) {
+    const url=new URL(request.url), path=url.pathname.replace(/\/+$/,'')||'/';
+    if(path.startsWith('/api/builder/')){const id=env.CLASSROOM.idFromName('__session_library__'),target=env.CLASSROOM.get(id),suffix=path.replace('/api/builder','/library');const u=new URL(request.url);u.pathname=suffix;return target.fetch(new Request(u.toString(),request));}
+    if(path.startsWith('/api/session/')){const parts=path.split('/').filter(Boolean),sessionId=parts[2]||'session-2',id=env.CLASSROOM.idFromName(sessionId);return env.CLASSROOM.get(id).fetch(request);}
+    if(path==='/'&&url.searchParams.get('instructor')==='1') return Response.redirect(withSession('/instructor',url),302);
+    if(path==='/'&&url.searchParams.get('display')==='1') return Response.redirect(withSession('/room',url),302);
+    if(path==='/'||path==='/student') return asset('/student.html',request,env);
+    if(path==='/instructor') return asset('/instructor-v0103.html',request,env);
+    if(path==='/room'||path==='/display') return asset('/room-v0103.html',request,env);
+    if(path==='/builder') return asset('/builder-v0103.html',request,env);
+    return env.ASSETS.fetch(request);
+  }
+};
+function asset(path,request,env){const u=new URL(request.url);u.pathname=path;return env.ASSETS.fetch(new Request(u.toString(),request));}
+function withSession(path,url){const u=new URL(path,url);const s=url.searchParams.get('session');if(s)u.searchParams.set('session',s);return u.toString()}
+function slug(v){return String(v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)}
+function text(v,n=2000){return String(v||'').slice(0,n)}
+function cleanDefinition(body){
+  const id=slug(body.id),steps=Array.isArray(body.steps)?body.steps.slice(0,80).map((s,i)=>({
+    label:text(s.label||`Moment ${i+1}`,80),title:text(s.title||'Untitled moment',200),lead:text(s.lead),minutes:Math.max(1,Math.min(60,Number(s.minutes)||5)),type:text(s.type||'prompt',40),key:text(s.key||`moment_${i+1}`,100),choices:Array.isArray(s.choices)?s.choices.map(x=>text(x,200)).slice(0,20):[],multi:!!s.multi,
+    studentTask:text(s.studentTask),roomInstruction:text(s.roomInstruction),visualType:text(s.visualType||'auto',40),visualScene:text(s.visualScene||'',40),visualAccent:text(s.visualAccent,1000),visualCaption:text(s.visualCaption,1500),mediaUrl:text(s.mediaUrl,3000),mediaFit:text(s.mediaFit||'cover',20),mediaOverlay:text(s.mediaOverlay,1000),mediaReveal:text(s.mediaReveal||'immediate',30),focalX:Math.max(0,Math.min(100,Number(s.focalX)||50)),focalY:Math.max(0,Math.min(100,Number(s.focalY)||50)),
+    runbook:{say:text(s.runbook?.say),studentDoes:text(s.runbook?.studentDoes),askNext:text(s.runbook?.askNext),landHere:text(s.runbook?.landHere),watchFor:text(s.runbook?.watchFor),ifStuck:text(s.runbook?.ifStuck),advanceWhen:text(s.runbook?.advanceWhen),transition:text(s.runbook?.transition),openWith:text(s.runbook?.openWith),whyMatters:text(s.runbook?.whyMatters),ask:text(s.runbook?.ask),pause:text(s.runbook?.pause,500),listenFor:text(s.runbook?.listenFor),ifTheySay:text(s.runbook?.ifTheySay),ifQuiet:text(s.runbook?.ifQuiet),pushFurther:text(s.runbook?.pushFurther),revealWhen:text(s.runbook?.revealWhen),sayDuringReveal:text(s.runbook?.sayDuringReveal)}
+  })):[];
+  return {id,title:text(body.title||'Untitled Session',160),course:text(body.course,120),description:text(body.description,1000),durationMinutes:Math.max(10,Math.min(300,Number(body.durationMinutes)||steps.reduce((n,s)=>n+s.minutes,0)||75)),version:'0.10.3',steps};
+}
