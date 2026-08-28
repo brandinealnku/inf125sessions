@@ -1,6 +1,6 @@
 {
   "id": "session-2",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "course": "INF 125",
   "title": "Can AI Predict You?",
   "subtitle": "A 75-minute live recommendation-algorithm experiment",
@@ -10,140 +10,200 @@
     "name": "Maya",
     "role": "First-year student",
     "avatar": "M",
-    "signals": [
-      ["MUSIC", "Sabrina Carpenter · Drake · Chappell Roan"],
-      ["WATCHES", "fashion · gaming · comedy · dorm life"],
-      ["PATTERN", "usually active after 10 PM"],
-      ["SOCIAL", "followed several new classmates this week"],
-      ["ORDERS", "pizza twice this week"],
-      ["CAMPUS", "gaming club once · lives on campus"],
-      ["CONTEXT", "8 AM class tomorrow"]
-    ]
+    "signals": [["MUSIC", "Sabrina Carpenter · Drake · Chappell Roan"], ["WATCHES", "fashion · gaming · comedy · dorm life"], ["PATTERN", "usually active after 10 PM"], ["SOCIAL", "followed several new classmates this week"], ["ORDERS", "pizza twice this week"], ["CAMPUS", "gaming club once · lives on campus"], ["CONTEXT", "8 AM class tomorrow"]]
   },
   "steps": [
     {
-      "minutes": 5,
-      "type": "vote",
-      "label": "COLD OPEN",
-      "key": "predict_me_open",
-      "scene": "prediction",
+      "minutes": 5, "type": "vote", "label": "COLD OPEN", "key": "predict_me_open", "scene": "prediction",
       "title": "I already made a prediction about you.",
       "lead": "Before you answer anything, make a call: could the apps you use every day predict you surprisingly well, or would they get the important parts of you wrong?",
       "choices": ["PROVE IT — an app could predict me pretty well", "NO CHANCE — it would get important things about me wrong"],
       "hero": "YOUR PHONE HAS BEEN COLLECTING CLUES. TODAY, YOU BECOME THE ALGORITHM.",
-      "instructorCue": "Do not explain or resolve the vote. Let students see the room split, then say: Good. Today we're going to find out who's right. Keep this question unresolved so you can return to it near the end."
+      "instructorCue": "Do not explain or resolve the vote. Let students see the room split, then say: Good. Today we're going to find out who's right.",
+      "runbook": {
+        "goal": "Create curiosity and commitment before students know the framework. The unresolved prediction becomes the narrative thread for the entire session.",
+        "say": "Before I explain anything, I want you to make a bet. Could the apps you use every day predict you surprisingly well, or would they get the important parts of you wrong?",
+        "ask": "Choose a side silently. No explaining yet: PROVE IT or NO CHANCE?",
+        "watchFor": "Do not let this become a debate yet. You want a visible split and genuine curiosity, not resolution.",
+        "advanceWhen": "Roughly 80–90% of active students have voted. Lock, reveal the split briefly, then move on while the question is still unresolved.",
+        "ifStuck": "Name familiar examples: TikTok For You, Spotify recommendations, Netflix, YouTube, Amazon. Then ask them to vote based on instinct.",
+        "transition": "Good. Keep your answer in mind. By the end of class, I’m going to ask whether you still believe it.",
+        "reminder": "Do not tell them which side you think is correct. Preserve the tension."
+      }
     },
     {
-      "minutes": 7,
-      "type": "prompt",
-      "label": "RETRIEVE + PERSONALIZE",
-      "key": "algorithm_profile",
-      "scene": "signals",
+      "minutes": 7, "type": "prompt", "label": "RETRIEVE + PERSONALIZE", "key": "algorithm_profile", "scene": "signals",
       "title": "What does your algorithm think you are?",
-      "lead": "If an app had to describe you using only the traces you leave behind, what is ONE piece of information it could use? Think: what you watch, skip, search, buy, follow, pause on, where you go, or when you are online.",
+      "lead": "If an app had to describe you using only the traces you leave behind, what is ONE piece of information it could use?",
       "placeholder": "One signal an app could use to predict me is…",
-      "instructorCue": "Give students a minute to respond. Spotlight contrasting examples. Group responses verbally into behavior, identity, social, context, and history. Ask: which signals feel harmless, and which start to feel creepy?"
+      "instructorCue": "Give students a minute to respond. Spotlight contrasting examples. Group responses verbally into behavior, identity, social, context, and history.",
+      "runbook": {
+        "goal": "Move from abstract AI to students' own digital traces and establish that predictions begin with observable signals.",
+        "say": "An app cannot read your mind. It sees traces. What is one trace you leave behind that could become a clue about you?",
+        "ask": "Which signals feel harmless? Which begin to feel personal or creepy? Why?",
+        "watchFor": "Listen for students treating inferred traits as if they were directly observed. Separate what a platform sees from what it guesses.",
+        "advanceWhen": "You have several different signal types represented and at least two contrasting examples to discuss.",
+        "ifStuck": "Prompt with: watched, skipped, searched, location, time online, purchases, follows, pauses, device type.",
+        "transition": "Those traces are the DATA. But data alone does not produce a recommendation. Something has to turn clues into a prediction.",
+        "reminder": "Spotlight responses for variety, not only the most polished answer."
+      }
     },
     {
-      "minutes": 10,
-      "type": "teach",
-      "label": "TEACH",
-      "scene": "system",
+      "minutes": 10, "type": "teach", "label": "TEACH", "scene": "system",
       "title": "AI is not magic. It is a system.",
-      "lead": "Use one five-part lens to explain how Spotify, TikTok, Netflix, shopping recommendations, campus apps, and many other AI systems work.",
+      "lead": "Use one five-part lens to explain recommendation systems and many other AI systems.",
       "flow": ["DATA\nwatched · liked · skipped · searched", "MODEL / TOOL\npatterns learned from examples", "OUTPUT\nranking · score · prediction · recommendation", "HUMAN INTERPRETATION\ntrust · ignore · question · misunderstand", "DECISION / ACTION\nclick · buy · watch · share · go"],
-      "instructorCue": "Teach one box at a time. Emphasize that pattern is not the same as understanding. Use a simple example: people who watched A + B + C often watched D. Then connect the output to a visible recommendation like 87% match or For You."
+      "instructorCue": "Teach one box at a time. Emphasize that pattern is not the same as understanding.",
+      "runbook": {
+        "goal": "Give students a reusable five-part mental model they can apply to any AI system, not just recommendation algorithms.",
+        "say": "AI feels mysterious when we look only at the output. It becomes easier to reason about when we slow it down into five parts.",
+        "ask": "At which point does an AI output actually become consequential?",
+        "watchFor": "Students may collapse MODEL and OUTPUT together. Reinforce: the model/tool processes patterns; the output is what it produces.",
+        "advanceWhen": "Students can verbally trace one familiar recommendation from data through decision/action.",
+        "ifStuck": "Use: You watched A, B, C → pattern says people like you often watch D → D appears in For You → you interpret it → you click or ignore.",
+        "transition": "Now you know the five parts. Let’s see whether you can build the system yourselves.",
+        "reminder": "Keep the mini-lesson moving. This is shared vocabulary, not a lecture on machine-learning math."
+      }
     },
     {
-      "minutes": 10,
-      "type": "build",
-      "label": "BUILD THE ALGORITHM",
-      "key": "viking_feed_model",
-      "scene": "maya",
+      "minutes": 10, "type": "build", "label": "BUILD THE ALGORITHM", "key": "viking_feed_model", "scene": "maya",
       "title": "You are now the algorithm.",
-      "lead": "Build VIKING FEED, a fictional system that recommends one thing for Maya to do tonight. Decide what evidence matters, what patterns you would use, and what the system should recommend.",
+      "lead": "Build VIKING FEED, a fictional system that recommends one thing for Maya to do tonight.",
       "fields": [["data", "DATA — Which details matter most?"], ["model", "MODEL / TOOL — What patterns should it use?"], ["output", "OUTPUT — What should it recommend?"], ["human", "HUMAN INTERPRETATION — How should Maya read it?"], ["decision", "DECISION / ACTION — What could Maya do next?"]],
-      "instructorCue": "Show Maya's profile and the four possibilities: Live Music Night, Gaming Tournament, Late-Night Pizza Social, Sunset Yoga. Students work alone first, then compare with a neighbor. Ask pairs what they disagreed about and why."
+      "instructorCue": "Show Maya's profile and the four possibilities. Students work alone first, then compare with a neighbor.",
+      "runbook": {
+        "goal": "Force students to make the hidden assumptions of a recommendation system explicit before they see the class vote.",
+        "say": "You are Viking Feed now. Maya gets one recommendation. Your job is not to guess what I want; your job is to decide what evidence matters and defend the system you build.",
+        "ask": "When you and your neighbor disagree, identify exactly where the disagreement entered the five-part system.",
+        "watchFor": "Assumptions disguised as data: gaming club once means gamer; pizza orders mean social preference; music taste predicts event choice.",
+        "advanceWhen": "Most students have saved a model and pairs have identified at least one disagreement or assumption.",
+        "ifStuck": "Ask: Which three pieces of Maya’s profile would you keep if you had to delete everything else?",
+        "transition": "You built the reasoning. Now commit to the output your system would actually produce.",
+        "reminder": "Circulate while they work. Collect two assumptions you can call back during the reveal."
+      }
     },
     {
-      "minutes": 6,
-      "type": "vote",
-      "label": "PREDICT",
-      "key": "maya_before",
-      "scene": "recommendations",
+      "minutes": 6, "type": "vote", "label": "PREDICT", "key": "maya_before", "scene": "recommendations",
       "title": "What should Viking Feed recommend?",
       "lead": "Based only on Maya’s current profile, make the recommendation. Commit before seeing what the rest of the class chose.",
       "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Not enough information"],
-      "instructorCue": "Let the room vote silently. Lock responses once most students have committed. Build suspense before revealing. Ask students to notice that they are making assumptions from incomplete data."
+      "instructorCue": "Let the room vote silently. Lock responses once most students have committed. Build suspense before revealing.",
+      "runbook": {
+        "goal": "Capture an independent baseline recommendation before discussion or new context influences the room.",
+        "say": "No discussion now. Your algorithm has to ship an output. Commit to what Viking Feed should recommend based only on what it knows right now.",
+        "ask": "Which option does your system send to Maya?",
+        "watchFor": "Participation rate. Do not reveal early; social proof would contaminate the baseline.",
+        "advanceWhen": "At least 85% of active students have responded, or the room has clearly stopped moving.",
+        "ifStuck": "Remind them that Not enough information is a legitimate system output.",
+        "transition": "Locked. Now we can inspect not just what the room chose, but what assumptions produced those choices.",
+        "reminder": "Lock before reveal. This baseline powers the changed-minds metric later."
+      }
     },
     {
-      "minutes": 7,
-      "type": "reveal",
-      "label": "REVEAL + CHALLENGE",
-      "key": "maya_before",
-      "scene": "reveal",
+      "minutes": 7, "type": "reveal", "label": "REVEAL + CHALLENGE", "key": "maya_before", "scene": "reveal",
       "title": "The class has spoken.",
       "lead": "Now inspect the recommendation system instead of arguing only about the winning answer.",
       "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Not enough information"],
-      "prompt": "What assumptions are hiding behind our recommendations? Did attending gaming club once mean Maya loves gaming? Do two pizza orders mean she wants a pizza social? Does music taste predict what event she wants tonight?",
-      "instructorCue": "Reveal the distribution. Ask someone to defend the least popular choice. Then run the assumption test: separate what the data actually says from what students inferred. Land on the phrase: DATA is not the same as MEANING."
+      "prompt": "What assumptions are hiding behind our recommendations?",
+      "instructorCue": "Reveal the distribution. Ask someone to defend the least popular choice. Run the assumption test.",
+      "runbook": {
+        "goal": "Shift attention from majority answer to reasoning quality and expose the gap between DATA and MEANING.",
+        "say": "The winning answer is less interesting than why we produced it. Let’s audit our own algorithm.",
+        "ask": "Someone defend the least popular choice. What evidence supports it? Then: what did you infer that Maya’s profile never actually said?",
+        "watchFor": "Students using correlation as certainty, single events as identity, or preferences as fixed traits.",
+        "advanceWhen": "The class can name at least three assumptions and distinguish an observed signal from an interpretation.",
+        "ifStuck": "Ask directly: Does attending gaming club once mean Maya loves gaming? Do two pizza orders mean she wants a pizza social?",
+        "transition": "If meaning depends on context, what happens when the context changes?",
+        "reminder": "Land clearly on: DATA is not the same as MEANING."
+      }
     },
     {
-      "minutes": 7,
-      "type": "vote",
-      "label": "UPDATE",
-      "key": "maya_after",
-      "scene": "update",
+      "minutes": 7, "type": "vote", "label": "UPDATE", "key": "maya_after", "scene": "update",
       "title": "New information changes everything.",
       "lead": "Three new pieces of context just arrived. Recalculate your recommendation.",
       "updates": ["Gaming club happened because Maya's roommate asked her to go.", "Maya has been looking for ways to meet people outside her residence hall.", "Maya has a major exam at 8 AM tomorrow."],
       "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Stay home", "Still not enough information"],
-      "instructorCue": "Reveal the three updates one at a time verbally, pausing after each. Ask students to vote again without discussing first. Then use the live changed-minds metric. Emphasize that the model did not suddenly become more intelligent—the information available changed."
+      "instructorCue": "Reveal the three updates one at a time verbally, pausing after each. Ask students to vote again without discussing first.",
+      "runbook": {
+        "goal": "Demonstrate how additional context changes outputs without pretending the model itself suddenly became smarter.",
+        "say": "The system just received new context. I’m going to reveal it one piece at a time. Notice when your recommendation begins to move.",
+        "ask": "Recalculate silently. What should Viking Feed recommend now?",
+        "watchFor": "Changed-minds count and students who refuse to change despite new evidence. Both are useful discussion material.",
+        "advanceWhen": "A strong majority of students who voted the first time have voted again so the before/after comparison is meaningful.",
+        "ifStuck": "Ask: Which new fact has the highest decision value? Which old signal just became less meaningful?",
+        "transition": "Now we can measure something more useful than the winning answer: how much the room moved when the evidence changed.",
+        "reminder": "Do not frame changing your mind as being wrong. Frame it as updating from better context."
+      }
     },
     {
-      "minutes": 8,
-      "type": "compare",
-      "label": "BEFORE vs AFTER",
-      "scene": "movement",
+      "minutes": 8, "type": "compare", "label": "BEFORE vs AFTER", "scene": "movement",
       "title": "The information changed. So did the decision.",
       "lead": "Compare the room’s first recommendation with the second. Watch how the room moved when context changed.",
       "compare": [{"key": "maya_before", "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Not enough information"], "label": "BEFORE NEW CONTEXT"}, {"key": "maya_after", "choices": ["Live Music Night", "Gaming Tournament", "Late-Night Pizza Social", "Sunset Yoga", "Stay home", "Still not enough information"], "label": "AFTER NEW CONTEXT"}],
       "hero": "NEW DATA → NEW OUTPUT → NEW DECISION. The model did not become more intelligent. The information available to the decision changed.",
-      "instructorCue": "Use the changed-minds number and side-by-side distributions as the visual centerpiece. Connect the shift explicitly to data quality, context, model assumptions, output, interpretation, and consequences."
+      "instructorCue": "Use the changed-minds number and side-by-side distributions as the visual centerpiece.",
+      "runbook": {
+        "goal": "Make learning visible by showing that changed information can legitimately produce changed judgment.",
+        "say": "This is the most important number on the screen: how many of us changed our recommendation after context changed.",
+        "ask": "What changed: the data, the model, the output, the human interpretation, the action, or more than one?",
+        "watchFor": "Students saying the model became smarter. Redirect toward information quality and system-level reasoning.",
+        "advanceWhen": "Students can explain the shift using the five-part framework rather than only saying we got more information.",
+        "ifStuck": "Point to one student decision path: old signal → old interpretation → new context → revised interpretation → new recommendation.",
+        "transition": "If changes can enter anywhere in the system, failures can too. Let’s stress-test it.",
+        "reminder": "Pause on the changed-minds metric. This is a signature teaching moment, not a transition screen."
+      }
     },
     {
-      "minutes": 6,
-      "type": "vote",
-      "label": "FAILURE TEST",
-      "key": "failure",
-      "scene": "challenge",
+      "minutes": 6, "type": "vote", "label": "FAILURE TEST", "key": "failure", "scene": "challenge",
       "title": "Find the failure.",
       "lead": "Viking Feed makes thousands of recommendations. Where could the greatest risk enter the system?",
       "choices": ["DATA — missing, wrong, or biased information", "MODEL / TOOL — bad patterns or wrong objective", "OUTPUT — misleading or overconfident recommendation", "HUMAN INTERPRETATION — over-trust or misunderstanding", "DECISION / ACTION — unintended consequences"],
-      "instructorCue": "Treat this like a game-show question, then reveal the distribution. Explain that there may not be one correct answer. Responsible AI is a whole-system problem, not only a model problem."
+      "instructorCue": "Treat this like a game-show question, then reveal the distribution. Explain that there may not be one correct answer.",
+      "runbook": {
+        "goal": "Expand responsible-AI thinking from model bias to whole-system risk.",
+        "say": "Now break the system. If Viking Feed causes harm, where could the failure have entered?",
+        "ask": "Pick the greatest risk, then prepare to argue why another answer could also be correct.",
+        "watchFor": "Students assuming MODEL / TOOL must be the correct answer because it sounds most technical.",
+        "advanceWhen": "The room has debated at least two different failure points and recognizes that risk can cascade across the system.",
+        "ifStuck": "Give a quick example for each layer: bad data, wrong objective, overconfident output, over-trusting human, harmful action.",
+        "transition": "If the whole system can fail, responsibility cannot disappear just because an AI produced the recommendation.",
+        "reminder": "There is intentionally no single correct answer. Reward systems thinking."
+      }
     },
     {
-      "minutes": 5,
-      "type": "prompt",
-      "label": "HUMAN RESPONSIBILITY",
-      "key": "responsibility",
-      "scene": "responsibility",
+      "minutes": 5, "type": "prompt", "label": "HUMAN RESPONSIBILITY", "key": "responsibility", "scene": "responsibility",
       "title": "AI recommends. Who is responsible?",
       "lead": "Imagine Viking Feed flashes: 97% MATCH — Go to the Pizza Social. Complete the sentence below.",
       "placeholder": "Even with AI support, a human still needs to…",
-      "instructorCue": "Spotlight two or three strong anonymous responses. Pull out ideas like question, verify, consider context, understand consequences, and know when the AI might be wrong."
+      "instructorCue": "Spotlight two or three strong anonymous responses.",
+      "runbook": {
+        "goal": "Make human judgment and responsibility explicit after students have seen how uncertain the system can be.",
+        "say": "A confident number can make an AI output feel authoritative. But 97% match does not erase human judgment.",
+        "ask": "Even with AI support, what does a human still need to do?",
+        "watchFor": "Strong verbs: question, verify, contextualize, decide, monitor, challenge, understand consequences.",
+        "advanceWhen": "You have spotlighted two or three responses that collectively cover judgment, verification, and consequences.",
+        "ifStuck": "Ask: What would you want Maya to remember before treating 97% as an instruction?",
+        "transition": "We started class with a bet about whether AI can predict you. Now you have enough evidence to revisit it.",
+        "reminder": "Keep responses anonymous when spotlighting unless a student explicitly volunteers."
+      }
     },
     {
-      "minutes": 4,
-      "type": "prompt",
-      "label": "RETURN TO THE PREDICTION",
-      "key": "exit",
-      "scene": "closing",
+      "minutes": 4, "type": "prompt", "label": "RETURN TO THE PREDICTION", "key": "exit", "scene": "closing",
       "title": "So… can AI predict you?",
       "lead": "Think back to your first choice: PROVE IT or NO CHANCE. After building and breaking a recommendation system, what would you say now—and what changed your thinking?",
       "placeholder": "At the start I thought… Now I think… because…",
       "closing": "AI IS NOT MAGIC. It is data, patterns, outputs, people, and decisions.",
-      "instructorCue": "Explicitly return to the unresolved cold open. Ask whether anyone changed sides and invite one or two explanations. Close with DATA → MODEL / TOOL → OUTPUT → HUMAN INTERPRETATION → DECISION / ACTION, then: AI can support a decision. It does not remove responsibility."
+      "instructorCue": "Explicitly return to the unresolved cold open. Ask whether anyone changed sides and invite one or two explanations.",
+      "runbook": {
+        "goal": "Close the narrative loop and have students articulate a more nuanced model of what AI prediction can and cannot mean.",
+        "say": "Seventy-five minutes ago I asked you to choose PROVE IT or NO CHANCE. I’m not looking for one correct side now. I’m looking for a better reason.",
+        "ask": "Would you choose the same side now? What changed in your reasoning?",
+        "watchFor": "Nuance: AI can predict behavioral patterns without fully understanding a person; outputs depend on data, context, and human interpretation.",
+        "advanceWhen": "Students have submitted the exit reflection and you have heard one or two examples of changed or strengthened reasoning.",
+        "ifStuck": "Use the frame: Before today I thought… Now I think… because…",
+        "transition": "Close with the five-part framework and responsibility statement.",
+        "reminder": "Final line: AI can support a decision. It does not remove responsibility."
+      }
     }
   ]
 }
