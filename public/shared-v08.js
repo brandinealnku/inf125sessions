@@ -26,5 +26,6 @@ window.Classroom=(function(){
   async function join(name){await api('/join',{method:'POST',body:JSON.stringify({device,name})});return refresh()}
   async function heartbeat(){try{await api('/heartbeat',{method:'POST',body:JSON.stringify({device})})}catch(_){}}
   function sessionUrl(path){const u=new URL(path,location.origin);u.searchParams.set('session',session.id);return u.pathname+u.search}
+  document.addEventListener('click',e=>{const a=e.target.closest?.('a');if(!a)return;const u=new URL(a.href,location.origin);if(u.origin===location.origin&&['/student','/instructor','/room','/display'].includes(u.pathname)&&!u.searchParams.has('session')){u.searchParams.set('session',session.id);a.href=u.toString()}});
   return{get session(){return session},get snapshot(){return snapshot},device,esc,loadSession,api,refresh,raw,current,elapsed,answers,aggregate,aggregateMeta,changedMinds,participation,timerText,state,edit,answer,join,heartbeat,sessionUrl};
 })();
