@@ -1,0 +1,10 @@
+V0.10.4 runtime acceptance
+
+- /builder injects /v0104-polish.css and /week2-seeds.js.
+- Seed script GETs /api/builder/sessions.
+- Missing Week 02 sessions POST through the existing V0.10.3 cleanDefinition API.
+- Existing sessions with matching IDs are never overwritten.
+- After first successful seed, Builder reloads and displays both sessions.
+- Both session minute totals equal 75.
+- Both sessions retain EDIT → REHEARSE → TEACH because the V0.10.3 Builder is unchanged beneath the bootstrap layer.
+- CTA polish is Builder-only and does not alter Student, Room, or Showrunner controls.
