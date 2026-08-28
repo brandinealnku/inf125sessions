@@ -5,10 +5,11 @@ export class ClassroomSession {
     const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'content-type':'application/json; charset=utf-8','cache-control':'no-store' } });
     const initialState = () => ({ step:0, resultsVisible:false, status:'live', locked:false, timerEndsAt:null, spotlight:null, teachingMode:'think', roomMoment:null, updatedAt:Date.now() });
     const sessionState = async () => (await this.state.storage.get('state')) || initialState();
+    const edits = async () => (await this.state.storage.get('sessionEdits')) || {};
     if (method === 'GET' && url.pathname.endsWith('/snapshot')) {
       const state=await sessionState(), participants=(await this.state.storage.get('participants'))||{}, answers=(await this.state.storage.get('answers'))||{}, cutoff=Date.now()-120000;
       const active=Object.values(participants).filter(p=>p.lastSeen>=cutoff);
-      return json({state,participantCount:active.length,participants:active,answers});
+      return json({state,participantCount:active.length,participants:active,answers,sessionEdits:await edits()});
     }
     if (method === 'POST' && url.pathname.endsWith('/join')) {
       const body=await request.json(),participants=(await this.state.storage.get('participants'))||{};
@@ -24,6 +25,13 @@ export class ClassroomSession {
       const body=await request.json(),answers=(await this.state.storage.get('answers'))||{},key=String(body.question||''); answers[key]||={};
       answers[key][body.device]={device:body.device,name:String(body.name||'Anonymous').slice(0,40),response:body.response,updatedAt:Date.now()};
       await this.state.storage.put('answers',answers); return json({ok:true});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/edit')) {
+      const body=await request.json(), step=Math.max(0,Number(body.step)||0), all=await edits(), clean={};
+      const allowed=['label','title','lead','studentTask','roomInstruction','say','askNext','landHere','transition'];
+      for(const k of allowed) if(typeof body.fields?.[k]==='string') clean[k]=body.fields[k].slice(0,2000);
+      all[step]={...(all[step]||{}),...clean,updatedAt:Date.now()}; await this.state.storage.put('sessionEdits',all);
+      const current=await sessionState(); await this.state.storage.put('state',{...current,updatedAt:Date.now()}); return json({ok:true,step,fields:all[step]});
     }
     if (method === 'POST' && url.pathname.endsWith('/state')) {
       const body=await request.json(),current=await sessionState(),allowedModes=['think','commit','reveal','discuss','challenge','reflect','close'];
