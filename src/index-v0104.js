@@ -13,15 +13,17 @@ export default {
     if (!type.includes('text/html')) return response;
 
     let html = await response.text();
-    if (!html.includes('/v0104-polish.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0104-polish.css"><link rel="stylesheet" href="/v0105-editor.css"><link rel="stylesheet" href="/v0106-guide.css"></head>');
+    if (!html.includes('/v0104-polish.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0104-polish.css"><link rel="stylesheet" href="/v0105-editor.css"><link rel="stylesheet" href="/v0106-guide.css"><link rel="stylesheet" href="/v0108-workspace.css"></head>');
     else {
       if (!html.includes('/v0105-editor.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0105-editor.css"></head>');
       if (!html.includes('/v0106-guide.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0106-guide.css"></head>');
+      if (!html.includes('/v0108-workspace.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0108-workspace.css"></head>');
     }
     if (!html.includes('/week2-seeds.js')) html = html.replace('</body>', '<script src="/week2-seeds.js"></script></body>');
     if (!html.includes('/week2-v0107.js')) html = html.replace('</body>', '<script src="/week2-v0107.js"></script></body>');
     if (!html.includes('/v0105-editor.js')) html = html.replace('</body>', '<script src="/v0105-editor.js"></script></body>');
     if (!html.includes('/v0106-guide.js')) html = html.replace('</body>', '<script src="/v0106-guide.js"></script></body>');
+    if (!html.includes('/v0108-workspace.js')) html = html.replace('</body>', '<script src="/v0108-workspace.js"></script></body>');
     const headers = new Headers(response.headers);
     headers.delete('content-length');
     headers.set('cache-control', 'no-store');
