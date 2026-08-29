@@ -37,6 +37,7 @@ export default {
       html = addBefore(html, '</body>', '<script src="/v0108-workspace.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01011-simplify.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v01012-recovery.js"></script>');
     }
 
     if (path === '/instructor') {
