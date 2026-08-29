@@ -19,6 +19,7 @@ export default {
       if (!html.includes('/v0106-guide.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0106-guide.css"></head>');
     }
     if (!html.includes('/week2-seeds.js')) html = html.replace('</body>', '<script src="/week2-seeds.js"></script></body>');
+    if (!html.includes('/week2-v0107.js')) html = html.replace('</body>', '<script src="/week2-v0107.js"></script></body>');
     if (!html.includes('/v0105-editor.js')) html = html.replace('</body>', '<script src="/v0105-editor.js"></script></body>');
     if (!html.includes('/v0106-guide.js')) html = html.replace('</body>', '<script src="/v0106-guide.js"></script></body>');
     const headers = new Headers(response.headers);
