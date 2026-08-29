@@ -2,28 +2,39 @@ import baseHandler, { ClassroomSession as BaseClassroomSession } from './index-v
 
 export class ClassroomSession extends BaseClassroomSession {}
 
+function addBefore(html, marker, value) {
+  return html.includes(value.match(/(?:href|src)=\"([^\"]+)/)?.[1] || value) ? html : html.replace(marker, value + marker);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     const response = await baseHandler.fetch(request, env);
-    if (path !== '/builder' || !response.ok) return response;
+    if (!response.ok) return response;
 
     const type = response.headers.get('content-type') || '';
     if (!type.includes('text/html')) return response;
 
+    const classroomSurface = ['/builder','/student','/instructor','/room','/display'].includes(path);
+    if (!classroomSurface) return response;
+
     let html = await response.text();
-    if (!html.includes('/v0104-polish.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0104-polish.css"><link rel="stylesheet" href="/v0105-editor.css"><link rel="stylesheet" href="/v0106-guide.css"><link rel="stylesheet" href="/v0108-workspace.css"></head>');
-    else {
-      if (!html.includes('/v0105-editor.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0105-editor.css"></head>');
-      if (!html.includes('/v0106-guide.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0106-guide.css"></head>');
-      if (!html.includes('/v0108-workspace.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/v0108-workspace.css"></head>');
+    html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0109-icons.css">');
+    html = addBefore(html, '</body>', '<script src="/v0109-icons.js"></script>');
+
+    if (path === '/builder') {
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0104-polish.css">');
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0105-editor.css">');
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0106-guide.css">');
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0108-workspace.css">');
+      html = addBefore(html, '</body>', '<script src="/week2-seeds.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/week2-v0107.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v0105-editor.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v0106-guide.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v0108-workspace.js"></script>');
     }
-    if (!html.includes('/week2-seeds.js')) html = html.replace('</body>', '<script src="/week2-seeds.js"></script></body>');
-    if (!html.includes('/week2-v0107.js')) html = html.replace('</body>', '<script src="/week2-v0107.js"></script></body>');
-    if (!html.includes('/v0105-editor.js')) html = html.replace('</body>', '<script src="/v0105-editor.js"></script></body>');
-    if (!html.includes('/v0106-guide.js')) html = html.replace('</body>', '<script src="/v0106-guide.js"></script></body>');
-    if (!html.includes('/v0108-workspace.js')) html = html.replace('</body>', '<script src="/v0108-workspace.js"></script></body>');
+
     const headers = new Headers(response.headers);
     headers.delete('content-length');
     headers.set('cache-control', 'no-store');
