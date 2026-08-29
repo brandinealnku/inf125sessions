@@ -28,11 +28,18 @@ export default {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0105-editor.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0106-guide.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0108-workspace.css">');
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
       html = addBefore(html, '</body>', '<script src="/week2-seeds.js"></script>');
       html = addBefore(html, '</body>', '<script src="/week2-v0107.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v0105-editor.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v0106-guide.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v0108-workspace.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
+    }
+
+    if (path === '/instructor') {
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
+      html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
     }
 
     const headers = new Headers(response.headers);
