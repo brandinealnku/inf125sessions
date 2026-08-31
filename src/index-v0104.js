@@ -27,6 +27,7 @@ export default {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01011-simplify.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01013-layered.css">');
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01017-share.css">');
       html = addBefore(html, '</body>', '<script src="/week2-seeds.js"></script>');
       html = addBefore(html, '</body>', '<script src="/week2-v0107.js"></script>');
       html = addBefore(html, '</body>', '<script src="/week2-v01015.js"></script>');
@@ -37,6 +38,7 @@ export default {
       html = addBefore(html, '</body>', '<script src="/v01011-simplify.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01012-recovery.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01013-layered.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v01017-share.js"></script>');
     }
     if (path === '/instructor') {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
