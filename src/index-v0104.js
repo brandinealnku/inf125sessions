@@ -42,7 +42,9 @@ export default {
     }
     if (path === '/instructor') {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01018-knowledge.css">');
       html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v01018-knowledge.js"></script>');
     }
     if (path === '/room' || path === '/display') {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01016-room.css">');
