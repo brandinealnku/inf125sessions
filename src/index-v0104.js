@@ -12,17 +12,13 @@ export default {
     const path = url.pathname.replace(/\/+$/, '') || '/';
     const response = await baseHandler.fetch(request, env);
     if (!response.ok) return response;
-
     const type = response.headers.get('content-type') || '';
     if (!type.includes('text/html')) return response;
-
     const classroomSurface = ['/builder','/student','/instructor','/room','/display'].includes(path);
     if (!classroomSurface) return response;
-
     let html = await response.text();
     html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0109-icons.css">');
     html = addBefore(html, '</body>', '<script src="/v0109-icons.js"></script>');
-
     if (path === '/builder') {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0104-polish.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0105-editor.css">');
@@ -33,6 +29,7 @@ export default {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01013-layered.css">');
       html = addBefore(html, '</body>', '<script src="/week2-seeds.js"></script>');
       html = addBefore(html, '</body>', '<script src="/week2-v0107.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/week2-v01015.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v0105-editor.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v0106-guide.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v0108-workspace.js"></script>');
@@ -41,15 +38,11 @@ export default {
       html = addBefore(html, '</body>', '<script src="/v01012-recovery.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01013-layered.js"></script>');
     }
-
     if (path === '/instructor') {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
       html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
     }
-
-    const headers = new Headers(response.headers);
-    headers.delete('content-length');
-    headers.set('cache-control', 'no-store');
-    return new Response(html, { status: response.status, headers });
+    const headers = new Headers(response.headers);headers.delete('content-length');headers.set('cache-control','no-store');
+    return new Response(html,{status:response.status,headers});
   }
 };
