@@ -30,6 +30,7 @@ export default {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0108-workspace.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01011-simplify.css">');
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01013-layered.css">');
       html = addBefore(html, '</body>', '<script src="/week2-seeds.js"></script>');
       html = addBefore(html, '</body>', '<script src="/week2-v0107.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v0105-editor.js"></script>');
@@ -38,6 +39,7 @@ export default {
       html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01011-simplify.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01012-recovery.js"></script>');
+      html = addBefore(html, '</body>', '<script src="/v01013-layered.js"></script>');
     }
 
     if (path === '/instructor') {
