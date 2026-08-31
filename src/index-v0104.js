@@ -42,6 +42,10 @@ export default {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
       html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
     }
+    if (path === '/room' || path === '/display') {
+      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01016-room.css">');
+      html = addBefore(html, '</body>', '<script src="/v01016-room.js"></script>');
+    }
     const headers = new Headers(response.headers);headers.delete('content-length');headers.set('cache-control','no-store');
     return new Response(html,{status:response.status,headers});
   }
