@@ -47,10 +47,8 @@ export default {
     }
     if (path === '/instructor') {
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01010-navigation.css">');
-      html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01018-knowledge.css">');
       html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v01019.css">');
       html = addBefore(html, '</body>', '<script src="/v01010-navigation.js"></script>');
-      html = addBefore(html, '</body>', '<script src="/v01018-knowledge.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01019-moment-guides.js"></script>');
       html = addBefore(html, '</body>', '<script src="/v01019-instructor.js"></script>');
     }
