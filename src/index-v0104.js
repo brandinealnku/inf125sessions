@@ -49,6 +49,7 @@ export default {
     if(path==='/student'){
       html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01021-research.css">');
       html=addBefore(html,'</body>','<script src="/v01021-student-research.js"></script>');
+      html=addBefore(html,'</body>','<script src="/v01022-student-a11y.js"></script>');
     }
     if (path === '/instructor') {
       html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01010-navigation.css">'); html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01019.css">');html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01021-research.css">');
