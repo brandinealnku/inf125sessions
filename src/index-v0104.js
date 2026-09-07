@@ -43,8 +43,8 @@ export default {
     let html = await response.text();
     html = addBefore(html, '</head>', '<link rel="stylesheet" href="/v0109-icons.css">'); html = addBefore(html, '</body>', '<script src="/v0109-icons.js"></script>');
     if (path === '/builder') {
-      for (const f of ['v0104-polish.css','v0105-editor.css','v0106-guide.css','v0108-workspace.css','v01010-navigation.css','v01011-simplify.css','v01013-layered.css','v01017-share.css']) html=addBefore(html,'</head>',`<link rel="stylesheet" href="/${f}">`);
-      for (const f of ['week2-seeds.js','week3-seeds.js','week3-scaffolded-seeds.js','week2-v0107.js','week2-v01015.js','week2-v01020.js','v0105-editor.js','v0106-guide.js','v0108-workspace.js','v01010-navigation.js','v01011-simplify.js','v01012-recovery.js','v01013-layered.js','v01017-share.js','v01019-builder.js']) html=addBefore(html,'</body>',`<script src="/${f}"></script>`);
+      for (const f of ['v0104-polish.css','v0105-editor.css','v0106-guide.css','v0108-workspace.css','v01010-navigation.css','v01011-simplify.css','v01013-layered.css','v01017-share.css','v01025-slide-studio.css']) html=addBefore(html,'</head>',`<link rel="stylesheet" href="/${f}">`);
+      for (const f of ['week2-seeds.js','week3-seeds.js','week3-scaffolded-seeds.js','week2-v0107.js','week2-v01015.js','week2-v01020.js','v0105-editor.js','v0106-guide.js','v0108-workspace.js','v01010-navigation.js','v01011-simplify.js','v01012-recovery.js','v01013-layered.js','v01017-share.js','v01019-builder.js','v01025-slide-studio.js']) html=addBefore(html,'</body>',`<script src="/${f}"></script>`);
     }
     if(path==='/student'){
       html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01021-research.css">');
