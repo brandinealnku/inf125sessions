@@ -55,7 +55,10 @@ export default {
       html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01010-navigation.css">'); html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01019.css">');html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01021-research.css">');
       for (const f of ['v01010-navigation.js','v01019-moment-guides.js','v01020-guides.js','v01019-instructor.js','v01021-instructor-research.js']) html=addBefore(html,'</body>',`<script src="/${f}"></script>`);
     }
-    if (path === '/room' || path === '/display') { html=addBefore(html,'</head>','<link rel="stylesheet" href="/v01016-room.css">'); html=addBefore(html,'</body>','<script src="/v01016-room.js"></script>'); }
+    if (path === '/room' || path === '/display') {
+      for (const f of ['v01016-room.css','v01024-room-media.css']) html=addBefore(html,'</head>',`<link rel="stylesheet" href="/${f}">`);
+      for (const f of ['v01016-room.js','v01016-room-media-fix.js']) html=addBefore(html,'</body>',`<script src="/${f}"></script>`);
+    }
     const headers = new Headers(response.headers); headers.delete('content-length'); headers.set('cache-control','no-store'); return new Response(html,{status:response.status,headers});
   }
 };
