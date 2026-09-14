@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INF 125 — Class Signature Wall</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f4f5f8;color:#17172f}
+header{padding:28px;background:linear-gradient(120deg,#11142e,#23284c);color:white}
+main{max-width:1100px;margin:auto;padding:20px;display:grid;grid-template-columns:340px 1fr;gap:20px}
+.card{background:white;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0001}
+canvas{touch-action:none}.sigwrap{border:1px solid #ccc;border-radius:12px;overflow:hidden}
+#sig{width:100%;height:190px;display:block}
+#wall{width:100%;height:auto;background:#fbfaf7;border-radius:12px}
+input{width:100%;padding:11px;margin:8px 0 14px;box-sizing:border-box}
+button{padding:10px 14px;border:0;border-radius:9px;font-weight:700;cursor:pointer}
+.primary{width:100%;background:#6f55f5;color:white;margin-top:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.note{font-size:12px;color:#555;background:#f3f0ff;padding:10px;border-radius:10px;margin-top:12px}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>webAI · Class Signature Wall</h1><p>INF 125 · AI Literacy · Fall 2026</p></header>
+<main>
+<section class="card">
+<h2>Leave Your Mark</h2>
+<p>Add a first name, nickname, initials, or another class-safe mark.</p>
+<label>Display name</label><input id="name" maxlength="24" placeholder="e.g., Brandi">
+<label>Draw your mark</label>
+<div class="sigwrap"><canvas id="sig"></canvas></div>
+<div class="row"><button id="clear">Clear</button></div>
+<button class="primary" id="add">Add My Mark</button>
+<div class="note">This is a commemorative class mark, not a legal signature. Please do not use the signature you use for financial or legal documents.</div>
+</section>
+<section class="card">
+<div class="row"><button id="demo">Add Demo Marks</button><button id="reset">Reset</button><button id="export">Export PNG</button></div>
+<canvas id="wall" width="1600" height="900"></canvas>
+<p><span id="count">0</span> marks on this prototype wall. Data stays in this browser.</p>
+</section>
+</main>
+<script>
+const sig=document.getElementById('sig'),s=sig.getContext('2d');
+const wall=document.getElementById('wall'),w=wall.getContext('2d');
+const key='inf125_wall_v1';let marks=JSON.parse(localStorage.getItem(key)||'[]');
+let drawing=false,ink=false;
+function sizeSig(){let r=sig.getBoundingClientRect(),d=devicePixelRatio||1;sig.width=r.width*d;sig.height=r.height*d;s.setTransform(d,0,0,d,0,0);s.lineWidth=3;s.lineCap='round';s.strokeStyle='#17172f'}
+sizeSig();addEventListener('resize',sizeSig);
+function p(e){let r=sig.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+sig.onpointerdown=e=>{drawing=true;ink=true;sig.setPointerCapture(e.pointerId);let q=p(e);s.beginPath();s.moveTo(q.x,q.y)}
+sig.onpointermove=e=>{if(!drawing)return;let q=p(e);s.lineTo(q.x,q.y);s.stroke()}
+sig.onpointerup=()=>drawing=false;sig.onpointercancel=()=>drawing=false;
+clear.onclick=()=>{s.clearRect(0,0,sig.width,sig.height);ink=false}
+const colors=['#17214c','#5e35b1','#0e7490','#c2410c','#047857','#1d4ed8','#be185d'];
+function save(){localStorage.setItem(key,JSON.stringify(marks))}
+function render(){
+w.fillStyle='#fbfaf7';w.fillRect(0,0,1600,900);
+w.textAlign='center';w.fillStyle='#15172f';w.font='700 78px Arial';w.fillText('INF 125',800,400);
+w.font='800 62px Arial';w.fillText('AI LITERACY',800,480);
+w.font='italic 34px Georgia';w.fillText('Curious People. Brighter Futures.',800,545);
+w.font='600 20px Arial';w.fillText('THE INAUGURAL CLASS · FALL 2026',800,850);
+const slots=[[90,100],[360,90],[1080,100],[1290,180],[80,360],[1180,390],[150,650],[420,680],[1040,680],[1300,620]];
+marks.forEach((m,i)=>{let im=new Image();im.onload=()=>{let [x,y]=slots[i%slots.length];let ww=260,hh=100;w.save();w.translate(x+ww/2,y+hh/2);w.rotate(((i%5)-2)*.05);w.drawImage(im,-ww/2,-hh/2,ww,hh);w.restore()};im.src=m.png});
+count.textContent=marks.length;
+}
+add.onclick=()=>{let n=name.value.trim();if(!n)return alert('Add a display name first.');if(!ink)return alert('Draw your mark first.');marks.push({name:n,png:sig.toDataURL('image/png')});save();name.value='';s.clearRect(0,0,sig.width,sig.height);ink=false;render()}
+reset.onclick=()=>{if(confirm('Reset the wall on this device?')){marks=[];save();render()}}
+export.onclick=()=>{render();setTimeout(()=>{let a=document.createElement('a');a.download='INF125_Class_Signature_Wall_Fall_2026.png';a.href=wall.toDataURL('image/png');a.click()},300)}
+demo.onclick=()=>{['Alex','Taylor','Jordan','Casey','Morgan','Riley'].forEach((n,i)=>{let c=document.createElement('canvas');c.width=500;c.height=180;let x=c.getContext('2d');x.fillStyle=colors[i%colors.length];x.font='italic 78px Georgia';x.fillText(n,30,115);marks.push({name:n,png:c.toDataURL()})});save();render()}
+render();
+</script>
+</body></html>
