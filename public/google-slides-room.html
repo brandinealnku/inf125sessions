@@ -54,10 +54,10 @@ html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family
 const C=Classroom,$=id=>document.getElementById(id);
 const DEFAULT_DECK_ID='1-g7tK_8ghPqr8zzmbBgrbb3Z-rNCTVqGQLWMIbcQ4VY';
 const SLIDES=[
-  {n:1,id:'p1'},{n:2,id:'p2'},{n:3,id:'p3'},{n:4,id:'p4'},
-  {n:5,id:'p5'},{n:6,id:'p6'},{n:7,id:'p7'},{n:8,id:'p8'},
-  {n:9,id:'p9'},{n:10,id:'p10'},{n:11,id:'p11'},{n:12,id:'p12'},
-  {n:13,id:'p13'},{n:14,id:'p14'},{n:15,id:'p15'},{n:16,id:'p16'}
+  {n:1,deck:1,id:'p1'},{n:2,deck:2,id:'p2'},{n:3,deck:4,id:'p3'},{n:4,deck:6,id:'p4'},
+  {n:5,deck:8,id:'p5'},{n:6,deck:10,id:'p6'},{n:7,deck:11,id:'p7'},{n:8,deck:12,id:'p8'},
+  {n:9,deck:13,id:'p9'},{n:10,deck:14,id:'p10'},{n:11,deck:15,id:'p11'},{n:12,deck:16,id:'p12'},
+  {n:13,deck:17,id:'p13'},{n:14,deck:18,id:'p14'},{n:15,deck:19,id:'p15'},{n:16,deck:20,id:'p16'}
 ];
 const PHASE_MAP_8=[
   {start:1,end:4},{start:5,end:6},{start:7,end:8},{start:9,end:9},
@@ -131,7 +131,7 @@ function render(){
     card.innerHTML=type==='results'?resultsHtml():interactionHtml();
     card.classList.add('on');scrim.classList.add('on');
   }
-  $('status').textContent='Phase '+(Number(C.snapshot.state.step||0)+1)+' / '+C.session.steps.length+' · Slide '+currentSlide;
+  const slide=SLIDES[Math.max(1,currentSlide)-1];$('status').textContent='Phase '+(Number(C.snapshot.state.step||0)+1)+' / '+C.session.steps.length+' · Deck slide '+(slide?.deck||'?');
 }
 function key(){
   const st=C.snapshot.state;
