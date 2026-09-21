@@ -41,7 +41,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
     <button id="fullBtn">Fullscreen</button>
   </div>
 
-  <div class="helper">Advance the Google slide visually, then click <b>Advance Class →</b> to push the next interactive moment to student phones.</div>
+  <div class="helper"><b>Advance Class →</b> moves the ShowRunner phase, student view, and Google Slides deck together. Use Slide ← / Slide → only within the current phase.</div>
 
   <div class="overlayLayer">
     <div id="scrim" class="scrim"></div>
@@ -53,7 +53,9 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
   <div id="console" class="console">
     <div class="controls">
       <button id="runBtn">Run of Show</button>
-      <button id="backBtn">← Back</button>
+      <button id="backBtn">← Phase</button>
+      <button id="prevSlideBtn">← Slide</button>
+      <button id="nextSlideBtn">Slide →</button>
       <button id="phonesBtn" class="blue">Show Interaction</button>
       <button id="commitBtn">Commit</button>
       <button id="revealBtn">Reveal Results</button>
@@ -81,25 +83,84 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 <script src="/shared-v08.js"></script>
 <script>
 const C=Classroom,$=id=>document.getElementById(id);
-const URL_KEY='showrunner-google-slides-week5-url-v1';
-let struct='',overlayMode='hidden';
+const URL_KEY='showrunner-google-slides-week5-url-v2';
+const DEFAULT_DECK_ID='1-g7tK_8ghPqr8zzmbBgrbb3Z-rNCTVqGQLWMIbcQ4VY';
+const DEFAULT_DECK_URL='https://docs.google.com/presentation/d/'+DEFAULT_DECK_ID+'/edit?usp=drivesdk';
+const SLIDES=[
+  {n:1,id:'p1',title:'AI REMIX LAB'},
+  {n:2,id:'p2',title:'COLD OPEN'},
+  {n:3,id:'p3',title:'QUICK VOTE'},
+  {n:4,id:'p4',title:'DEBRIEF'},
+  {n:5,id:'p5',title:'MINI LESSON'},
+  {n:6,id:'p6',title:'CORE MODEL'},
+  {n:7,id:'p7',title:'ONE IDEA. FOUR REMIXES'},
+  {n:8,id:'p8',title:'TRADEOFFS'},
+  {n:9,id:'p9',title:'LIVE REMIX'},
+  {n:10,id:'p10',title:'AI REMIX CHALLENGE'},
+  {n:11,id:'p11',title:'CHOOSE AN AUDIENCE'},
+  {n:12,id:'p12',title:'REMIX IN PROGRESS'},
+  {n:13,id:'p13',title:'MULTIMODAL SHOWDOWN'},
+  {n:14,id:'p14',title:'POLISHED ≠ ACCURATE'},
+  {n:15,id:'p15',title:'HUMAN JUDGMENT'},
+  {n:16,id:'p16',title:'EXIT PULSE'}
+];
+const PHASE_MAP_8=[
+  {start:1,end:4},
+  {start:5,end:6},
+  {start:7,end:8},
+  {start:9,end:9},
+  {start:10,end:11},
+  {start:12,end:12},
+  {start:13,end:15},
+  {start:16,end:16}
+];
+const PHASE_MAP_12=[
+  {start:2,end:2},
+  {start:3,end:3},
+  {start:4,end:4},
+  {start:5,end:6},
+  {start:7,end:7},
+  {start:8,end:8},
+  {start:9,end:9},
+  {start:10,end:11},
+  {start:12,end:12},
+  {start:13,end:13},
+  {start:14,end:15},
+  {start:16,end:16}
+];
+let struct='',overlayMode='hidden',deckId=DEFAULT_DECK_ID,currentSlide=1;
 
-function normalizeSlides(raw){
+function deckIdFromUrl(raw){
   let u;try{u=new URL((raw||'').trim())}catch{return''}
   if(u.protocol!=='https:'||!/^(docs|drive)\.google\.com$/i.test(u.hostname))return'';
-  if(u.hostname==='docs.google.com'&&/\/presentation\/d\/e\//.test(u.pathname)){
-    const path=u.pathname.replace(/\/(pub|embed)(\/)?$/,'/embed');
-    const out=new URL('https://docs.google.com'+path);
-    out.searchParams.set('start','false');out.searchParams.set('loop','false');out.searchParams.set('delayms','3000');out.searchParams.set('rm','minimal');
-    return out.toString();
-  }
   const m=u.pathname.match(/\/presentation\/d\/([^/]+)/);
-  return m?'https://docs.google.com/presentation/d/'+m[1]+'/embed?start=false&loop=false&delayms=3000&rm=minimal':'';
+  return m?m[1]:'';
+}
+function slideUrl(slideNumber){
+  const slide=SLIDES[Math.max(1,Math.min(16,slideNumber))-1];
+  const target='id.'+slide.id;
+  return 'https://docs.google.com/presentation/d/'+deckId+'/embed?start=false&loop=false&delayms=3000&rm=minimal&slide='+encodeURIComponent(target)+'#slide='+target;
+}
+function loadSlide(slideNumber){
+  currentSlide=Math.max(1,Math.min(16,slideNumber));
+  $('slidesFrame').src=slideUrl(currentSlide);
+}
+function phaseMap(){
+  return C.session.steps.length===12?PHASE_MAP_12:PHASE_MAP_8;
+}
+function phaseRange(step=C.snapshot.state.step||0){
+  const map=phaseMap();
+  return map[Math.max(0,Math.min(map.length-1,step))]||{start:1,end:16};
+}
+function syncSlideToPhase(step=C.snapshot.state.step||0){
+  const range=phaseRange(step);
+  loadSlide(range.start);
 }
 function loadSlides(){
-  const raw=$('slidesUrl').value.trim(),embed=normalizeSlides(raw);
-  if(!embed)return;
-  localStorage.setItem(URL_KEY,raw);$('slidesFrame').src=embed;
+  const raw=$('slidesUrl').value.trim()||DEFAULT_DECK_URL,id=deckIdFromUrl(raw)||DEFAULT_DECK_ID;
+  deckId=id;
+  localStorage.setItem(URL_KEY,raw);
+  syncSlideToPhase();
 }
 function s(){return C.current()}
 function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['select','multi-select'].includes(x.type))return'select';if(['prompt','reflection'].includes(x.type))return'prompt';return'passive'}
@@ -151,7 +212,7 @@ function render(){
   const x=s(),st=C.snapshot.state,p=C.participation(),t=runtimeType(x);
   $('momentTop').textContent=(C.snapshot.state.step+1)+' / '+C.session.steps.length+' · '+(x.label||'');
   $('momentTitle').textContent=x.title||'';
-  $('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min';
+  const range=phaseRange(st.step);$('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min · <strong>Slide '+currentSlide+'</strong> ('+range.start+'–'+range.end+')';
   $('commitBtn').textContent=st.locked?'Reopen':'Commit';
   $('commitBtn').classList.toggle('danger',st.locked);
   $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Reveal Results';
@@ -163,7 +224,7 @@ function render(){
   else if(overlayMode==='interaction')showOverlay('interaction');
 }
 async function setState(p){await C.state(p);await C.refresh();struct='';render()}
-function go(i){i=Math.max(0,Math.min(C.session.steps.length-1,i));overlayMode='hidden';showOverlay('hidden');setState({step:i,locked:false,resultsVisible:false,roomMoment:null,timerEndsAt:null})}
+async function go(i){i=Math.max(0,Math.min(C.session.steps.length-1,i));overlayMode='hidden';showOverlay('hidden');await setState({step:i,locked:false,resultsVisible:false,roomMoment:null,timerEndsAt:null});syncSlideToPhase(i);render()}
 async function toggleCommit(){await setState({locked:!C.snapshot.state.locked,roomMoment:{type:'commit'}})}
 async function toggleReveal(){
   const on=!C.snapshot.state.resultsVisible;
@@ -190,6 +251,8 @@ $('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():
 $('studentLinkTop').onclick=e=>{e.currentTarget.href=studentUrl()};
 $('runBtn').onclick=()=>$('drawer').classList.toggle('on');
 $('backBtn').onclick=()=>go(C.snapshot.state.step-1);
+$('prevSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide>r.start){loadSlide(currentSlide-1);render()}};
+$('nextSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide<r.end){loadSlide(currentSlide+1);render()}};
 $('nextBtn').onclick=()=>go(C.snapshot.state.step+1);
 $('commitBtn').onclick=toggleCommit;
 $('revealBtn').onclick=toggleReveal;
@@ -207,8 +270,8 @@ document.addEventListener('keydown',e=>{
   try{
     await C.loadSession();await C.refresh();
     $('studentLinkTop').href=studentUrl();
-    const saved=localStorage.getItem(URL_KEY);if(saved){$('slidesUrl').value=saved;loadSlides()}
-    render();struct=key();setInterval(poll,900);
+    const saved=localStorage.getItem(URL_KEY)||DEFAULT_DECK_URL;$('slidesUrl').value=saved;loadSlides();
+    syncSlideToPhase();render();struct=key();setInterval(poll,900);
   }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
 })();
 </script>
