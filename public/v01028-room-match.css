@@ -1,0 +1,141 @@
+/* ShowRunner Room Match V0.6
+   Aligns the projected room surface with the instructor and student visual system
+   while preserving distance readability and full-screen media behavior. */
+
+html,body{background:#f5f3ee!important;color:#1a2230!important}
+.room{background:#f5f3ee!important}
+.stage{
+  background:#f5f3ee!important;
+  color:#1a2230!important;
+  padding:12vh 4vw 5vh!important;
+  justify-content:center!important;
+}
+.roomChrome{
+  position:absolute;left:4vw;right:4vw;top:3vh;z-index:5;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:22px;
+  padding-bottom:14px;border-bottom:1px solid #dedbd3;
+  color:#1a2230
+}
+.roomBrand{font:900 clamp(18px,1.35vw,26px)/1.1 Inter,system-ui,sans-serif}
+.roomSub{font:600 clamp(12px,.95vw,17px)/1.3 Inter,system-ui,sans-serif;color:#6c7480;margin-top:5px}
+.roomMeta{display:flex;gap:9px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.roomPill{
+  display:inline-flex;align-items:center;gap:6px;
+  border:1px solid #dedbd3;background:#fff;border-radius:999px;
+  padding:8px 11px;font:750 clamp(11px,.85vw,15px)/1 Inter,system-ui,sans-serif;color:#596471
+}
+.roomDot{width:8px;height:8px;border-radius:50%;background:#4e9b68;display:inline-block}
+
+.content{
+  position:relative!important;z-index:2!important;
+  width:min(1480px,100%)!important;max-width:none!important;
+  background:rgba(255,255,255,.92)!important;
+  border:1px solid rgba(0,0,0,.05)!important;
+  border-radius:34px!important;
+  padding:clamp(30px,4vw,64px)!important;
+  box-shadow:0 18px 60px rgba(38,48,62,.10)!important;
+}
+.kicker{
+  color:#2457a6!important;
+  font:950 clamp(14px,1.15vw,20px)/1.15 Inter,system-ui,sans-serif!important;
+  letter-spacing:.14em!important
+}
+.headline{
+  color:#1a2230!important;
+  font:780 clamp(58px,7.3vw,124px)/.92 Inter,system-ui,sans-serif!important;
+  letter-spacing:-.055em!important;
+  margin:14px 0 18px!important
+}
+.sub{
+  color:#4f5c6d!important;
+  font:600 clamp(24px,2.25vw,39px)/1.3 Inter,system-ui,sans-serif!important
+}
+.accent{
+  color:#8c6410!important;
+  font:850 clamp(72px,11vw,180px)/.86 Inter,system-ui,sans-serif!important
+}
+.status{
+  color:#66707d!important;
+  font:750 clamp(16px,1.3vw,22px)/1.3 Inter,system-ui,sans-serif!important
+}
+
+.panel,.seq,.example,.response{
+  background:#fff!important;color:#1a2230!important;
+  border:1px solid #dedbd3!important;
+  box-shadow:0 8px 24px rgba(38,48,62,.07)!important
+}
+.panel strong,.seq,.example strong,.quote,.pct,.shift strong,.shift span{
+  font-family:Inter,system-ui,sans-serif!important
+}
+.panel strong{font-weight:800!important}
+.quote{color:#1a2230!important;font-weight:760!important}
+.quote:before{color:#2457a6!important}
+.example span,.response.empty{color:#66707d!important}
+.track{background:#e4e1da!important}
+.fill{background:#2457a6!important}
+.pct{color:#2457a6!important;font-weight:850!important}
+.shift strong{color:#2457a6!important;font-weight:850!important}
+.shift span{color:#1a2230!important;font-weight:760!important}
+
+/* Enhanced lesson-story components injected by v01016-room.js */
+.sr116-card,.sr116-node,.sr116-player,.sr116-eta,.sr116-profile,.sr116-reco,.sr116-quad>div{
+  background:#fff!important;color:#1a2230!important;border-color:#dedbd3!important;
+  box-shadow:0 8px 24px rgba(38,48,62,.06)!important
+}
+.sr116-card strong,.sr116-node strong,.sr116-player h3,.sr116-profile h3,.sr116-reco h3,.sr116-quad strong{
+  font-family:Inter,system-ui,sans-serif!important;color:#1a2230!important;font-weight:800!important
+}
+.sr116-card p,.sr116-node span,.sr116-player p,.sr116-eta span,.sr116-quad p{color:#66707d!important}
+.sr116-tag{
+  background:#dfeaff!important;border-color:#bfd2f0!important;color:#2457a6!important;
+  font-family:Inter,system-ui,sans-serif!important
+}
+.sr116-node small{color:#2457a6!important}
+.sr116-node:not(:last-child):after{color:#2457a6!important}
+.sr116-signal,.sr116-data div{
+  background:#f7f8fa!important;color:#1a2230!important;border-color:#dedbd3!important
+}
+.sr116-data small{color:#6c7480!important}
+.sr116-missing{
+  background:#fff0bf!important;border-color:#e5c768!important;color:#735311!important
+}
+.sr116-mapviz{
+  background-color:#eef2f7!important;
+  background-image:linear-gradient(32deg,transparent 45%,#d1d9e4 46%,#d1d9e4 48%,transparent 49%),linear-gradient(115deg,transparent 45%,#dce2ea 46%,#dce2ea 49%,transparent 50%)!important;
+  border-color:#ccd4df!important
+}
+.sr116-route{background:#2457a6!important;box-shadow:0 0 28px rgba(36,87,166,.25)!important}
+.sr116-pin{background:#1a2230!important}
+.sr116-pin:after{background:#f5f3ee!important}
+.sr116-eta b{color:#2457a6!important;font-family:Inter,system-ui,sans-serif!important;font-weight:850!important}
+.sr116-art{background:radial-gradient(circle at 30% 25%,#2457a6 0 8%,transparent 9%),linear-gradient(135deg,#dfeaff,#f8f8f5 55%,#d9e2ef)!important}
+.sr116-art:after{color:#2457a6!important;font-family:Inter,system-ui,sans-serif!important;font-weight:800!important}
+
+/* Full-screen imagery keeps a dark overlay for contrast, but the chrome still matches ShowRunner. */
+.mediaStage{background:#080807!important;color:#f7f3ea!important}
+.mediaStage .roomChrome{
+  color:#fff;border-bottom-color:rgba(255,255,255,.22)
+}
+.mediaStage .roomSub{color:#ded8cd}
+.mediaStage .roomPill{background:rgba(8,8,7,.68);border-color:rgba(255,255,255,.22);color:#f3eee5;backdrop-filter:blur(8px)}
+.mediaStage .content{
+  background:rgba(8,8,7,.64)!important;border-color:rgba(255,255,255,.12)!important;
+  box-shadow:none!important;backdrop-filter:blur(8px)
+}
+.mediaStage .kicker{color:#f2c75b!important}
+.mediaStage .headline,.mediaStage .quote{color:#fff!important}
+.mediaStage .sub{color:#eee7dc!important}
+.mediaStage .accent{color:#f2c75b!important}
+.mediaStage .status{color:#ddd5ca!important}
+
+/* Media-only presentation from v01024 remains edge-to-edge. */
+.sr-media-stage .roomChrome{display:none!important}
+.sr-media-stage .content,.sr-media-stage .sr-media-content{
+  background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important
+}
+
+@media(max-width:900px){
+  .roomChrome{left:3vw;right:3vw}
+  .stage{padding:15vh 3vw 4vh!important}
+  .content{border-radius:24px!important;padding:28px!important}
+}
