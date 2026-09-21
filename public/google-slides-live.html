@@ -104,7 +104,7 @@ function loadSlides(){
 function s(){return C.current()}
 function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['select','multi-select'].includes(x.type))return'select';if(['prompt','reflection'].includes(x.type))return'prompt';return'passive'}
 function responseCount(){return C.participation().count}
-function studentUrl(){return location.origin+C.sessionUrl('/student')}
+function studentUrl(){const u=new URL('/student',location.origin);u.searchParams.set('session','inf125-week05-session1-multimodal-communication');return u.toString()}
 function overlayShell(inner){return '<div class="kicker">'+C.esc(s().label||'Moment')+'</div>'+inner+'<div class="join">Students respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>'}
 function interactionHtml(){
   const x=s(),t=runtimeType(x);
@@ -187,7 +187,7 @@ async function poll(){
 
 $('loadSlides').onclick=loadSlides;
 $('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
-$('studentLinkTop').onclick=e=>{e.currentTarget.href=C.sessionUrl('/student')};
+$('studentLinkTop').onclick=e=>{e.currentTarget.href=studentUrl()};
 $('runBtn').onclick=()=>$('drawer').classList.toggle('on');
 $('backBtn').onclick=()=>go(C.snapshot.state.step-1);
 $('nextBtn').onclick=()=>go(C.snapshot.state.step+1);
@@ -206,7 +206,7 @@ document.addEventListener('keydown',e=>{
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
-    $('studentLinkTop').href=C.sessionUrl('/student');
+    $('studentLinkTop').href=studentUrl();
     const saved=localStorage.getItem(URL_KEY);if(saved){$('slidesUrl').value=saved;loadSlides()}
     render();struct=key();setInterval(poll,900);
   }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
