@@ -40,6 +40,7 @@ export default {
     if (path === '/powerpoint-live') { const u = new URL('/powerpoint-live.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/google-slides-overlay') { const u = new URL('/google-slides-overlay.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/google-slides-live') { const u = new URL('/google-slides-live.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/google-slides-room') { const u = new URL('/google-slides-room.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/week5-powerpoint-test') { const u = new URL('/week5-powerpoint-test.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/pilot-report') { const u = new URL('/pilot-report-v01021.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/instructor') { const u = new URL(request.url); u.pathname = '/instructor-v2.html'; return env.ASSETS.fetch(new Request(u, request)); }
