@@ -25,7 +25,23 @@ window.Classroom=(function(){
   async function answer(question,response,name){return api('/answer',{method:'POST',body:JSON.stringify({device,name,question,response})})}
   async function join(name){await api('/join',{method:'POST',body:JSON.stringify({device,name})});return refresh()}
   async function heartbeat(){try{await api('/heartbeat',{method:'POST',body:JSON.stringify({device})})}catch(_){}}
+  function subscribe(onState){
+    let stopped=false,ws=null,retry=null;
+    const connect=()=>{
+      if(stopped)return;
+      try{
+        const proto=location.protocol==='https:'?'wss:':'ws:';
+        const url=proto+'//'+location.host+'/api/session/'+encodeURIComponent(session.id)+'/events';
+        ws=new WebSocket(url);
+        ws.onmessage=e=>{try{const msg=JSON.parse(e.data);if(msg?.type==='state'&&msg.state){snapshot.state=msg.state;onState?.(msg.state)}}catch(_){}};
+        ws.onclose=()=>{if(!stopped)retry=setTimeout(connect,1200)};
+        ws.onerror=()=>{try{ws.close()}catch(_){}};
+      }catch(_){if(!stopped)retry=setTimeout(connect,1500)}
+    };
+    connect();
+    return()=>{stopped=true;if(retry)clearTimeout(retry);try{ws?.close()}catch(_){}};
+  }
   function sessionUrl(path){const u=new URL(path,location.origin);u.searchParams.set('session',session.id);return u.pathname+u.search}
   document.addEventListener('click',e=>{const a=e.target.closest?.('a');if(!a)return;const u=new URL(a.href,location.origin);if(u.origin===location.origin&&['/student','/instructor','/room','/display'].includes(u.pathname)&&!u.searchParams.has('session')){u.searchParams.set('session',session.id);a.href=u.toString()}});
-  return{get session(){return session},get snapshot(){return snapshot},device,esc,loadSession,api,refresh,raw,current,elapsed,answers,aggregate,aggregateMeta,changedMinds,participation,timerText,state,edit,answer,join,heartbeat,sessionUrl};
+  return{get session(){return session},get snapshot(){return snapshot},device,esc,loadSession,api,refresh,raw,current,elapsed,answers,aggregate,aggregateMeta,changedMinds,participation,timerText,state,edit,answer,join,heartbeat,subscribe,sessionUrl};
 })();
