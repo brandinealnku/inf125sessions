@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShowRunner · Week 05 Google Slides Live</title>
+<link rel="stylesheet" href="/shared-v08.css">
+<style>
+:root{--bg:#090b10;--panel:#11151d;--panel2:#1a2030;--text:#f7f3ea;--muted:#aeb5c2;--accent:#f2b84b;--blue:#4f83d6;--green:#2b7a4e;--red:#b65548;--line:rgba(255,255,255,.14)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#000;color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif;overflow:hidden}
+.app{position:fixed;inset:0;background:#000}
+#slidesFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.topbar{position:absolute;z-index:40;left:0;right:0;top:0;display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,10,14,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+.brand{font-weight:950;font-size:13px;letter-spacing:.05em}.url{width:100%;min-width:0;border:1px solid var(--line);background:#0e1118;color:#fff;border-radius:9px;padding:9px 11px;font-size:13px}
+button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;border-radius:9px;padding:9px 11px;font-weight:850;cursor:pointer;text-decoration:none;font-size:13px}
+.primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#111!important}.blue{background:#315b9e!important}.green{background:#20623d!important}.danger{background:#6d2f28!important}
+.overlayLayer{position:absolute;inset:0;z-index:20;pointer-events:none}.scrim{position:absolute;inset:0;background:rgba(2,4,7,.44);backdrop-filter:blur(2px);opacity:0;transition:.15s}.scrim.on{opacity:1}
+.card{position:absolute;left:50%;top:50%;transform:translate(-50%,-48%) scale(.985);width:min(980px,88vw);max-height:72vh;overflow:auto;background:rgba(15,18,25,.96);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:34px 38px;box-shadow:0 28px 100px rgba(0,0,0,.52);opacity:0;transition:.15s}
+.card.on{opacity:1;transform:translate(-50%,-50%) scale(1)}.kicker{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:950}.headline{font:700 clamp(36px,5vw,70px)/1.02 Georgia,serif;margin:9px 0 16px}.lead{font-size:clamp(20px,2.2vw,32px);line-height:1.28;color:#f5f1e8;margin:0}.sub{font-size:15px;color:var(--muted);line-height:1.45;margin-top:16px}.join{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:16px}.join strong{color:var(--accent)}
+.choiceGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}.choiceBox{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:rgba(255,255,255,.04);font-weight:800}
+.results{margin-top:22px;display:grid;gap:12px}.resultRow{display:grid;grid-template-columns:minmax(180px,1fr) minmax(180px,2fr) 64px;gap:12px;align-items:center}.resultLabel{font-weight:800}.track{height:16px;background:#272d38;border-radius:999px;overflow:hidden}.fill{height:100%;background:var(--accent);border-radius:999px}.pct{text-align:right;font-weight:900}
+.responses{display:grid;gap:10px;margin-top:18px}.response{padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04);font-size:18px;line-height:1.35}
+.timer{font:900 clamp(80px,13vw,180px)/.9 Arial;margin-top:18px;letter-spacing:-.06em;color:#fff}.timerSub{font-size:17px;color:var(--muted);margin-top:14px}
+.console{position:absolute;z-index:45;left:12px;right:12px;bottom:12px;background:rgba(8,10,14,.93);border:1px solid var(--line);border-radius:18px;padding:10px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;backdrop-filter:blur(15px);box-shadow:0 16px 48px rgba(0,0,0,.42)}
+.console.hidden{opacity:0;pointer-events:none}.controls{display:flex;gap:7px;flex-wrap:wrap}.moment{min-width:0}.momentTop{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:950}.momentTitle{font-size:14px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stats{font-size:11px;color:var(--muted);white-space:nowrap}.stats strong{color:#fff}
+.drawer{position:absolute;z-index:50;left:12px;bottom:84px;width:min(410px,92vw);max-height:70vh;overflow:auto;background:rgba(12,14,20,.98);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 22px 70px rgba(0,0,0,.55);display:none}.drawer.on{display:block}
+.runItem{width:100%;text-align:left;border:0;border-bottom:1px solid #232833;background:transparent;color:#bbb;padding:10px 6px}.runItem.active{color:#fff;background:rgba(242,184,75,.08)}.runItem .time{font-size:10px;color:var(--accent);display:block}.runItem .label{font-size:11px;font-weight:900;display:block}.runItem .title{font-family:Georgia,serif;font-size:14px;display:block;margin-top:2px}
+.helper{position:absolute;z-index:25;left:16px;top:62px;padding:7px 9px;border-radius:9px;background:rgba(0,0,0,.64);font-size:11px;color:#ddd}
+@media(max-width:900px){.topbar{grid-template-columns:1fr auto auto}.brand{display:none}.url{grid-column:1/-1;grid-row:2}.console{grid-template-columns:1fr}.stats{text-align:left}.choiceGrid{grid-template-columns:1fr}.resultRow{grid-template-columns:1fr}.pct{text-align:left}}
+</style>
+</head>
+<body>
+<div class="app">
+  <iframe id="slidesFrame" allowfullscreen></iframe>
+
+  <div class="topbar" id="topbar">
+    <div class="brand">SHOWRUNNER · WEEK 05</div>
+    <input id="slidesUrl" class="url" placeholder="Paste Google Slides URL">
+    <button id="loadSlides" class="primary">Load Slides</button>
+    <a id="studentLinkTop" class="btn" target="_blank">Student View</a>
+    <button id="fullBtn">Fullscreen</button>
+  </div>
+
+  <div class="helper">Use Google Slides to advance the deck. ShowRunner controls the interaction layer.</div>
+
+  <div class="overlayLayer">
+    <div id="scrim" class="scrim"></div>
+    <section id="overlayCard" class="card" aria-live="polite"></section>
+  </div>
+
+  <aside id="drawer" class="drawer"></aside>
+
+  <div id="console" class="console">
+    <div class="controls">
+      <button id="runBtn">Run of Show</button>
+      <button id="backBtn">← Back</button>
+      <button id="phonesBtn" class="blue">Show Interaction</button>
+      <button id="commitBtn">Commit</button>
+      <button id="revealBtn">Reveal Results</button>
+      <button id="timerBtn" class="green">Start Timer</button>
+      <button id="nextBtn" class="primary">Next →</button>
+      <button id="hideBtn">Hide Controls</button>
+    </div>
+    <div class="moment">
+      <div class="momentTop" id="momentTop">Loading session…</div>
+      <div class="momentTitle" id="momentTitle"></div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const p=new URLSearchParams(location.search);
+  if(!p.has('session')){
+    p.set('session','inf125-week05-session1-multimodal-communication');
+    location.replace(location.pathname+'?'+p.toString());
+  }
+})();
+</script>
+<script src="/shared-v08.js"></script>
+<script>
+const C=Classroom,$=id=>document.getElementById(id);
+const URL_KEY='showrunner-google-slides-week5-url-v1';
+let struct='',overlayMode='hidden';
+
+function normalizeSlides(raw){
+  let u;try{u=new URL((raw||'').trim())}catch{return''}
+  if(u.protocol!=='https:'||!/^(docs|drive)\.google\.com$/i.test(u.hostname))return'';
+  if(u.hostname==='docs.google.com'&&/\/presentation\/d\/e\//.test(u.pathname)){
+    const path=u.pathname.replace(/\/(pub|embed)(\/)?$/,'/embed');
+    const out=new URL('https://docs.google.com'+path);
+    out.searchParams.set('start','false');out.searchParams.set('loop','false');out.searchParams.set('delayms','3000');out.searchParams.set('rm','minimal');
+    return out.toString();
+  }
+  const m=u.pathname.match(/\/presentation\/d\/([^/]+)/);
+  return m?'https://docs.google.com/presentation/d/'+m[1]+'/embed?start=false&loop=false&delayms=3000&rm=minimal':'';
+}
+function loadSlides(){
+  const raw=$('slidesUrl').value.trim(),embed=normalizeSlides(raw);
+  if(!embed)return;
+  localStorage.setItem(URL_KEY,raw);$('slidesFrame').src=embed;
+}
+function s(){return C.current()}
+function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['select','multi-select'].includes(x.type))return'select';if(['prompt','reflection'].includes(x.type))return'prompt';return'passive'}
+function responseCount(){return C.participation().count}
+function studentUrl(){return location.origin+C.sessionUrl('/student')}
+function overlayShell(inner){return '<div class="kicker">'+C.esc(s().label||'Moment')+'</div>'+inner+'<div class="join">Students respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>'}
+function interactionHtml(){
+  const x=s(),t=runtimeType(x);
+  if(x.label==='CREATE')return timerHtml();
+  let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1><p class="lead">'+C.esc(x.studentTask||x.roomInstruction||x.lead||'')+'</p>';
+  if((t==='vote'||t==='select')&&x.choices?.length){
+    body+='<div class="choiceGrid">'+x.choices.map(c=>'<div class="choiceBox">'+C.esc(c)+'</div>').join('')+'</div>';
+  }
+  if(t==='prompt')body+='<div class="sub">Respond on your phone. Your response will stay hidden until the room is ready to discuss it.</div>';
+  if(t==='passive')body+='<div class="sub">'+C.esc(x.visualCaption||x.runbook?.landHere||'Look up and stay with the room.')+'</div>';
+  return overlayShell(body);
+}
+function resultsHtml(){
+  const x=s(),t=runtimeType(x);
+  let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1>';
+  if((t==='vote'||t==='select')&&x.choices?.length){
+    const agg=C.aggregate(x.key),meta=C.aggregateMeta(x.key),total=Math.max(1,meta.respondents);
+    body+='<div class="results">'+x.choices.map(c=>{const n=agg[c]||0,p=Math.round(n/total*100);return '<div class="resultRow"><div class="resultLabel">'+C.esc(c)+'</div><div class="track"><div class="fill" style="width:'+p+'%"></div></div><div class="pct">'+p+'% <span style="color:var(--muted);font-size:12px">('+n+')</span></div></div>'}).join('')+'</div>';
+  }else if(t==='prompt'){
+    const rows=C.answers(x.key).slice(-6).reverse();
+    body+='<div class="responses">'+(rows.length?rows.map(r=>'<div class="response">'+C.esc(r.response)+'</div>').join(''):'<div class="response">Waiting for student responses…</div>')+'</div>';
+  }else{
+    body+='<p class="lead">'+C.esc(x.runbook?.landHere||x.visualCaption||x.lead||'')+'</p>';
+  }
+  body+='<div class="sub">'+responseCount()+' response'+(responseCount()===1?'':'s')+' received.</div>';
+  return overlayShell(body);
+}
+function timerHtml(){
+  const text=C.timerText(),active=!!C.snapshot.state.timerEndsAt;
+  return '<div class="kicker">REMIX IN PROGRESS</div><h1 class="headline">Same idea. Two modalities.</h1><p class="lead">ONE AUDIENCE · SAVE AN ARTIFACT</p><div class="timer">'+(active?text:'15:00')+'</div><div class="timerSub">Midpoint: one version done. 3-minute warning: stop perfecting and revise.</div>';
+}
+function showOverlay(mode){
+  overlayMode=mode;
+  const card=$('overlayCard'),scrim=$('scrim');
+  if(mode==='hidden'){card.classList.remove('on');scrim.classList.remove('on');return}
+  card.innerHTML=mode==='results'?resultsHtml():interactionHtml();
+  card.classList.add('on');scrim.classList.add('on');
+}
+function timeline(){
+  $('drawer').innerHTML=C.session.steps.map((m,i)=>'<button class="runItem '+(i===C.snapshot.state.step?'active':'')+'" data-step="'+i+'"><span class="time">'+C.elapsed(i)+'–'+(C.elapsed(i)+(m.minutes||0))+' min</span><span class="label">'+C.esc(m.label)+'</span><span class="title">'+C.esc(m.title)+'</span></button>').join('');
+  $('drawer').querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>go(+b.dataset.step));
+}
+function render(){
+  const x=s(),st=C.snapshot.state,p=C.participation(),t=runtimeType(x);
+  $('momentTop').textContent=(C.snapshot.state.step+1)+' / '+C.session.steps.length+' · '+(x.label||'');
+  $('momentTitle').textContent=x.title||'';
+  $('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min';
+  $('commitBtn').textContent=st.locked?'Reopen':'Commit';
+  $('commitBtn').classList.toggle('danger',st.locked);
+  $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Reveal Results';
+  $('phonesBtn').textContent=overlayMode==='interaction'?'Hide Interaction':'Show Interaction';
+  $('timerBtn').style.display=x.label==='CREATE'?'inline-block':'none';
+  $('timerBtn').textContent=st.timerEndsAt?'Stop Timer':'Start 15:00';
+  timeline();
+  if(overlayMode==='results')showOverlay('results');
+  else if(overlayMode==='interaction')showOverlay('interaction');
+}
+async function setState(p){await C.state(p);await C.refresh();struct='';render()}
+function go(i){i=Math.max(0,Math.min(C.session.steps.length-1,i));overlayMode='hidden';showOverlay('hidden');setState({step:i,locked:false,resultsVisible:false,roomMoment:null,timerEndsAt:null})}
+async function toggleCommit(){await setState({locked:!C.snapshot.state.locked,roomMoment:{type:'commit'}})}
+async function toggleReveal(){
+  const on=!C.snapshot.state.resultsVisible;
+  await setState({resultsVisible:on,locked:on?true:C.snapshot.state.locked,roomMoment:{type:on?'reveal':'commit'}});
+  showOverlay(on?'results':'interaction');
+}
+async function toggleTimer(){
+  const active=C.snapshot.state.timerEndsAt;
+  await setState({timerEndsAt:active?null:(Date.now()+15*60*1000)});
+  showOverlay('interaction');
+}
+function key(){const st=C.snapshot.state;return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',responseCount(),C.snapshot.participantCount].join('|')}
+async function poll(){
+  try{
+    await C.refresh();const k=key();
+    if(k!==struct){struct=k;render()}
+    if(overlayMode==='interaction'&&s().label==='CREATE')showOverlay('interaction');
+    if(overlayMode==='results')showOverlay('results');
+  }catch(_){}
+}
+
+$('loadSlides').onclick=loadSlides;
+$('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
+$('studentLinkTop').onclick=e=>{e.currentTarget.href=C.sessionUrl('/student')};
+$('runBtn').onclick=()=>$('drawer').classList.toggle('on');
+$('backBtn').onclick=()=>go(C.snapshot.state.step-1);
+$('nextBtn').onclick=()=>go(C.snapshot.state.step+1);
+$('commitBtn').onclick=toggleCommit;
+$('revealBtn').onclick=toggleReveal;
+$('phonesBtn').onclick=()=>showOverlay(overlayMode==='interaction'?'hidden':'interaction');
+$('timerBtn').onclick=toggleTimer;
+$('hideBtn').onclick=()=>{$('console').classList.add('hidden');$('topbar').style.display='none'};
+document.addEventListener('keydown',e=>{
+  if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
+  if(e.key.toLowerCase()==='h'){const hidden=$('console').classList.toggle('hidden');$('topbar').style.display=hidden?'none':'grid'}
+  if(e.key.toLowerCase()==='r')showOverlay(overlayMode==='hidden'?'interaction':'hidden');
+  if(e.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
+});
+
+(async()=>{
+  try{
+    await C.loadSession();await C.refresh();
+    $('studentLinkTop').href=C.sessionUrl('/student');
+    const saved=localStorage.getItem(URL_KEY);if(saved){$('slidesUrl').value=saved;loadSlides()}
+    render();struct=key();setInterval(poll,900);
+  }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
+})();
+</script>
+</body>
+</html>
