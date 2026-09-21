@@ -81,7 +81,7 @@ button{touch-action:manipulation}
 <script>
 const C=Classroom;
 const app=document.getElementById('app');
-let studentName=localStorage.classroomName||'',lastKey='',selected=[];
+let studentName=localStorage.classroomName||'',lastKey='',lastStep=-1,lastUpdatedAt=0,selected=[];
 
 function task(s,f=''){return s.studentTask||f||s.lead||''}
 function elapsedPct(){const total=Math.max(1,C.session.durationMinutes||75),elapsed=C.elapsed(C.snapshot.state.step||0);return Math.max(0,Math.min(100,Math.round(elapsed/total*100)))}
@@ -113,7 +113,7 @@ async function doJoin(){
   const i=document.getElementById('nameInput');studentName=i.value.trim();
   if(!studentName)return err('Enter a name or nickname.');
   localStorage.classroomName=studentName;
-  await C.join(studentName);render(true);setInterval(C.heartbeat,30000);setInterval(poll,1000);
+  await C.join(studentName);render(true);startLiveSync();
 }
 function answered(s){return s.key&&!!localStorage.getItem('answer:'+C.session.id+':'+s.key)}
 function look(s){
@@ -168,17 +168,26 @@ function runtimeType(s){
   return'passive';
 }
 function render(force=false){
-  const s=C.current(),k=[C.snapshot.state.step,C.snapshot.state.locked,answered(s),C.snapshot.state.updatedAt].join('|');
+  const step=Number(C.snapshot.state.step||0),updatedAt=Number(C.snapshot.state.updatedAt||0),s=C.current();
+  if(step!==lastStep||updatedAt!==lastUpdatedAt){force=true;lastStep=step;lastUpdatedAt=updatedAt;lastKey='';selected=[];}
+  const k=[step,C.snapshot.state.locked,answered(s),updatedAt].join('|');
   if(!force&&k===lastKey)return;lastKey=k;
   if(answered(s))return look(s);
   const t=runtimeType(s);
   if(t==='vote')vote(s);else if(t==='select')select(s);else if(t==='prompt')promptView(s);else passive(s);
 }
-async function poll(){try{await C.refresh();render()}catch(_){}}
+async function poll(force=false){try{await C.refresh();render(force)}catch(_){}}
+function startLiveSync(){
+  setInterval(C.heartbeat,30000);
+  setInterval(()=>poll(false),700);
+  window.addEventListener('focus',()=>poll(true));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll(true)});
+  window.addEventListener('pageshow',()=>poll(true));
+}
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
-    if(studentName){await C.join(studentName);render(true);setInterval(C.heartbeat,30000);setInterval(poll,1000)}
+    if(studentName){await C.join(studentName);render(true);startLiveSync()}
     else joinView();
   }catch(e){app.innerHTML='<p class="error">This class could not load.</p>'}
 })();
