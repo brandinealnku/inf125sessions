@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INF 125 Week 05 · PowerPoint Room Prototype</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#050505;color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+#stage{position:fixed;inset:0;display:grid;place-items:center;background:#050505}
+#slide{width:100vw;height:100vh;object-fit:contain;display:block}
+#overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:5vw;background:rgba(5,5,5,.48);backdrop-filter:blur(2px)}
+#overlay.on{display:flex}
+.card{max-width:1000px;width:min(86vw,1000px);background:rgba(16,18,24,.93);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:38px 44px;box-shadow:0 28px 90px rgba(0,0,0,.55)}
+.card .kicker{font-size:16px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#f0b63f;margin-bottom:14px}
+.card h1{font:700 clamp(38px,6vw,78px)/1.02 Georgia,serif;margin:0 0 22px}
+.card p{font-size:clamp(22px,3vw,38px);line-height:1.2;white-space:pre-line;margin:0;color:#f6f2e9}
+#controls{position:absolute;left:18px;right:18px;bottom:16px;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}
+button{border:1px solid rgba(255,255,255,.25);background:#151515;color:#fff;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}
+button.primary{background:#f0b63f;color:#111;border-color:#f0b63f}
+#status{margin-left:auto;font-size:13px;color:#ddd}
+#hint{position:absolute;right:18px;top:14px;font-size:12px;color:#ccc;background:rgba(0,0,0,.58);padding:8px 10px;border-radius:10px}
+.hidden{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="slide" alt="PowerPoint slide">
+  <div id="overlay">
+    <div class="card">
+      <div class="kicker" id="kicker"></div>
+      <h1 id="otitle"></h1>
+      <p id="obody"></p>
+    </div>
+  </div>
+  <div id="hint">←/→ slides · R reveal · F fullscreen · H controls</div>
+  <div id="controls">
+    <button id="prev">← Prev</button>
+    <button id="next" class="primary">Next →</button>
+    <button id="reveal">Reveal / Hide (R)</button>
+    <button id="full">Fullscreen (F)</button>
+    <button id="hide">Hide Controls (H)</button>
+    <span id="status"></span>
+  </div>
+</div>
+<script>
+const slides=[
+  "/week5-powerpoint-assets/slide-01.webp",
+  "/week5-powerpoint-assets/slide-02.webp"
+];
+const overlays={
+  1:{title:"AI REMIX LAB",body:"Same idea. Different reality."},
+  2:{title:"COLD OPEN",body:"Which format gets your attention?\nWhich one would actually make you act?"}
+};
+let i=0;
+const slide=document.getElementById("slide");
+const overlay=document.getElementById("overlay");
+const status=document.getElementById("status");
+function render(){
+  slide.src=slides[i];
+  status.textContent="Prototype slide "+(i+1)+" / "+slides.length;
+  overlay.classList.remove("on");
+  const o=overlays[i+1];
+  if(o){
+    document.getElementById("kicker").textContent=o.title;
+    document.getElementById("otitle").textContent=o.title;
+    document.getElementById("obody").textContent=o.body;
+  }
+}
+function next(){if(i<slides.length-1){i++;render()}}
+function prev(){if(i>0){i--;render()}}
+function reveal(){if(overlays[i+1])overlay.classList.toggle("on")}
+function full(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+document.getElementById("next").onclick=next;
+document.getElementById("prev").onclick=prev;
+document.getElementById("reveal").onclick=reveal;
+document.getElementById("full").onclick=full;
+document.getElementById("hide").onclick=()=>document.getElementById("controls").classList.add("hidden");
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();next()}
+  if(e.key==="ArrowLeft"){e.preventDefault();prev()}
+  if(e.key.toLowerCase()==="r")reveal();
+  if(e.key.toLowerCase()==="f")full();
+  if(e.key.toLowerCase()==="h")document.getElementById("controls").classList.toggle("hidden");
+});
+render();
+</script>
+</body>
+</html>
