@@ -24,7 +24,22 @@ button,a{font:inherit}
 .brand{font-size:18px;font-weight:900}
 .meta{display:flex;gap:14px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap;justify-content:flex-end}
 .dot{width:8px;height:8px;border-radius:50%;background:#4e9b68;display:inline-block;margin-right:5px}
-.stage{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;margin-top:22px}
+.stage{display:grid;grid-template-columns:250px minmax(0,1fr) 300px;gap:22px;margin-top:22px;align-items:start}
+.momentRail{position:sticky;top:18px;display:grid;gap:10px;align-content:start}
+.momentRailHeader{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;padding:0 2px 4px}
+.momentRailTitle{font-size:15px;font-weight:900}
+.momentRailCount{font-size:11px;color:var(--muted)}
+.momentList{display:grid;gap:8px;max-height:calc(100vh - 190px);overflow-y:auto;padding:1px 3px 8px 1px;scrollbar-width:thin;scrollbar-color:#c9c4b9 transparent}
+.momentBtn{display:grid;grid-template-columns:36px 1fr;gap:9px;width:100%;text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.74);color:var(--ink);border-radius:14px;padding:10px;cursor:pointer;box-shadow:0 3px 10px rgba(38,48,62,.04)}
+.momentBtn:hover{border-color:#b8c5d9;background:#fff}
+.momentBtn.active{background:var(--blue);border-color:#a9c4f3;box-shadow:0 0 0 2px rgba(36,87,166,.08)}
+.momentBtn.done{opacity:.55}
+.momentBtn.done:hover{opacity:.82}
+.momentNum{width:30px;height:30px;border-radius:9px;background:#eef0f3;color:#596575;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+.momentBtn.active .momentNum{background:#2457a6;color:#fff}
+.momentLabel{font-size:9px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:var(--blueInk);margin-bottom:2px}
+.momentTitle{font-size:12px;line-height:1.22;font-weight:800}
+.momentMeta{font-size:10px;color:var(--muted);margin-top:4px}
 .main{display:grid;gap:14px;min-width:0}
 .band{border-radius:20px;padding:22px 24px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.04)}
 .label{font-size:11px;font-weight:950;letter-spacing:.14em;text-transform:uppercase}
@@ -61,7 +76,8 @@ button,a{font:inherit}
 .btn:disabled{opacity:.34;cursor:not-allowed}
 .hidden{display:none!important}
 #error{color:#9f3f35;margin-top:12px}
-@media(max-width:900px){.stage{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.sideCard.more{grid-column:1/-1}}
+@media(max-width:1100px){.stage{grid-template-columns:220px minmax(0,1fr)}.side{grid-column:1/-1;grid-template-columns:1fr 1fr 1fr}.momentList{max-height:calc(100vh - 190px)}}
+@media(max-width:900px){.stage{grid-template-columns:1fr}.momentRail{position:relative;top:auto}.momentList{display:flex;max-height:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity}.momentBtn{min-width:210px;max-width:235px;scroll-snap-align:start}.side{grid-column:auto;grid-template-columns:1fr 1fr}.sideCard.more{grid-column:1/-1}}
 @media(max-width:640px){
   .shell{padding:14px 14px 150px}.header{align-items:flex-start}.meta{justify-content:flex-start}
   .band{padding:18px}.side{grid-template-columns:1fr}
@@ -75,7 +91,7 @@ button,a{font:inherit}
   <header class="header">
     <div>
       <div class="brand" id="brand">Loading…</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:3px">ShowRunner · Live Cue View</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">ShowRunner · Live Cue View · V0.6</div>
     </div>
     <div class="meta">
       <span><span class="dot"></span>Live</span>
@@ -85,6 +101,17 @@ button,a{font:inherit}
   </header>
 
   <div class="stage">
+    <aside class="momentRail" aria-label="Session moments">
+      <div class="momentRailHeader">
+        <div>
+          <div class="label">RUN OF SHOW</div>
+          <div class="momentRailTitle">Moments</div>
+        </div>
+        <div class="momentRailCount" id="momentRailCount">1/1</div>
+      </div>
+      <div class="momentList" id="momentList"></div>
+    </aside>
+
     <section class="main">
       <section class="band now">
         <div class="label" id="label">NOW</div>
@@ -161,6 +188,23 @@ function step(){return C.current()}
 function rb(){return step().runbook||{}}
 function safe(v,f='—'){return String(v||'').trim()||f}
 function nextMoment(){return C.session.steps[C.snapshot.state.step+1]||null}
+function renderMomentRail(){
+  const current=C.snapshot.state.step;
+  E('momentRailCount').textContent=(current+1)+'/'+C.session.steps.length;
+  E('momentList').innerHTML=C.session.steps.map((m,i)=>{
+    const start=C.elapsed(i),end=start+Number(m.minutes||0);
+    const cls=i===current?'active':i<current?'done':'';
+    return '<button class="momentBtn '+cls+'" data-index="'+i+'" onclick="jumpToMoment('+i+')">'+
+      '<span class="momentNum">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<span><span class="momentLabel">'+C.esc(m.label||'Moment')+'</span>'+
+      '<span class="momentTitle">'+C.esc(m.title||'Untitled moment')+'</span>'+
+      '<span class="momentMeta">'+start+'–'+end+' min</span></span></button>';
+  }).join('');
+  requestAnimationFrame(()=>{
+    const active=document.querySelector('.momentBtn.active');
+    if(active)active.scrollIntoView({block:'nearest',inline:'nearest'});
+  });
+}
 function needsReveal(x){
   return ['vote','choice','select','multi-select','prompt','reflection'].includes(x.type)
     || !!x.teachReveal
@@ -181,6 +225,7 @@ function render(){
   E('responses').textContent=p.count;
   E('participation').textContent=p.percent+'%';
   E('step').textContent=(state.step+1)+'/'+C.session.steps.length;
+  renderMomentRail();
   E('cue').textContent=cueText();
   E('watchFor').textContent=safe(r.watchFor,'Notice what students are doing, saying, or hesitating on.');
   E('advanceWhen').textContent=safe(r.advanceWhen,'Advance when the room has given you enough evidence to move on.');
@@ -208,6 +253,10 @@ async function setState(patch){
 }
 function go(delta){
   const next=Math.max(0,Math.min(C.session.steps.length-1,C.snapshot.state.step+delta));
+  return jumpToMoment(next);
+}
+function jumpToMoment(index){
+  const next=Math.max(0,Math.min(C.session.steps.length-1,Number(index)||0));
   return setState({step:next,locked:false,resultsVisible:false,roomMoment:null});
 }
 E('backBtn').onclick=()=>go(-1);
