@@ -9,7 +9,7 @@ window.Classroom=(function(){
     if(requested!=='session-2')throw new Error('Session not found');
     session=await fetch('/sessions/how-ai-works.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Session failed to load');return r.json()});return session;
   }
-  async function api(path,options={}){const r=await fetch('/api/session/'+encodeURIComponent(session.id)+path,{headers:{'content-type':'application/json'},...options});if(!r.ok)throw new Error(await r.text());return r.json()}
+  async function api(path,options={}){const method=(options.method||'GET').toUpperCase(),u=new URL('/api/session/'+encodeURIComponent(session.id)+path,location.origin);if(method==='GET')u.searchParams.set('_ts',Date.now());const r=await fetch(u.toString(),{cache:'no-store',headers:{'content-type':'application/json','cache-control':'no-cache','pragma':'no-cache'},...options});if(!r.ok)throw new Error(await r.text());return r.json()}
   async function refresh(){snapshot=await api('/snapshot');return snapshot}
   function raw(i=snapshot.state.step||0){return session.steps[Math.max(0,Math.min(session.steps.length-1,i))]||{}}
   function current(){const i=Math.max(0,Math.min(session.steps.length-1,snapshot.state.step||0)),base=raw(i),edit=snapshot.sessionEdits?.[i]||{};return{...base,...edit,runbook:{...(base.runbook||{}),say:edit.say??base.runbook?.say,askNext:edit.askNext??base.runbook?.askNext,landHere:edit.landHere??base.runbook?.landHere,transition:edit.transition??base.runbook?.transition}}}
