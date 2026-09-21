@@ -1,7 +1,7 @@
 (()=>{
-const VERSION='0.10.6';
+const VERSION='0.10.7';
 const SESSION_PATH='/sessions/week5-multimodal.json';
-const MARKER='showrunner-week5-seeded-v0106';
+const MARKER='showrunner-week5-seeded-v0107';
 async function seed(){
   try{
     if(sessionStorage.getItem(MARKER)==='1')return;
