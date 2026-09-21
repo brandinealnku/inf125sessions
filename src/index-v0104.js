@@ -37,6 +37,7 @@ export default {
     const url = new URL(request.url); const path = url.pathname.replace(/\/+$/, '') || '/';
     if (path === '/rehearsal') { const u = new URL('/rehearsal-v01019.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/pilot-report') { const u = new URL('/pilot-report-v01021.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/instructor') { const u = new URL(request.url); u.pathname = '/instructor-v2.html'; return env.ASSETS.fetch(new Request(u, request)); }
     const response = await baseHandler.fetch(request, env); if (!response.ok) return response;
     const type = response.headers.get('content-type') || ''; if (!type.includes('text/html')) return response;
     const classroomSurface = ['/builder','/student','/instructor','/room','/display'].includes(path); if (!classroomSurface) return response;
