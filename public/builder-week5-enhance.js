@@ -90,6 +90,12 @@ function mappingHTML(range){
 function paint(){
   const c=context();if(!c)return;
   const editor=document.getElementById('momentEditor');
+  const teach=document.getElementById('openInstructor');
+  if(teach)teach.href='/google-slides-live?session='+encodeURIComponent(c.sessionId);
+  if(editor){
+    const roomLink=editor.querySelector('.editorTop a.btn');
+    if(roomLink)roomLink.href='/google-slides-room?session='+encodeURIComponent(c.sessionId);
+  }
   if(editor&&c.range){
     const key=c.sessionId+':'+c.index+':'+c.range.start+'-'+c.range.end;
     let box=editor.querySelector('.w5-slide-context');
