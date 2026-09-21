@@ -10,7 +10,7 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#000;color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif;overflow:hidden}
 .app{position:fixed;inset:0;background:#000}
 #slidesFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
-.topbar{position:absolute;z-index:40;left:0;right:0;top:0;display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,10,14,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+.topbar{position:absolute;z-index:40;left:0;right:0;top:0;display:grid;grid-template-columns:auto 1fr auto auto auto auto;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,10,14,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
 .brand{font-weight:950;font-size:13px;letter-spacing:.05em}.url{width:100%;min-width:0;border:1px solid var(--line);background:#0e1118;color:#fff;border-radius:9px;padding:9px 11px;font-size:13px}
 button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;border-radius:9px;padding:9px 11px;font-weight:850;cursor:pointer;text-decoration:none;font-size:13px}
 .primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#111!important}.blue{background:#315b9e!important}.green{background:#20623d!important}.danger{background:#6d2f28!important}
@@ -37,11 +37,12 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
     <div class="brand">SHOWRUNNER · WEEK 05</div>
     <input id="slidesUrl" class="url" placeholder="Paste Google Slides URL">
     <button id="loadSlides" class="primary">Load Slides</button>
+    <a id="roomLinkTop" class="btn" target="_blank">Projection</a>
     <a id="studentLinkTop" class="btn" target="_blank">Student View</a>
     <button id="fullBtn">Fullscreen</button>
   </div>
 
-  <div class="helper"><b>Advance Class →</b> moves the ShowRunner phase, student view, and Google Slides deck together. Use Slide ← / Slide → only within the current phase.</div>
+  <div class="helper"><b>Projection is a separate clean screen.</b> Advance Class → moves the phase, student view, and projection slide together.</div>
 
   <div class="overlayLayer">
     <div id="scrim" class="scrim"></div>
@@ -56,9 +57,9 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
       <button id="backBtn">← Phase</button>
       <button id="prevSlideBtn">← Slide</button>
       <button id="nextSlideBtn">Slide →</button>
-      <button id="phonesBtn" class="blue">Show Interaction</button>
-      <button id="commitBtn">Commit</button>
-      <button id="revealBtn">Reveal Results</button>
+      <button id="phonesBtn" class="blue">Ask Students</button>
+      <button id="commitBtn">Close Responses</button>
+      <button id="revealBtn">Show Results</button>
       <button id="timerBtn" class="green">Start Timer</button>
       <button id="nextBtn" class="primary">Advance Class →</button>
       <button id="hideBtn">Hide Controls</button>
@@ -156,16 +157,19 @@ function syncSlideToPhase(step=C.snapshot.state.step||0){
   const range=phaseRange(step);
   loadSlide(range.start);
 }
-function loadSlides(){
+async function loadSlides(){
   const raw=$('slidesUrl').value.trim()||DEFAULT_DECK_URL,id=deckIdFromUrl(raw)||DEFAULT_DECK_ID;
   deckId=id;
   localStorage.setItem(URL_KEY,raw);
   syncSlideToPhase();
+  if(C.session?.id) await setState({roomMoment:roomMoment('hidden')});
 }
 function s(){return C.current()}
 function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['select','multi-select'].includes(x.type))return'select';if(['prompt','reflection'].includes(x.type))return'prompt';return'passive'}
 function responseCount(){return C.participation().count}
 function studentUrl(){const u=new URL('/student',location.origin);u.searchParams.set('session','inf125-week05-session1-multimodal-communication');return u.toString()}
+function roomUrl(){const u=new URL('/google-slides-room',location.origin);u.searchParams.set('session','inf125-week05-session1-multimodal-communication');return u.toString()}
+function roomMoment(type='hidden',slideNumber=currentSlide){return {type,slideNumber,deckId}}
 function overlayShell(inner){return '<div class="kicker">'+C.esc(s().label||'Moment')+'</div>'+inner+'<div class="join">Students respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>'}
 function interactionHtml(){
   const x=s(),t=runtimeType(x);
@@ -213,10 +217,14 @@ function render(){
   $('momentTop').textContent=(C.snapshot.state.step+1)+' / '+C.session.steps.length+' · '+(x.label||'');
   $('momentTitle').textContent=x.title||'';
   const range=phaseRange(st.step);$('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min · <strong>Slide '+currentSlide+'</strong> ('+range.start+'–'+range.end+')';$('prevSlideBtn').disabled=currentSlide<=range.start;$('nextSlideBtn').disabled=currentSlide>=range.end;
-  $('commitBtn').textContent=st.locked?'Reopen':'Commit';
+  const interactive=['vote','select','prompt'].includes(t);
+  $('commitBtn').textContent=st.locked?'Reopen Responses':'Close Responses';
   $('commitBtn').classList.toggle('danger',st.locked);
-  $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Reveal Results';
-  $('phonesBtn').textContent=overlayMode==='interaction'?'Hide Interaction':'Show Interaction';
+  $('commitBtn').style.display=interactive?'inline-block':'none';
+  $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Show Results';
+  $('revealBtn').style.display=interactive?'inline-block':'none';
+  $('phonesBtn').textContent=(st.roomMoment?.type==='interaction')?'Hide Prompt':'Ask Students';
+  $('phonesBtn').style.display=(interactive||x.label==='CREATE')?'inline-block':'none';
   $('timerBtn').style.display=x.label==='CREATE'?'inline-block':'none';
   $('timerBtn').textContent=st.timerEndsAt?'Stop Timer':'Start 15:00';
   timeline();
@@ -224,23 +232,48 @@ function render(){
   else if(overlayMode==='interaction')showOverlay('interaction');
 }
 async function setState(p){await C.state(p);await C.refresh();struct='';render()}
-async function go(i){i=Math.max(0,Math.min(C.session.steps.length-1,i));overlayMode='hidden';showOverlay('hidden');await setState({step:i,locked:false,resultsVisible:false,roomMoment:null,timerEndsAt:null});syncSlideToPhase(i);render()}
-async function toggleCommit(){await setState({locked:!C.snapshot.state.locked,roomMoment:{type:'commit'}})}
+async function go(i){
+  i=Math.max(0,Math.min(C.session.steps.length-1,i));
+  overlayMode='hidden';showOverlay('hidden');
+  const range=(C.session.steps.length===12?PHASE_MAP_12:PHASE_MAP_8)[i]||{start:1,end:16};
+  currentSlide=range.start;
+  await setState({step:i,locked:false,resultsVisible:false,roomMoment:roomMoment('hidden',currentSlide),timerEndsAt:null});
+  loadSlide(currentSlide);render();
+}
+async function setSlide(n){
+  currentSlide=Math.max(1,Math.min(16,n));
+  loadSlide(currentSlide);
+  await setState({roomMoment:roomMoment('hidden',currentSlide)});
+}
+async function togglePrompt(){
+  const on=C.snapshot.state.roomMoment?.type!=='interaction';
+  overlayMode=on?'interaction':'hidden';
+  showOverlay(overlayMode);
+  await setState({roomMoment:roomMoment(on?'interaction':'hidden')});
+}
+async function toggleCommit(){
+  await setState({locked:!C.snapshot.state.locked,roomMoment:roomMoment(C.snapshot.state.roomMoment?.type||'hidden')});
+}
 async function toggleReveal(){
   const on=!C.snapshot.state.resultsVisible;
-  await setState({resultsVisible:on,locked:on?true:C.snapshot.state.locked,roomMoment:{type:on?'reveal':'commit'}});
-  showOverlay(on?'results':'interaction');
+  overlayMode=on?'results':'interaction';
+  await setState({resultsVisible:on,locked:on?true:C.snapshot.state.locked,roomMoment:roomMoment(on?'results':'interaction')});
+  showOverlay(overlayMode);
 }
 async function toggleTimer(){
   const active=C.snapshot.state.timerEndsAt;
-  await setState({timerEndsAt:active?null:(Date.now()+15*60*1000)});
-  showOverlay('interaction');
+  const next=active?null:(Date.now()+15*60*1000);
+  overlayMode=active?'hidden':'interaction';
+  await setState({timerEndsAt:next,roomMoment:roomMoment(active?'hidden':'timer')});
+  showOverlay(active?'hidden':'interaction');
 }
-function key(){const st=C.snapshot.state;return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',responseCount(),C.snapshot.participantCount].join('|')}
+function key(){const st=C.snapshot.state;return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',responseCount(),C.snapshot.participantCount].join('|')}
 async function poll(){
   try{
-    await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0);
-    if(step!==lastPhaseStep){lastPhaseStep=step;syncSlideToPhase(step)}
+    await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0),remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0),remoteDeck=C.snapshot.state.roomMoment?.deckId||'';
+    if(remoteDeck&&remoteDeck!==deckId)deckId=remoteDeck;
+    if(step!==lastPhaseStep){lastPhaseStep=step;if(!remoteSlide)syncSlideToPhase(step)}
+    if(remoteSlide&&remoteSlide!==currentSlide){currentSlide=remoteSlide;loadSlide(currentSlide)}
     if(k!==struct){struct=k;render()}
     if(overlayMode==='interaction'&&s().label==='CREATE')showOverlay('interaction');
     if(overlayMode==='results')showOverlay('results');
@@ -249,15 +282,16 @@ async function poll(){
 
 $('loadSlides').onclick=loadSlides;
 $('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
+$('roomLinkTop').onclick=e=>{e.currentTarget.href=roomUrl()};
 $('studentLinkTop').onclick=e=>{e.currentTarget.href=studentUrl()};
 $('runBtn').onclick=()=>$('drawer').classList.toggle('on');
 $('backBtn').onclick=()=>go(C.snapshot.state.step-1);
-$('prevSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide>r.start){loadSlide(currentSlide-1);render()}};
-$('nextSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide<r.end){loadSlide(currentSlide+1);render()}};
+$('prevSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide>r.start)setSlide(currentSlide-1)};
+$('nextSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide<r.end)setSlide(currentSlide+1)};
 $('nextBtn').onclick=()=>go(C.snapshot.state.step+1);
 $('commitBtn').onclick=toggleCommit;
 $('revealBtn').onclick=toggleReveal;
-$('phonesBtn').onclick=()=>showOverlay(overlayMode==='interaction'?'hidden':'interaction');
+$('phonesBtn').onclick=togglePrompt;
 $('timerBtn').onclick=toggleTimer;
 $('hideBtn').onclick=()=>{$('console').classList.add('hidden');$('topbar').style.display='none'};
 document.addEventListener('keydown',e=>{
@@ -270,9 +304,15 @@ document.addEventListener('keydown',e=>{
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
-    $('studentLinkTop').href=studentUrl();
-    const saved=localStorage.getItem(URL_KEY)||DEFAULT_DECK_URL;$('slidesUrl').value=saved;loadSlides();
-    lastPhaseStep=Number(C.snapshot.state.step||0);syncSlideToPhase(lastPhaseStep);render();struct=key();setInterval(poll,900);
+    $('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();
+    const saved=localStorage.getItem(URL_KEY)||DEFAULT_DECK_URL;$('slidesUrl').value=saved;deckId=deckIdFromUrl(saved)||DEFAULT_DECK_ID;
+    lastPhaseStep=Number(C.snapshot.state.step||0);
+    const remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);
+    const remoteDeck=C.snapshot.state.roomMoment?.deckId||'';
+    if(remoteDeck)deckId=remoteDeck;
+    currentSlide=remoteSlide||phaseRange(lastPhaseStep).start;
+    loadSlide(currentSlide);
+    render();struct=key();setInterval(poll,900);
   }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
 })();
 </script>

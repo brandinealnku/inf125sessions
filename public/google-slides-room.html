@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShowRunner · Week 05 Projection</title>
+<link rel="stylesheet" href="/shared-v08.css">
+<style>
+:root{--accent:#f2b84b;--muted:#b8bec9;--line:rgba(255,255,255,.16)}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:Inter,Arial,Helvetica,sans-serif;overflow:hidden}
+#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
+.layer{position:fixed;inset:0;z-index:10;pointer-events:none}
+.scrim{position:absolute;inset:0;background:rgba(2,4,7,.50);backdrop-filter:blur(2px);opacity:0;transition:.15s}
+.scrim.on{opacity:1}
+.card{position:absolute;left:50%;top:50%;transform:translate(-50%,-48%) scale(.985);width:min(1040px,88vw);max-height:80vh;overflow:auto;background:rgba(15,18,25,.965);border:1px solid var(--line);border-radius:30px;padding:38px 42px;box-shadow:0 34px 120px rgba(0,0,0,.58);opacity:0;transition:.15s}
+.card.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.kicker{font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:950}
+.headline{font:700 clamp(42px,6vw,82px)/1.02 Georgia,serif;margin:10px 0 20px}
+.lead{font-size:clamp(22px,2.6vw,36px);line-height:1.26;margin:0;color:#f6f2e9;white-space:pre-line}
+.sub{font-size:17px;color:var(--muted);line-height:1.45;margin-top:18px}
+.join{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);font-size:19px}
+.join strong{color:var(--accent)}
+.choiceGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+.choiceBox{border:1px solid var(--line);border-radius:15px;padding:16px 18px;background:rgba(255,255,255,.04);font-size:21px;font-weight:850}
+.results{display:grid;gap:14px;margin-top:26px}
+.resultRow{display:grid;grid-template-columns:minmax(210px,1fr) minmax(280px,2.2fr) 90px;gap:14px;align-items:center}
+.resultLabel{font-size:20px;font-weight:850}.track{height:20px;background:#272d38;border-radius:999px;overflow:hidden}.fill{height:100%;background:var(--accent);border-radius:999px}.pct{text-align:right;font-size:20px;font-weight:950}
+.responses{display:grid;gap:11px;margin-top:20px}.response{padding:15px 17px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.045);font-size:22px;line-height:1.35}
+.timer{font:900 clamp(92px,15vw,210px)/.9 Arial;margin-top:18px;letter-spacing:-.065em}.timerSub{font-size:19px;color:var(--muted);margin-top:16px}
+.status{position:fixed;z-index:20;right:12px;bottom:10px;font-size:11px;color:rgba(255,255,255,.48);background:rgba(0,0,0,.42);padding:5px 7px;border-radius:7px;opacity:.55}
+@media(max-width:800px){.choiceGrid{grid-template-columns:1fr}.resultRow{grid-template-columns:1fr}.pct{text-align:left}.card{padding:28px}}
+</style>
+</head>
+<body>
+<iframe id="frame" allowfullscreen></iframe>
+<div class="layer">
+  <div id="scrim" class="scrim"></div>
+  <section id="card" class="card" aria-live="polite"></section>
+</div>
+<div id="status" class="status">Connecting…</div>
+
+<script>
+(function(){
+  const p=new URLSearchParams(location.search);
+  if(!p.has('session')){
+    p.set('session','inf125-week05-session1-multimodal-communication');
+    location.replace(location.pathname+'?'+p.toString());
+  }
+})();
+</script>
+<script src="/shared-v08.js"></script>
+<script>
+const C=Classroom,$=id=>document.getElementById(id);
+const DEFAULT_DECK_ID='1-g7tK_8ghPqr8zzmbBgrbb3Z-rNCTVqGQLWMIbcQ4VY';
+const SLIDES=[
+  {n:1,id:'p1'},{n:2,id:'p2'},{n:3,id:'p3'},{n:4,id:'p4'},
+  {n:5,id:'p5'},{n:6,id:'p6'},{n:7,id:'p7'},{n:8,id:'p8'},
+  {n:9,id:'p9'},{n:10,id:'p10'},{n:11,id:'p11'},{n:12,id:'p12'},
+  {n:13,id:'p13'},{n:14,id:'p14'},{n:15,id:'p15'},{n:16,id:'p16'}
+];
+const PHASE_MAP_8=[
+  {start:1,end:4},{start:5,end:6},{start:7,end:8},{start:9,end:9},
+  {start:10,end:11},{start:12,end:12},{start:13,end:15},{start:16,end:16}
+];
+const PHASE_MAP_12=[
+  {start:2,end:2},{start:3,end:3},{start:4,end:4},{start:5,end:6},
+  {start:7,end:7},{start:8,end:8},{start:9,end:9},{start:10,end:11},
+  {start:12,end:12},{start:13,end:13},{start:14,end:15},{start:16,end:16}
+];
+let deckId=DEFAULT_DECK_ID,currentSlide=0,lastKey='',stopPush=null;
+
+function phaseMap(){return C.session.steps.length===12?PHASE_MAP_12:PHASE_MAP_8}
+function phaseRange(step=C.snapshot.state.step||0){
+  const map=phaseMap();return map[Math.max(0,Math.min(map.length-1,step))]||{start:1,end:16}
+}
+function slideUrl(n){
+  const slide=SLIDES[Math.max(1,Math.min(16,n))-1],target='id.'+slide.id;
+  return 'https://docs.google.com/presentation/d/'+deckId+'/embed?start=false&loop=false&delayms=3000&rm=minimal&slide='+encodeURIComponent(target)+'#slide='+target;
+}
+function ensureSlide(){
+  const rm=C.snapshot.state.roomMoment||{},remoteDeck=rm.deckId||DEFAULT_DECK_ID;
+  const remoteSlide=Number(rm.slideNumber||phaseRange().start);
+  if(remoteDeck!==deckId||remoteSlide!==currentSlide){
+    deckId=remoteDeck;currentSlide=remoteSlide;$('frame').src=slideUrl(currentSlide);
+  }
+}
+function s(){return C.current()}
+function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['select','multi-select'].includes(x.type))return'select';if(['prompt','reflection'].includes(x.type))return'prompt';return'passive'}
+function studentUrl(){return location.origin+C.sessionUrl('/student')}
+function shell(inner){
+  return '<div class="kicker">'+C.esc(s().label||'LIVE CLASS')+'</div>'+inner+
+    '<div class="join">Respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>';
+}
+function interactionHtml(){
+  const x=s(),t=runtimeType(x);
+  if((C.snapshot.state.roomMoment?.type==='timer')||x.label==='CREATE')return timerHtml();
+  let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1><p class="lead">'+C.esc(x.studentTask||x.roomInstruction||x.lead||'')+'</p>';
+  if((t==='vote'||t==='select')&&x.choices?.length){
+    body+='<div class="choiceGrid">'+x.choices.map(v=>'<div class="choiceBox">'+C.esc(v)+'</div>').join('')+'</div>';
+  }
+  if(t==='prompt')body+='<div class="sub">Add one thought worth bringing into the room. Results stay hidden until your instructor reveals them.</div>';
+  return shell(body);
+}
+function resultsHtml(){
+  const x=s(),t=runtimeType(x);let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1>';
+  if((t==='vote'||t==='select')&&x.choices?.length){
+    const agg=C.aggregate(x.key),meta=C.aggregateMeta(x.key),total=Math.max(1,meta.respondents);
+    body+='<div class="results">'+x.choices.map(v=>{const n=agg[v]||0,p=Math.round(n/total*100);return '<div class="resultRow"><div class="resultLabel">'+C.esc(v)+'</div><div class="track"><div class="fill" style="width:'+p+'%"></div></div><div class="pct">'+p+'% <span style="font-size:13px;color:var(--muted)">('+n+')</span></div></div>'}).join('')+'</div>';
+  }else if(t==='prompt'){
+    const rows=C.answers(x.key).slice(-7).reverse();
+    body+='<div class="responses">'+(rows.length?rows.map(r=>'<div class="response">'+C.esc(r.response)+'</div>').join(''):'<div class="response">Waiting for responses…</div>')+'</div>';
+  }else{
+    body+='<p class="lead">'+C.esc(x.runbook?.landHere||x.visualCaption||x.lead||'')+'</p>';
+  }
+  body+='<div class="sub">'+C.participation().count+' response'+(C.participation().count===1?'':'s')+' received.</div>';
+  return shell(body);
+}
+function timerHtml(){
+  const active=!!C.snapshot.state.timerEndsAt;
+  return '<div class="kicker">REMIX IN PROGRESS</div><h1 class="headline">Same idea. Two modalities.</h1>'+
+    '<p class="lead">ONE AUDIENCE · SAVE AN ARTIFACT</p><div class="timer">'+(active?C.timerText():'15:00')+'</div>'+
+    '<div class="timerSub">Midpoint: one version done. At 3 minutes: stop perfecting and choose the artifact that gives you the best story about what changed.</div>';
+}
+function render(){
+  ensureSlide();
+  const type=C.snapshot.state.roomMoment?.type||'hidden',card=$('card'),scrim=$('scrim');
+  if(type==='hidden'||type==='slide'||type==='commit'){
+    card.classList.remove('on');scrim.classList.remove('on');
+  }else{
+    card.innerHTML=type==='results'?resultsHtml():interactionHtml();
+    card.classList.add('on');scrim.classList.add('on');
+  }
+  $('status').textContent='Phase '+(Number(C.snapshot.state.step||0)+1)+' / '+C.session.steps.length+' · Slide '+currentSlide;
+}
+function key(){
+  const st=C.snapshot.state;
+  return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',C.participation().count,C.snapshot.participantCount].join('|');
+}
+async function poll(){
+  try{
+    await C.refresh();const k=key();
+    if(k!==lastKey){lastKey=k;render()}
+    else if(C.snapshot.state.roomMoment?.type==='timer'&&C.snapshot.state.timerEndsAt)render();
+  }catch(_){$('status').textContent='Reconnecting…'}
+}
+(async()=>{
+  try{
+    await C.loadSession();await C.refresh();render();lastKey=key();
+    if(C.subscribe)stopPush=C.subscribe(()=>render());
+    setInterval(poll,700);
+    setInterval(()=>{if(C.snapshot.state.roomMoment?.type==='timer')render()},500);
+  }catch(e){$('status').textContent='Projection failed to load'}
+})();
+</script>
+</body>
+</html>
