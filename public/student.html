@@ -81,7 +81,7 @@ button{touch-action:manipulation}
 <script>
 const C=Classroom;
 const app=document.getElementById('app');
-let studentName=localStorage.classroomName||'',lastKey='',lastStep=-1,lastUpdatedAt=0,selected=[];
+let studentName=localStorage.classroomName||'',lastKey='',lastStep=-1,lastUpdatedAt=0,selected=[],stopLivePush=null;
 
 function task(s,f=''){return s.studentTask||f||s.lead||''}
 function elapsedPct(){const total=Math.max(1,C.session.durationMinutes||75),elapsed=C.elapsed(C.snapshot.state.step||0);return Math.max(0,Math.min(100,Math.round(elapsed/total*100)))}
@@ -192,8 +192,11 @@ function render(force=false){
 }
 async function poll(force=false){try{await C.refresh();render(force)}catch(_){}}
 function startLiveSync(){
+  if(!stopLivePush&&C.subscribe){
+    stopLivePush=C.subscribe(()=>render(true));
+  }
   setInterval(C.heartbeat,30000);
-  setInterval(()=>poll(false),700);
+  setInterval(()=>poll(false),1200);
   window.addEventListener('focus',()=>poll(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll(true)});
   window.addEventListener('pageshow',()=>poll(true));
