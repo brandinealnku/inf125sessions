@@ -3,59 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0b0a">
-<title>ShowRunner · Simplified Run</title>
+<meta name="theme-color" content="#f5f3ee">
+<title>ShowRunner · Live Cue View</title>
 <link rel="stylesheet" href="/shared-v08.css">
 <style>
 :root{
-  --bg:#0b0b0a;--panel:#141411;--text:#f5f1e8;--muted:#9d988f;
-  --line:#2b2a26;--gold:#d8aa3d;--soft:#1d1c18;--green:#77b183
+  --canvas:#f5f3ee;--ink:#1a2230;--muted:#6c7480;--line:#dedbd3;--white:#ffffff;
+  --blue:#dfeaff;--blueInk:#2457a6;
+  --gold:#fff0bf;--goldInk:#8c6410;
+  --violet:#eee6ff;--violetInk:#6945a6;
+  --green:#def4e5;--greenInk:#2f7a4b;
+  --coral:#ffe2dc;--coralInk:#a34838;
+  --shadow:0 10px 30px rgba(38,48,62,.08);
 }
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+html,body{margin:0;min-height:100%;background:var(--canvas);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,sans-serif}
 button,a{font:inherit}
-.shell{max-width:1360px;margin:auto;padding:20px 22px 112px}
-.header{display:flex;justify-content:space-between;gap:18px;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line)}
-.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-weight:900}
+.shell{max-width:1320px;margin:auto;padding:18px 22px 118px}
+.header{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:4px 0 16px;border-bottom:1px solid var(--line)}
 .brand{font-size:18px;font-weight:900}
-.live{display:flex;gap:14px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap;justify-content:flex-end}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;margin-top:24px}
-.main{min-width:0}
-.now{padding:2px 0 16px}
-.nowTitle{font-family:Georgia,serif;font-size:clamp(48px,6vw,86px);line-height:.92;letter-spacing:-.055em;font-weight:500;margin:8px 0 14px}
-.sub{color:#d7d1c5;font-size:18px;line-height:1.45;max-width:880px}
-.metricRow{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
-.metric{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:9px 12px;color:var(--muted);font-size:12px}
-.metric strong{color:var(--text);font-size:15px;margin-right:4px}
-.cue{border:1px solid #6a5520;background:linear-gradient(145deg,#18160f,#10100d);border-radius:18px;padding:22px;margin-top:16px}
-.cueLabel{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:900}
-.cueText{font-family:Georgia,serif;font-size:clamp(24px,3vw,38px);line-height:1.18;margin:8px 0 0}
-.nextBox{margin-top:16px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
-.nextBox strong{color:var(--text)}
-.side{border-left:1px solid var(--line);padding-left:22px}
-.sideBlock{padding:0 0 18px;margin-bottom:18px;border-bottom:1px solid var(--line)}
-.sideBlock p{margin:7px 0 0;line-height:1.45;color:#c9c4ba}
-.side .tiny{font-size:12px;color:var(--muted)}
-.drawer{margin-top:10px}
-.drawer summary{cursor:pointer;color:var(--muted);font-size:12px;font-weight:800}
-.drawerBody{padding-top:10px}
-.drawerBody p{font-size:13px;line-height:1.45;color:#c8c2b7}
-.controls{position:fixed;left:0;right:0;bottom:0;background:#0b0b0af2;border-top:1px solid var(--line);backdrop-filter:blur(16px);z-index:40}
-.controlsIn{max-width:1360px;margin:auto;padding:10px 22px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.meta{display:flex;gap:14px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap;justify-content:flex-end}
+.dot{width:8px;height:8px;border-radius:50%;background:#4e9b68;display:inline-block;margin-right:5px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;margin-top:22px}
+.main{display:grid;gap:14px;min-width:0}
+.band{border-radius:20px;padding:22px 24px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.04)}
+.label{font-size:11px;font-weight:950;letter-spacing:.14em;text-transform:uppercase}
+.now{background:var(--blue)}
+.now .label{color:var(--blueInk)}
+.nowTitle{font-size:clamp(42px,5vw,72px);line-height:.95;letter-spacing:-.05em;margin:8px 0 12px;font-weight:760}
+.studentTask{font-size:18px;line-height:1.45;color:#33445f;max-width:920px}
+.metrics{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.metric{background:rgba(255,255,255,.72);border:1px solid rgba(36,87,166,.12);border-radius:999px;padding:8px 11px;font-size:12px;color:#516070}
+.metric strong{color:var(--ink);font-size:14px;margin-right:3px}
+.you{background:var(--gold)}
+.you .label{color:var(--goldInk)}
+.cue{font-size:clamp(24px,3vw,38px);line-height:1.18;font-weight:760;margin:8px 0 0}
+.watch{background:var(--violet)}
+.watch .label{color:var(--violetInk)}
+.watchText{font-size:18px;line-height:1.45;margin-top:8px;color:#4f3f6c}
+.next{background:var(--green)}
+.next .label{color:var(--greenInk)}
+.nextText{font-size:18px;line-height:1.35;margin-top:8px}
+.nextText strong{font-size:20px}
+.side{display:grid;align-content:start;gap:12px}
+.sideCard{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.sideCard .label{color:#727b87}
+.sideCard p{margin:7px 0 0;color:#525c68;line-height:1.42;font-size:14px}
+.more summary{cursor:pointer;font-weight:800;color:var(--muted);font-size:12px}
+.more div{padding-top:10px;font-size:13px;color:#606975;line-height:1.45}
+.controls{position:fixed;left:0;right:0;bottom:0;background:rgba(245,243,238,.94);border-top:1px solid var(--line);backdrop-filter:blur(14px);z-index:30}
+.controlsIn{max-width:1320px;margin:auto;padding:10px 22px;display:flex;justify-content:space-between;gap:12px;align-items:center}
 .group{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border:1px solid #444139;background:transparent;color:var(--text);padding:12px 15px;border-radius:10px;font-weight:850;cursor:pointer;text-decoration:none;min-width:94px}
-.btn.primary{background:var(--text);color:#111;border-color:var(--text)}
-.btn.accent{background:var(--gold);border-color:var(--gold);color:#111}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-.toast{position:fixed;right:20px;top:20px;background:#171612;border:1px solid var(--line);padding:12px 15px;border-radius:12px;z-index:70}
-@media(max-width:900px){
-  .layout{grid-template-columns:1fr}.side{border-left:0;border-top:1px solid var(--line);padding:20px 0 0}
-}
+.btn{border:1px solid #cfcac0;background:#fff;color:var(--ink);padding:12px 16px;border-radius:12px;font-weight:850;cursor:pointer;text-decoration:none;min-width:92px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.btn.primary{background:#1a2230;color:#fff;border-color:#1a2230}
+.btn.reveal{background:var(--coral);border-color:#efc2b8;color:var(--coralInk)}
+.btn.reveal.active{background:#f5a996;color:#6c2c21;border-color:#e88f7b}
+.btn:disabled{opacity:.34;cursor:not-allowed}
+.hidden{display:none!important}
+#error{color:#9f3f35;margin-top:12px}
+@media(max-width:900px){.stage{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.sideCard.more{grid-column:1/-1}}
 @media(max-width:640px){
-  .shell{padding:14px 14px 150px}.header{align-items:flex-start}.live{justify-content:flex-start}
+  .shell{padding:14px 14px 150px}.header{align-items:flex-start}.meta{justify-content:flex-start}
+  .band{padding:18px}.side{grid-template-columns:1fr}
   .controlsIn{padding:10px 14px;flex-wrap:wrap}.group{width:100%}.group .btn,.group a{flex:1}
-  .nowTitle{font-size:clamp(42px,13vw,64px)}
+  .nowTitle{font-size:clamp(38px,12vw,58px)}
 }
 </style>
 </head>
@@ -63,59 +74,64 @@ button,a{font:inherit}
 <main class="shell">
   <header class="header">
     <div>
-      <div class="eyebrow">ShowRunner · Simplified Run</div>
       <div class="brand" id="brand">Loading…</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">ShowRunner · Live Cue View</div>
     </div>
-    <div class="live">
-      <span><span class="dot"></span> Live</span>
+    <div class="meta">
+      <span><span class="dot"></span>Live</span>
       <span id="people">0 in room</span>
       <span id="clock">0/75 min</span>
     </div>
   </header>
 
-  <div class="layout">
+  <div class="stage">
     <section class="main">
-      <div class="now">
-        <div class="eyebrow" id="label">NOW</div>
+      <section class="band now">
+        <div class="label" id="label">NOW</div>
         <h1 class="nowTitle" id="title">Loading…</h1>
-        <div class="sub" id="studentTask"></div>
-      </div>
-
-      <div class="metricRow">
-        <div class="metric"><strong id="responses">0</strong> responses</div>
-        <div class="metric"><strong id="participation">0%</strong> participation</div>
-        <div class="metric"><strong id="step">1/1</strong> moment</div>
-      </div>
-
-      <section class="cue">
-        <div class="cueLabel">Instructor cue</div>
-        <div class="cueText" id="cue">Loading…</div>
+        <div class="studentTask" id="studentTask"></div>
+        <div class="metrics">
+          <span class="metric"><strong id="responses">0</strong> responses</span>
+          <span class="metric"><strong id="participation">0%</strong> participation</span>
+          <span class="metric"><strong id="step">1/1</strong> moment</span>
+        </div>
       </section>
 
-      <div class="nextBox" id="nextBox"></div>
+      <section class="band you">
+        <div class="label">YOUR MOVE</div>
+        <div class="cue" id="cue">Loading…</div>
+      </section>
+
+      <section class="band watch">
+        <div class="label">WATCH FOR</div>
+        <div class="watchText" id="watchFor">—</div>
+      </section>
+
+      <section class="band next">
+        <div class="label">NEXT</div>
+        <div class="nextText" id="nextBox"></div>
+      </section>
     </section>
 
     <aside class="side">
-      <div class="sideBlock">
-        <div class="eyebrow">What to watch for</div>
-        <p id="watchFor">—</p>
-      </div>
-      <div class="sideBlock">
-        <div class="eyebrow">Advance when</div>
+      <section class="sideCard">
+        <div class="label">ADVANCE WHEN</div>
         <p id="advanceWhen">—</p>
-      </div>
-      <div class="sideBlock">
-        <div class="eyebrow">Land here</div>
+      </section>
+      <section class="sideCard">
+        <div class="label">LAND HERE</div>
         <p id="landHere">—</p>
-      </div>
-      <details class="drawer">
-        <summary>More context</summary>
-        <div class="drawerBody">
-          <p><strong>Transition:</strong> <span id="transition">—</span></p>
-          <p><strong>Planned minute:</strong> <span id="planned">0</span></p>
-          <p><strong>Status:</strong> <span id="statusText">Responses open</span></p>
-        </div>
-      </details>
+      </section>
+      <section class="sideCard more">
+        <details>
+          <summary>More context</summary>
+          <div>
+            <p><strong>Transition:</strong> <span id="transition">—</span></p>
+            <p><strong>Planned minute:</strong> <span id="planned">0</span></p>
+            <p><strong>Status:</strong> <span id="statusText">Responses open</span></p>
+          </div>
+        </details>
+      </section>
     </aside>
   </div>
 
@@ -126,7 +142,7 @@ button,a{font:inherit}
   <div class="controlsIn">
     <div class="group">
       <button class="btn" id="backBtn">← Back</button>
-      <button class="btn" id="revealBtn">Reveal</button>
+      <button class="btn reveal" id="revealBtn">Reveal</button>
     </div>
     <div class="group">
       <a class="btn" target="_blank" id="roomBtn" href="/room">Room</a>
@@ -145,12 +161,15 @@ function step(){return C.current()}
 function rb(){return step().runbook||{}}
 function safe(v,f='—'){return String(v||'').trim()||f}
 function nextMoment(){return C.session.steps[C.snapshot.state.step+1]||null}
-
+function needsReveal(x){
+  return ['vote','choice','select','multi-select','prompt','reflection'].includes(x.type)
+    || !!x.teachReveal
+    || !!x.choices?.length;
+}
 function cueText(){
   const x=step(),r=rb();
   return safe(r.say||r.askNext||x.lead,'Guide the room through this moment.');
 }
-
 function render(){
   const x=step(),r=rb(),p=C.participation(),n=nextMoment(),state=C.snapshot.state;
   E('brand').textContent=C.session.title;
@@ -163,20 +182,23 @@ function render(){
   E('participation').textContent=p.percent+'%';
   E('step').textContent=(state.step+1)+'/'+C.session.steps.length;
   E('cue').textContent=cueText();
-  E('watchFor').textContent=safe(r.watchFor);
+  E('watchFor').textContent=safe(r.watchFor,'Notice what students are doing, saying, or hesitating on.');
   E('advanceWhen').textContent=safe(r.advanceWhen,'Advance when the room has given you enough evidence to move on.');
-  E('landHere').textContent=safe(r.landHere||x.teachReveal?.headline);
+  E('landHere').textContent=safe(r.landHere||x.teachReveal?.headline,'Keep the learning point simple and explicit.');
   E('transition').textContent=safe(r.transition);
   E('planned').textContent=C.elapsed(state.step);
   E('statusText').textContent=state.locked?'Responses committed / closed':'Responses open';
   E('nextBox').innerHTML=n
-    ? '<span class="eyebrow">NEXT</span><div><strong>'+C.esc(n.label||'Next')+'</strong> · '+C.esc(n.title||'')+'</div>'
-    : '<span class="eyebrow">NEXT</span><div><strong>End of experience</strong></div>';
+    ? '<strong>'+C.esc(n.label||'Next')+'</strong><br>'+C.esc(n.title||'')
+    : '<strong>End of experience</strong>';
 
   E('backBtn').disabled=state.step<=0;
   E('nextBtn').disabled=state.step>=C.session.steps.length-1;
-  E('revealBtn').textContent=state.resultsVisible?'Hide results':'Reveal results';
-  E('revealBtn').classList.toggle('accent',!!state.resultsVisible);
+
+  const showReveal=needsReveal(x);
+  E('revealBtn').classList.toggle('hidden',!showReveal);
+  E('revealBtn').textContent=state.resultsVisible?'Hide results':'Reveal';
+  E('revealBtn').classList.toggle('active',!!state.resultsVisible);
 }
 
 async function setState(patch){
@@ -184,24 +206,20 @@ async function setState(patch){
   structural='';
   await poll(true);
 }
-
 function go(delta){
   const next=Math.max(0,Math.min(C.session.steps.length-1,C.snapshot.state.step+delta));
   return setState({step:next,locked:false,resultsVisible:false,roomMoment:null});
 }
-
 E('backBtn').onclick=()=>go(-1);
 E('nextBtn').onclick=()=>go(1);
 E('revealBtn').onclick=()=>{
   const visible=!C.snapshot.state.resultsVisible;
   return setState({resultsVisible:visible,locked:visible,roomMoment:visible?{type:'reveal'}:null});
 };
-
 function key(){
   const s=C.snapshot.state;
   return [s.step,s.locked,s.resultsVisible,s.updatedAt].join('|');
 }
-
 async function poll(force=false){
   try{
     await C.refresh();
@@ -217,7 +235,6 @@ async function poll(force=false){
     E('error').textContent='Connection interrupted. Retrying…';
   }
 }
-
 (async()=>{
   try{
     await C.loadSession();
