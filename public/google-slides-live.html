@@ -128,7 +128,7 @@ const PHASE_MAP_12=[
   {start:14,end:15},
   {start:16,end:16}
 ];
-let struct='',overlayMode='hidden',deckId=DEFAULT_DECK_ID,currentSlide=1;
+let struct='',overlayMode='hidden',deckId=DEFAULT_DECK_ID,currentSlide=1,lastPhaseStep=-1;
 
 function deckIdFromUrl(raw){
   let u;try{u=new URL((raw||'').trim())}catch{return''}
@@ -212,7 +212,7 @@ function render(){
   const x=s(),st=C.snapshot.state,p=C.participation(),t=runtimeType(x);
   $('momentTop').textContent=(C.snapshot.state.step+1)+' / '+C.session.steps.length+' · '+(x.label||'');
   $('momentTitle').textContent=x.title||'';
-  const range=phaseRange(st.step);$('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min · <strong>Slide '+currentSlide+'</strong> ('+range.start+'–'+range.end+')';
+  const range=phaseRange(st.step);$('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min · <strong>Slide '+currentSlide+'</strong> ('+range.start+'–'+range.end+')';$('prevSlideBtn').disabled=currentSlide<=range.start;$('nextSlideBtn').disabled=currentSlide>=range.end;
   $('commitBtn').textContent=st.locked?'Reopen':'Commit';
   $('commitBtn').classList.toggle('danger',st.locked);
   $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Reveal Results';
@@ -239,7 +239,8 @@ async function toggleTimer(){
 function key(){const st=C.snapshot.state;return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',responseCount(),C.snapshot.participantCount].join('|')}
 async function poll(){
   try{
-    await C.refresh();const k=key();
+    await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0);
+    if(step!==lastPhaseStep){lastPhaseStep=step;syncSlideToPhase(step)}
     if(k!==struct){struct=k;render()}
     if(overlayMode==='interaction'&&s().label==='CREATE')showOverlay('interaction');
     if(overlayMode==='results')showOverlay('results');
@@ -271,7 +272,7 @@ document.addEventListener('keydown',e=>{
     await C.loadSession();await C.refresh();
     $('studentLinkTop').href=studentUrl();
     const saved=localStorage.getItem(URL_KEY)||DEFAULT_DECK_URL;$('slidesUrl').value=saved;loadSlides();
-    syncSlideToPhase();render();struct=key();setInterval(poll,900);
+    lastPhaseStep=Number(C.snapshot.state.step||0);syncSlideToPhase(lastPhaseStep);render();struct=key();setInterval(poll,900);
   }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
 })();
 </script>
