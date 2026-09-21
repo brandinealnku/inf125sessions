@@ -120,17 +120,30 @@ function look(s){
   app.innerHTML=chrome()+'<section class="card locked"><div class="lockIcon">✓</div><div class="label">LOCKED IN</div><h1>You’re good.</h1><p>'+C.esc(s.afterSubmit||'Keep your answer. Your instructor is bringing the room back together.')+'</p><span class="lookUp">Phone down · eyes up</span></section>';
 }
 async function submit(s,v){
-  if(C.snapshot.state.locked)return err('Responses are closed for this moment.');
+  const button=document.getElementById('sendBtn')||document.getElementById('commitBtn');
+  const original=button?.textContent||'Submit';
   try{
+    if(button){button.disabled=true;button.textContent='Sending…'}
+    await C.refresh();
+    if(C.snapshot.state.locked){
+      err('Responses are closed for this moment. Look up at the room and wait for the next prompt.');
+      if(button){button.textContent='Responses closed';button.disabled=true}
+      return;
+    }
     await C.answer(s.key,v,studentName);
     localStorage.setItem('answer:'+C.session.id+':'+s.key,JSON.stringify(v));
-    await C.refresh();look(s);
-  }catch(e){err('That did not send. Try once more.')}
+    await C.refresh();
+    look(s);
+  }catch(e){
+    err('Could not send: '+(e?.message||'Please try again.'));
+    if(button){button.disabled=false;button.textContent=original}
+  }
 }
 function vote(s){
+  const closed=!!C.snapshot.state.locked;
   app.innerHTML=chrome()+currentCard(s)+moveCard(task(s,'Make your call before you hear what anyone else thinks.'))+
-    s.choices.map(c=>'<button class="choice" data-v="'+C.esc(c)+'">'+C.esc(c)+'</button>').join('')+
-    afterCard()+'<div id="error" class="error"></div>';
+    s.choices.map(c=>'<button class="choice" data-v="'+C.esc(c)+'" '+(closed?'disabled':'')+'>'+C.esc(c)+'</button>').join('')+
+    afterCard()+'<div id="error" class="error">'+(closed?'Responses are closed for this moment.':'')+'</div>';
   app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>submit(s,b.dataset.v));
 }
 function select(s){
@@ -148,9 +161,10 @@ function select(s){
   document.getElementById('commitBtn').onclick=()=>submit(s,[...selected]);
 }
 function promptView(s){
+  const closed=!!C.snapshot.state.locked;
   app.innerHTML=chrome()+currentCard(s)+moveCard(task(s,'Write one thought worth adding to the room.'))+
-    '<textarea id="responseInput" class="field textarea" placeholder="'+C.esc(s.placeholder||'What are you thinking?')+'"></textarea>'+
-    '<button class="action" id="sendBtn">Send my response →</button>'+afterCard()+'<div id="error" class="error"></div>';
+    '<textarea id="responseInput" class="field textarea" placeholder="'+C.esc(s.placeholder||'What are you thinking?')+'" '+(closed?'disabled':'')+'></textarea>'+
+    '<button class="action" id="sendBtn" '+(closed?'disabled':'')+'>'+(closed?'Responses closed':'Send my response →')+'</button>'+afterCard()+'<div id="error" class="error">'+(closed?'Responses are closed for this moment.':'')+'</div>';
   document.getElementById('sendBtn').onclick=()=>{
     const v=document.getElementById('responseInput').value.trim();
     if(v)submit(s,v);else err('Add a response first.');
