@@ -88,22 +88,22 @@ const URL_KEY='showrunner-google-slides-week5-url-v2';
 const DEFAULT_DECK_ID='1-g7tK_8ghPqr8zzmbBgrbb3Z-rNCTVqGQLWMIbcQ4VY';
 const DEFAULT_DECK_URL='https://docs.google.com/presentation/d/'+DEFAULT_DECK_ID+'/edit?usp=drivesdk';
 const SLIDES=[
-  {n:1,id:'p1',title:'AI REMIX LAB'},
-  {n:2,id:'p2',title:'COLD OPEN'},
-  {n:3,id:'p3',title:'QUICK VOTE'},
-  {n:4,id:'p4',title:'DEBRIEF'},
-  {n:5,id:'p5',title:'MINI LESSON'},
-  {n:6,id:'p6',title:'CORE MODEL'},
-  {n:7,id:'p7',title:'ONE IDEA. FOUR REMIXES'},
-  {n:8,id:'p8',title:'TRADEOFFS'},
-  {n:9,id:'p9',title:'LIVE REMIX'},
-  {n:10,id:'p10',title:'AI REMIX CHALLENGE'},
-  {n:11,id:'p11',title:'CHOOSE AN AUDIENCE'},
-  {n:12,id:'p12',title:'REMIX IN PROGRESS'},
-  {n:13,id:'p13',title:'MULTIMODAL SHOWDOWN'},
-  {n:14,id:'p14',title:'POLISHED ≠ ACCURATE'},
-  {n:15,id:'p15',title:'HUMAN JUDGMENT'},
-  {n:16,id:'p16',title:'EXIT PULSE'}
+  {n:1,deck:1,id:'p1',title:'AI REMIX LAB'},
+  {n:2,deck:2,id:'p2',title:'COLD OPEN'},
+  {n:3,deck:4,id:'p3',title:'QUICK VOTE'},
+  {n:4,deck:6,id:'p4',title:'DEBRIEF'},
+  {n:5,deck:8,id:'p5',title:'MINI LESSON'},
+  {n:6,deck:10,id:'p6',title:'CORE MODEL'},
+  {n:7,deck:11,id:'p7',title:'ONE IDEA. FOUR REMIXES'},
+  {n:8,deck:12,id:'p8',title:'TRADEOFFS'},
+  {n:9,deck:13,id:'p9',title:'LIVE REMIX'},
+  {n:10,deck:14,id:'p10',title:'AI REMIX CHALLENGE'},
+  {n:11,deck:15,id:'p11',title:'CHOOSE AN AUDIENCE'},
+  {n:12,deck:16,id:'p12',title:'REMIX IN PROGRESS'},
+  {n:13,deck:17,id:'p13',title:'MULTIMODAL SHOWDOWN'},
+  {n:14,deck:18,id:'p14',title:'POLISHED ≠ ACCURATE'},
+  {n:15,deck:19,id:'p15',title:'HUMAN JUDGMENT'},
+  {n:16,deck:20,id:'p16',title:'EXIT PULSE'}
 ];
 const PHASE_MAP_8=[
   {start:1,end:4},
@@ -216,7 +216,7 @@ function render(){
   const x=s(),st=C.snapshot.state,p=C.participation(),t=runtimeType(x);
   $('momentTop').textContent=(C.snapshot.state.step+1)+' / '+C.session.steps.length+' · '+(x.label||'');
   $('momentTitle').textContent=x.title||'';
-  const range=phaseRange(st.step);$('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min · <strong>Slide '+currentSlide+'</strong> ('+range.start+'–'+range.end+')';$('prevSlideBtn').disabled=currentSlide<=range.start;$('nextSlideBtn').disabled=currentSlide>=range.end;
+  const range=phaseRange(st.step),slide=SLIDES[currentSlide-1],deckList=[];for(let n=range.start;n<=range.end;n++)if(SLIDES[n-1])deckList.push(SLIDES[n-1].deck);$('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min · <strong>Deck slide '+(slide?.deck||'?')+'</strong> · phase slides '+deckList.join(', ');$('prevSlideBtn').disabled=currentSlide<=range.start;$('nextSlideBtn').disabled=currentSlide>=range.end;
   const interactive=['vote','select','prompt'].includes(t);
   $('commitBtn').textContent=st.locked?'Reopen Responses':'Close Responses';
   $('commitBtn').classList.toggle('danger',st.locked);
