@@ -350,7 +350,7 @@
       "lead": "“Everyone” is not an audience.",
       "minutes": 6,
       "intent": "commit",
-      "type": "select",
+      "type": "choice",
       "key": "w5_remix_audience",
       "choices": [
         "FIRST-YEAR STUDENT — clarity + relevance",
@@ -400,7 +400,7 @@
       "lead": "One idea. Two modalities. One audience. Save an artifact.",
       "minutes": 15,
       "intent": "create",
-      "type": "prompt",
+      "type": "teaching",
       "key": "w5_remix_create",
       "choices": [],
       "multi": false,
@@ -491,7 +491,7 @@
       "lead": "A beautiful output can still be wrong.",
       "minutes": 9,
       "intent": "evaluate",
-      "type": "select",
+      "type": "teaching",
       "key": "w5_remix_human_judgment",
       "choices": [
         "FACTUAL ERRORS",
@@ -575,7 +575,8 @@
         "watchFor": "Generic preferences without evidence.",
         "ifStuck": "Use the stem: My ___ version worked better for ___ because ___. I still had to ___.",
         "advanceWhen": "Students have submitted the exit pulse."
-      }
+      },
+      "visualType": "statement"
     }
   ]
 }
