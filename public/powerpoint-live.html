@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShowRunner · Microsoft 365 PowerPoint Live</title>
+<style>
+:root{
+  --bg:#0b0c10;--panel:#151821;--panel2:#1d2230;--text:#f7f3ea;--muted:#aeb5c2;
+  --accent:#f2b84b;--blue:#78a9ff;--green:#7ed8a4;--red:#ff8c7b;--line:rgba(255,255,255,.14)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{overflow:hidden}
+.app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr}
+.topbar{display:grid;grid-template-columns:auto auto 1fr auto auto;gap:10px;align-items:center;padding:10px 12px;background:rgba(10,12,16,.98);border-bottom:1px solid var(--line);z-index:40}
+.brand{font-weight:900;letter-spacing:.04em;white-space:nowrap}
+.badge{font-size:12px;color:#111;background:var(--accent);padding:5px 8px;border-radius:999px;font-weight:900;white-space:nowrap}
+.url,.field{border:1px solid var(--line);background:#0e1118;color:#fff;border-radius:10px;padding:10px 12px;font-size:14px}
+.url{width:100%}
+button{border:1px solid var(--line);background:var(--panel2);color:#fff;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer}
+button:hover{filter:brightness(1.08)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#111}
+button.blue{background:#315b9e;border-color:#4776bd}
+button.green{background:#20623d;border-color:#2b7a4e}
+button.red{background:#6d2f28;border-color:#8d4035}
+.stage{position:relative;overflow:hidden;background:#000}
+#pptFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#111}
+#empty{position:absolute;inset:0;display:grid;place-items:center;padding:36px;background:
+ radial-gradient(circle at 30% 20%,rgba(242,184,75,.12),transparent 34%),
+ radial-gradient(circle at 70% 70%,rgba(120,169,255,.10),transparent 38%),
+ #0c0e13;z-index:5}
+.empty-card{max-width:880px;text-align:center}
+.empty-card h1{font:700 clamp(34px,5vw,72px)/1 Georgia,serif;margin:0 0 18px}
+.empty-card p{font-size:18px;line-height:1.5;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px;text-align:left}
+.step{padding:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:14px}
+.step b{display:block;color:var(--accent);margin-bottom:6px}
+.overlay-layer{position:absolute;inset:0;pointer-events:none;z-index:15}
+.scrim{position:absolute;inset:0;background:rgba(3,5,8,.48);backdrop-filter:blur(2px);opacity:0;transition:.18s}
+.scrim.on{opacity:1}
+.overlay-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);width:min(900px,86vw);background:rgba(18,21,29,.96);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:34px 38px;box-shadow:0 32px 120px rgba(0,0,0,.55);opacity:0;transition:.18s;pointer-events:none}
+.overlay-card.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.overlay-card .kicker{font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:900;margin-bottom:12px}
+.overlay-card h2{font:700 clamp(34px,5vw,70px)/1.02 Georgia,serif;margin:0 0 18px}
+.overlay-card p{font-size:clamp(20px,2.4vw,34px);line-height:1.2;margin:0;color:#f5f2eb;white-space:pre-line}
+.overlay-card .sub{margin-top:18px;color:var(--muted);font-size:16px}
+.timer{font:900 clamp(70px,12vw,170px)/1 Arial;margin-top:10px;letter-spacing:-.05em}
+.dock{position:absolute;left:18px;right:18px;bottom:16px;z-index:25;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px;background:rgba(7,8,11,.88);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(14px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.dock.hidden{opacity:0;pointer-events:none}
+.group{display:flex;align-items:center;gap:7px;padding-right:8px;border-right:1px solid var(--line)}
+.group:last-child{border-right:0}
+.status{margin-left:auto;font-size:12px;color:var(--muted);max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tip{position:absolute;left:18px;top:18px;z-index:20;background:rgba(0,0,0,.65);color:#ddd;padding:8px 10px;border-radius:10px;font-size:12px}
+.settings{position:absolute;right:18px;top:18px;z-index:30;width:min(480px,92vw);background:rgba(12,14,20,.97);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 20px 70px rgba(0,0,0,.5);display:none}
+.settings.on{display:block}
+.settings h3{margin:0 0 8px}
+.settings p{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 12px}
+.settings label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:900;margin:10px 0 6px}
+.settings input{width:100%}
+.settings .row{display:flex;gap:8px;margin-top:12px}
+.settings code{font-size:12px;color:#f4d991}
+.authbar{position:absolute;left:18px;top:18px;z-index:22;display:flex;align-items:center;gap:8px}
+.chip{padding:8px 10px;border-radius:999px;background:rgba(7,8,11,.78);border:1px solid var(--line);font-size:12px;color:#ddd}
+.chip.ok{border-color:#2b7a4e;color:#bdf3cf}
+.chip.warn{border-color:#8d6a2d;color:#ffe0a3}
+.error{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:28;width:min(760px,88vw);background:#251718;border:1px solid #88483f;border-radius:18px;padding:22px;display:none}
+.error.on{display:block}
+.error h3{margin:0 0 8px;color:#ffd0c8}
+.error p{margin:0;color:#f6ddd8;line-height:1.45;white-space:pre-line}
+@media(max-width:1000px){
+  .topbar{grid-template-columns:1fr auto auto}
+  .brand,.badge{display:none}
+  .url{grid-column:1/-1;grid-row:2}
+  .steps{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">SHOWRUNNER</div>
+    <div class="badge">MICROSOFT 365 LIVE</div>
+    <input id="pptUrl" class="url" placeholder="Paste your OneDrive / SharePoint PowerPoint sharing URL">
+    <button id="connectBtn" class="blue">Connect Microsoft 365</button>
+    <button id="loadBtn" class="primary">Load Live PowerPoint</button>
+  </header>
+
+  <main class="stage" id="stage">
+    <iframe id="pptFrame" name="pptFrame" allow="fullscreen; autoplay; clipboard-read; clipboard-write"></iframe>
+
+    <div id="empty">
+      <div class="empty-card">
+        <div class="badge" style="display:inline-block;margin-bottom:14px">GRAPH PREVIEW</div>
+        <h1>Your PowerPoint stays live.</h1>
+        <p>This version uses Microsoft Graph to turn your normal OneDrive/SharePoint sharing link into a short-lived preview URL that Microsoft explicitly allows to be embedded. ShowRunner then layers interactions over the live presentation.</p>
+        <div class="steps">
+          <div class="step"><b>1 · Configure</b>Add the Entra application client ID once.</div>
+          <div class="step"><b>2 · Connect</b>Sign in with your NKU Microsoft 365 account.</div>
+          <div class="step"><b>3 · Present</b>Paste the normal PowerPoint share link and load it live.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="authbar">
+      <span id="configChip" class="chip warn">App not configured</span>
+      <span id="authChip" class="chip">Not connected</span>
+      <button id="settingsBtn">Microsoft Setup</button>
+    </div>
+
+    <div class="overlay-layer">
+      <div id="scrim" class="scrim"></div>
+      <div id="overlayCard" class="overlay-card">
+        <div id="overlayKicker" class="kicker">QUICK VOTE</div>
+        <h2 id="overlayTitle">Lock in your choice.</h2>
+        <p id="overlayBody">TEXT · IMAGE · AUDIO · VIDEO / MEME</p>
+        <div id="overlaySub" class="sub">Be ready to explain why.</div>
+        <div id="timerDisplay" class="timer" style="display:none">15:00</div>
+      </div>
+    </div>
+
+    <div id="settings" class="settings">
+      <h3>Microsoft 365 setup</h3>
+      <p>This prototype uses delegated Microsoft Graph access. Your PowerPoint stays in SharePoint/OneDrive; ShowRunner receives only a short-lived preview URL for the signed-in user.</p>
+      <label>Application (client) ID</label>
+      <input id="clientId" class="field" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+      <label>Tenant ID or domain</label>
+      <input id="tenantId" class="field" placeholder="organizations" value="organizations">
+      <p style="margin-top:12px">Register this exact SPA redirect URI in Microsoft Entra:<br><code id="redirectUri"></code></p>
+      <div class="row">
+        <button id="saveSettings" class="primary">Save Setup</button>
+        <button id="closeSettings">Close</button>
+      </div>
+    </div>
+
+    <div id="errorBox" class="error">
+      <h3 id="errorTitle">Could not load presentation</h3>
+      <p id="errorText"></p>
+    </div>
+
+    <div class="tip">R reveal · T timer · H hide controls · F fullscreen</div>
+
+    <div id="dock" class="dock">
+      <div class="group">
+        <button id="revealBtn" class="blue">Reveal / Hide</button>
+      </div>
+      <div class="group">
+        <button data-preset="vote">Quick Vote</button>
+        <button data-preset="prompt">Prompt</button>
+        <button data-preset="warning">Verify</button>
+        <button data-preset="exit">Exit Pulse</button>
+      </div>
+      <div class="group">
+        <button id="timerBtn" class="green">Start 15:00</button>
+        <button id="resetTimer">Reset</button>
+      </div>
+      <div class="group">
+        <button id="hideBtn">Hide Controls</button>
+        <button id="fullBtn">Fullscreen</button>
+      </div>
+      <div id="status" class="status">Waiting for Microsoft setup.</div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { PublicClientApplication, InteractionRequiredAuthError } from "https://esm.sh/@azure/msal-browser@5.22.0";
+
+const $=id=>document.getElementById(id);
+const CONFIG_KEY='showrunner-m365-config-v1';
+const URL_KEY='showrunner-m365-ppt-url-v1';
+const REDIRECT=window.location.origin+'/powerpoint-live';
+const SCOPES=['Files.Read'];
+let msalApp=null;
+let account=null;
+let seconds=900,timerId=null;
+
+const presets={
+  vote:{kicker:'QUICK VOTE',title:'Lock in your choice.',body:'TEXT · IMAGE · AUDIO · VIDEO / MEME',sub:'Be ready to explain WHY.'},
+  prompt:{kicker:'DISCUSS',title:'What changed?',body:'What improved?\nWhat got worse?\nWhat would you verify?',sub:'Use evidence from what you can actually see.'},
+  warning:{kicker:'HUMAN JUDGMENT',title:'Polished ≠ accurate.',body:'FACTUAL ERRORS · MISSING CONTEXT · MADE-UP DETAILS · ACCESSIBILITY · ATTRIBUTION',sub:'What would you verify before using this?'},
+  exit:{kicker:'EXIT PULSE',title:'Before you leave…',body:'ONE SURPRISE\nONE LIMITATION\nONE HUMAN MOVE',sub:'Defend your answer with evidence from today.'}
+};
+
+$('redirectUri').textContent=REDIRECT;
+
+function getConfig(){
+  try{return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}')}catch{return{}}
+}
+function saveConfig(){
+  const cfg={clientId:$('clientId').value.trim(),tenantId:$('tenantId').value.trim()||'organizations'};
+  localStorage.setItem(CONFIG_KEY,JSON.stringify(cfg));
+  updateConfigUI();
+  $('settings').classList.remove('on');
+  initMsal().catch(showError);
+}
+function updateConfigUI(){
+  const cfg=getConfig();
+  $('clientId').value=cfg.clientId||'';
+  $('tenantId').value=cfg.tenantId||'organizations';
+  const ready=!!cfg.clientId;
+  $('configChip').textContent=ready?'Microsoft app configured':'App not configured';
+  $('configChip').className='chip '+(ready?'ok':'warn');
+  $('status').textContent=ready?'Ready to connect Microsoft 365.':'Open Microsoft Setup and add the application client ID.';
+}
+async function initMsal(){
+  const cfg=getConfig();
+  if(!cfg.clientId){msalApp=null;account=null;return;}
+  msalApp=new PublicClientApplication({
+    auth:{
+      clientId:cfg.clientId,
+      authority:'https://login.microsoftonline.com/'+(cfg.tenantId||'organizations'),
+      redirectUri:REDIRECT,
+      postLogoutRedirectUri:REDIRECT
+    },
+    cache:{cacheLocation:'sessionStorage',storeAuthStateInCookie:false}
+  });
+  await msalApp.initialize();
+  const result=await msalApp.handleRedirectPromise().catch(()=>null);
+  if(result?.account) account=result.account;
+  if(!account){
+    const accounts=msalApp.getAllAccounts();
+    if(accounts.length) account=accounts[0];
+  }
+  updateAuthUI();
+}
+function updateAuthUI(){
+  if(account){
+    $('authChip').textContent=account.username||account.name||'Connected';
+    $('authChip').className='chip ok';
+    $('connectBtn').textContent='Microsoft 365 Connected';
+    $('status').textContent='Connected. Paste your PowerPoint link and load it live.';
+  }else{
+    $('authChip').textContent='Not connected';
+    $('authChip').className='chip';
+    $('connectBtn').textContent='Connect Microsoft 365';
+  }
+}
+async function connect(){
+  if(!msalApp){
+    $('settings').classList.add('on');
+    throw new Error('Add the Microsoft Entra application client ID first.');
+  }
+  const response=await msalApp.loginPopup({scopes:SCOPES,prompt:'select_account'});
+  account=response.account;
+  updateAuthUI();
+}
+async function getToken(){
+  if(!msalApp) throw new Error('Microsoft app setup is missing.');
+  if(!account){
+    const accounts=msalApp.getAllAccounts();
+    if(accounts.length) account=accounts[0];
+  }
+  if(!account) await connect();
+  try{
+    const t=await msalApp.acquireTokenSilent({scopes:SCOPES,account});
+    return t.accessToken;
+  }catch(e){
+    if(e instanceof InteractionRequiredAuthError || /interaction_required|consent_required|login_required/i.test(String(e))){
+      const t=await msalApp.acquireTokenPopup({scopes:SCOPES,account});
+      account=t.account||account;
+      updateAuthUI();
+      return t.accessToken;
+    }
+    throw e;
+  }
+}
+function encodeSharingUrl(url){
+  const bytes=new TextEncoder().encode(url);
+  let binary='';
+  for(const b of bytes) binary+=String.fromCharCode(b);
+  return 'u!'+btoa(binary).replace(/=/g,'').replace(/\//g,'_').replace(/\+/g,'-');
+}
+async function graphPreview(shareUrl){
+  const token=await getToken();
+  const shareId=encodeSharingUrl(shareUrl);
+  const res=await fetch('https://graph.microsoft.com/v1.0/shares/'+encodeURIComponent(shareId)+'/driveItem/preview',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify({})
+  });
+  if(!res.ok){
+    let detail='';
+    try{detail=JSON.stringify(await res.json())}catch{detail=await res.text()}
+    throw new Error('Microsoft Graph returned '+res.status+'.\n'+detail);
+  }
+  return res.json();
+}
+function submitPostPreview(postUrl,postParameters){
+  const holder=document.createElement('div');
+  holder.style.display='none';
+  const form=document.createElement('form');
+  form.method='POST';form.action=postUrl;form.target='pptFrame';
+  const params=new URLSearchParams(postParameters||'');
+  for(const [k,v] of params){
+    const input=document.createElement('input');
+    input.type='hidden';input.name=k;input.value=v;form.appendChild(input);
+  }
+  holder.appendChild(form);document.body.appendChild(holder);form.submit();
+  setTimeout(()=>holder.remove(),3000);
+}
+async function loadPresentation(){
+  hideError();
+  const raw=$('pptUrl').value.trim();
+  if(!raw) throw new Error('Paste your OneDrive/SharePoint PowerPoint sharing URL first.');
+  let u;
+  try{u=new URL(raw)}catch{throw new Error('That does not look like a valid URL.')}
+  if(u.protocol!=='https:') throw new Error('The PowerPoint URL must use HTTPS.');
+  localStorage.setItem(URL_KEY,raw);
+  $('status').textContent='Requesting secure Microsoft preview…';
+  $('loadBtn').disabled=true;
+  try{
+    const preview=await graphPreview(raw);
+    $('empty').style.display='none';
+    if(preview.getUrl){
+      $('pptFrame').src=preview.getUrl;
+    }else if(preview.postUrl){
+      submitPostPreview(preview.postUrl,preview.postParameters||'');
+    }else{
+      throw new Error('Microsoft did not return an embeddable preview URL for this file.');
+    }
+    $('status').textContent='Live PowerPoint loaded through Microsoft Graph.';
+  }finally{
+    $('loadBtn').disabled=false;
+  }
+}
+function showError(err){
+  const msg=String(err?.message||err||'Unknown error');
+  $('errorText').textContent=msg+
+    '\n\nIf this is an Entra configuration error, verify the Client ID, tenant, SPA redirect URI, and delegated Files.Read permission.';
+  $('errorBox').classList.add('on');
+  $('status').textContent='Microsoft connection needs attention.';
+}
+function hideError(){$('errorBox').classList.remove('on')}
+function setOverlay(o){
+  $('overlayKicker').textContent=o.kicker||'';
+  $('overlayTitle').textContent=o.title||'';
+  $('overlayBody').textContent=o.body||'';
+  $('overlaySub').textContent=o.sub||'';
+  $('timerDisplay').style.display='none';
+}
+function reveal(force){
+  const card=$('overlayCard'),scrim=$('scrim');
+  const on=force===undefined?!card.classList.contains('on'):force;
+  card.classList.toggle('on',on);scrim.classList.toggle('on',on);
+}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function tick(){
+  $('timerDisplay').textContent=fmt(seconds);
+  if(seconds<=0){clearInterval(timerId);timerId=null;$('timerBtn').textContent='Start 15:00';return;}
+  seconds--;
+}
+function toggleTimer(){
+  reveal(true);$('timerDisplay').style.display='block';
+  $('overlayKicker').textContent='REMIX IN PROGRESS';
+  $('overlayTitle').textContent='Same idea. Two modalities.';
+  $('overlayBody').textContent='ONE AUDIENCE · SAVE AN ARTIFACT';
+  $('overlaySub').textContent='Stop perfecting. Make the modality choice intentional.';
+  if(timerId){clearInterval(timerId);timerId=null;$('timerBtn').textContent='Resume Timer';return;}
+  tick();timerId=setInterval(tick,1000);$('timerBtn').textContent='Pause Timer';
+}
+function resetTimer(){clearInterval(timerId);timerId=null;seconds=900;$('timerDisplay').textContent='15:00';$('timerBtn').textContent='Start 15:00'}
+
+$('settingsBtn').onclick=()=>{$('settings').classList.add('on');hideError()};
+$('closeSettings').onclick=()=>$('settings').classList.remove('on');
+$('saveSettings').onclick=saveConfig;
+$('connectBtn').onclick=()=>connect().catch(showError);
+$('loadBtn').onclick=()=>loadPresentation().catch(showError);
+$('errorBox').onclick=hideError;
+$('revealBtn').onclick=()=>reveal();
+$('timerBtn').onclick=toggleTimer;
+$('resetTimer').onclick=resetTimer;
+$('hideBtn').onclick=()=>$('dock').classList.add('hidden');
+$('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():$('stage').requestFullscreen?.();
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{setOverlay(presets[b.dataset.preset]);reveal(true)});
+document.addEventListener('keydown',e=>{
+  if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
+  const k=e.key.toLowerCase();
+  if(k==='r')reveal();
+  if(k==='t')toggleTimer();
+  if(k==='h')$('dock').classList.toggle('hidden');
+  if(k==='f')document.fullscreenElement?document.exitFullscreen?.():$('stage').requestFullscreen?.();
+});
+
+setOverlay(presets.vote);
+const savedUrl=localStorage.getItem(URL_KEY);
+if(savedUrl)$('pptUrl').value=savedUrl;
+updateConfigUI();
+initMsal().catch(showError);
+</script>
+</body>
+</html>
