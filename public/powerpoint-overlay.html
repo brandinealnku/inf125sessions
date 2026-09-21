@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShowRunner · PowerPoint Overlay Prototype</title>
+<style>
+:root{
+  --bg:#0b0c10;--panel:#151821;--panel2:#1d2230;--text:#f7f3ea;--muted:#aeb5c2;
+  --accent:#f2b84b;--blue:#78a9ff;--green:#7ed8a4;--red:#ff8c7b;--line:rgba(255,255,255,.14)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{overflow:hidden}
+.app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr}
+.topbar{height:58px;display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(10,12,16,.97);border-bottom:1px solid var(--line);z-index:30}
+.brand{font-weight:900;letter-spacing:.04em;white-space:nowrap}
+.badge{font-size:12px;color:#111;background:var(--accent);padding:5px 8px;border-radius:999px;font-weight:900}
+.url{flex:1;min-width:180px;border:1px solid var(--line);background:#0e1118;color:#fff;border-radius:10px;padding:10px 12px;font-size:14px}
+button{border:1px solid var(--line);background:var(--panel2);color:#fff;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#111}
+button.blue{background:#315b9e;border-color:#4776bd}
+button.green{background:#20623d;border-color:#2b7a4e}
+button.red{background:#6d2f28;border-color:#8d4035}
+.stage{position:relative;overflow:hidden;background:#000}
+.ppt-wrap{position:absolute;inset:0;background:#000}
+#pptFrame{width:100%;height:100%;border:0;background:#111}
+#empty{position:absolute;inset:0;display:grid;place-items:center;padding:36px;background:
+ radial-gradient(circle at 30% 20%,rgba(242,184,75,.12),transparent 34%),
+ radial-gradient(circle at 70% 70%,rgba(120,169,255,.10),transparent 38%),
+ #0c0e13}
+.empty-card{max-width:820px;text-align:center}
+.empty-card h1{font:700 clamp(34px,5vw,70px)/1 Georgia,serif;margin:0 0 18px}
+.empty-card p{font-size:18px;line-height:1.5;color:var(--muted)}
+.overlay-layer{position:absolute;inset:0;pointer-events:none;z-index:15}
+.scrim{position:absolute;inset:0;background:rgba(3,5,8,.48);backdrop-filter:blur(2px);opacity:0;transition:.18s}
+.scrim.on{opacity:1}
+.overlay-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);width:min(900px,86vw);background:rgba(18,21,29,.96);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:34px 38px;box-shadow:0 32px 120px rgba(0,0,0,.55);opacity:0;transition:.18s;pointer-events:none}
+.overlay-card.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.overlay-card .kicker{font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:900;margin-bottom:12px}
+.overlay-card h2{font:700 clamp(34px,5vw,70px)/1.02 Georgia,serif;margin:0 0 18px}
+.overlay-card p{font-size:clamp(20px,2.4vw,34px);line-height:1.2;margin:0;color:#f5f2eb;white-space:pre-line}
+.overlay-card .sub{margin-top:18px;color:var(--muted);font-size:16px}
+.timer{font:900 clamp(70px,12vw,170px)/1 Arial;margin-top:10px;letter-spacing:-.05em}
+.dock{position:absolute;left:18px;right:18px;bottom:16px;z-index:25;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px;background:rgba(7,8,11,.86);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(14px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.dock.hidden{opacity:0;pointer-events:none}
+.group{display:flex;align-items:center;gap:7px;padding-right:8px;border-right:1px solid var(--line)}
+.group:last-child{border-right:0}
+.small{font-size:12px;color:var(--muted)}
+.status{margin-left:auto;font-size:12px;color:var(--muted);max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.editor{position:absolute;right:18px;top:18px;z-index:26;width:min(410px,90vw);padding:14px;background:rgba(12,14,20,.94);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.45);display:none}
+.editor.on{display:block}
+.editor label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:900;margin:10px 0 6px}
+.editor input,.editor textarea{width:100%;border:1px solid var(--line);background:#0b0e14;color:#fff;border-radius:9px;padding:9px 10px;font-size:14px}
+.editor textarea{height:86px;resize:vertical}
+.editor .row{display:flex;gap:8px;margin-top:12px}
+.tip{position:absolute;left:18px;top:18px;z-index:20;background:rgba(0,0,0,.65);color:#ddd;padding:8px 10px;border-radius:10px;font-size:12px}
+@media(max-width:900px){.brand{display:none}.badge{display:none}.topbar{height:auto;flex-wrap:wrap}.url{order:5;width:100%;flex-basis:100%}.dock{max-height:42vh;overflow:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">SHOWRUNNER</div><div class="badge">POWERPOINT OVERLAY</div>
+    <input id="pptUrl" class="url" placeholder="Paste a OneDrive / PowerPoint presentation URL">
+    <button id="loadBtn" class="primary">Load Presentation</button>
+    <button id="clearBtn">Clear</button>
+    <button id="fullBtn">Fullscreen</button>
+  </div>
+
+  <main class="stage" id="stage">
+    <div class="ppt-wrap">
+      <iframe id="pptFrame" allow="fullscreen; autoplay; clipboard-read; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      <div id="empty">
+        <div class="empty-card">
+          <div class="badge" style="display:inline-block;margin-bottom:14px">LIVE SOURCE</div>
+          <h1>PowerPoint underneath.<br>ShowRunner on top.</h1>
+          <p>Paste a share or embed URL above. The presentation stays the visual source of truth while ShowRunner adds prompts, reveals, timers, and class interactions as an independent overlay.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay-layer">
+      <div id="scrim" class="scrim"></div>
+      <div id="overlayCard" class="overlay-card">
+        <div id="overlayKicker" class="kicker">QUICK VOTE</div>
+        <h2 id="overlayTitle">Lock in your choice.</h2>
+        <p id="overlayBody">TEXT · IMAGE · AUDIO · VIDEO / MEME</p>
+        <div id="overlaySub" class="sub">Be ready to explain why.</div>
+        <div id="timerDisplay" class="timer" style="display:none">15:00</div>
+      </div>
+    </div>
+
+    <div class="tip">R reveal · T timer · E edit overlay · H hide controls · F fullscreen</div>
+
+    <div id="editor" class="editor">
+      <strong>Overlay editor</strong>
+      <label>Kicker</label><input id="editKicker">
+      <label>Title</label><input id="editTitle">
+      <label>Body</label><textarea id="editBody"></textarea>
+      <label>Footer</label><input id="editSub">
+      <div class="row"><button id="applyOverlay" class="primary">Apply</button><button id="closeEditor">Close</button></div>
+    </div>
+
+    <div id="dock" class="dock">
+      <div class="group">
+        <button id="revealBtn" class="blue">Reveal / Hide</button>
+        <button id="editBtn">Edit Overlay</button>
+      </div>
+      <div class="group">
+        <button data-preset="vote">Quick Vote</button>
+        <button data-preset="prompt">Prompt</button>
+        <button data-preset="warning">Verify</button>
+        <button data-preset="exit">Exit Pulse</button>
+      </div>
+      <div class="group">
+        <button id="timerBtn" class="green">Start 15:00</button>
+        <button id="resetTimer">Reset</button>
+      </div>
+      <div class="group">
+        <button id="hideBtn">Hide Controls</button>
+      </div>
+      <div id="status" class="status">No presentation loaded.</div>
+    </div>
+  </main>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const KEY='showrunner-powerpoint-source-v1';
+const pptUrl=$('pptUrl'), frame=$('pptFrame'), empty=$('empty'), status=$('status');
+const scrim=$('scrim'), card=$('overlayCard'), timerDisplay=$('timerDisplay');
+let seconds=900, timerId=null;
+
+const presets={
+  vote:{kicker:'QUICK VOTE',title:'Lock in your choice.',body:'TEXT · IMAGE · AUDIO · VIDEO / MEME',sub:'Be ready to explain WHY.'},
+  prompt:{kicker:'DISCUSS',title:'What changed?',body:'What improved?\nWhat got worse?\nWhat would you verify?',sub:'Use evidence from what you can actually see.'},
+  warning:{kicker:'HUMAN JUDGMENT',title:'Polished ≠ accurate.',body:'FACTUAL ERRORS · MISSING CONTEXT · MADE-UP DETAILS · ACCESSIBILITY · ATTRIBUTION',sub:'What would you verify before using this?'},
+  exit:{kicker:'EXIT PULSE',title:'Before you leave…',body:'ONE SURPRISE\nONE LIMITATION\nONE HUMAN MOVE',sub:'Defend your answer with evidence from today.'}
+};
+
+function setOverlay(o){
+  $('overlayKicker').textContent=o.kicker||'';
+  $('overlayTitle').textContent=o.title||'';
+  $('overlayBody').textContent=o.body||'';
+  $('overlaySub').textContent=o.sub||'';
+  $('editKicker').value=o.kicker||'';
+  $('editTitle').value=o.title||'';
+  $('editBody').value=o.body||'';
+  $('editSub').value=o.sub||'';
+  timerDisplay.style.display='none';
+}
+function reveal(force){
+  const on=force===undefined?!card.classList.contains('on'):force;
+  card.classList.toggle('on',on);scrim.classList.toggle('on',on);
+}
+function cleanUrl(raw){
+  const v=(raw||'').trim();
+  if(!v)return '';
+  try{
+    const u=new URL(v);
+    if(u.protocol!=='https:')throw new Error();
+    return u.toString();
+  }catch(e){return '';}
+}
+function loadPresentation(){
+  const url=cleanUrl(pptUrl.value);
+  if(!url){status.textContent='Paste a valid HTTPS PowerPoint/OneDrive URL.';return;}
+  frame.src=url;
+  empty.style.display='none';
+  localStorage.setItem(KEY,url);
+  status.textContent='Loaded: '+url;
+}
+function clearPresentation(){
+  frame.src='about:blank';empty.style.display='grid';pptUrl.value='';localStorage.removeItem(KEY);
+  status.textContent='No presentation loaded.';
+}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function tick(){
+  timerDisplay.textContent=fmt(seconds);
+  if(seconds<=0){clearInterval(timerId);timerId=null;$('timerBtn').textContent='Start 15:00';return;}
+  seconds--;
+}
+function toggleTimer(){
+  reveal(true);timerDisplay.style.display='block';
+  $('overlayKicker').textContent='REMIX IN PROGRESS';
+  $('overlayTitle').textContent='Same idea. Two modalities.';
+  $('overlayBody').textContent='ONE AUDIENCE · SAVE AN ARTIFACT';
+  $('overlaySub').textContent='Stop perfecting. Make the modality choice intentional.';
+  if(timerId){clearInterval(timerId);timerId=null;$('timerBtn').textContent='Resume Timer';return;}
+  tick();timerId=setInterval(tick,1000);$('timerBtn').textContent='Pause Timer';
+}
+function resetTimer(){clearInterval(timerId);timerId=null;seconds=900;timerDisplay.textContent='15:00';$('timerBtn').textContent='Start 15:00'}
+
+$('loadBtn').onclick=loadPresentation;
+$('clearBtn').onclick=clearPresentation;
+$('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():$('stage').requestFullscreen?.();
+$('revealBtn').onclick=()=>reveal();
+$('editBtn').onclick=()=>$('editor').classList.add('on');
+$('closeEditor').onclick=()=>$('editor').classList.remove('on');
+$('applyOverlay').onclick=()=>{setOverlay({kicker:$('editKicker').value,title:$('editTitle').value,body:$('editBody').value,sub:$('editSub').value});$('editor').classList.remove('on');reveal(true)};
+$('timerBtn').onclick=toggleTimer;
+$('resetTimer').onclick=resetTimer;
+$('hideBtn').onclick=()=>$('dock').classList.add('hidden');
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{setOverlay(presets[b.dataset.preset]);reveal(true)});
+document.addEventListener('keydown',e=>{
+  if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
+  const k=e.key.toLowerCase();
+  if(k==='r')reveal();
+  if(k==='t')toggleTimer();
+  if(k==='e')$('editor').classList.toggle('on');
+  if(k==='h')$('dock').classList.toggle('hidden');
+  if(k==='f')document.fullscreenElement?document.exitFullscreen?.():$('stage').requestFullscreen?.();
+});
+setOverlay(presets.vote);
+const saved=localStorage.getItem(KEY);
+if(saved){pptUrl.value=saved;loadPresentation();}
+</script>
+</body>
+</html>
