@@ -1,12 +1,12 @@
 (()=>{
 const WEEK5='inf125-week05-session1-multimodal-communication';
-const DECK='1-g7tK_8ghPqr8zzmbBgrbb3Z-rNCTVqGQLWMIbcQ4VY';
+const DECK='1Jx0UiNvmFICz7fS8jlwVUtmmpAwTr2N60rIdhzZpU38';
 const SLIDES={
-1:{deck:1,id:'p1',title:'AI REMIX LAB'},2:{deck:2,id:'p2',title:'COLD OPEN'},3:{deck:4,id:'p3',title:'QUICK VOTE'},4:{deck:6,id:'p4',title:'DEBRIEF'},
-5:{deck:8,id:'p5',title:'MINI LESSON'},6:{deck:10,id:'p6',title:'CORE MODEL'},7:{deck:11,id:'p7',title:'One idea. Four remixes.'},
-8:{deck:12,id:'p8',title:'TRADEOFFS'},9:{deck:13,id:'p9',title:'WATCH THE IDEA CHANGE'},10:{deck:14,id:'p10',title:'AI Remix Challenge'},
-11:{deck:15,id:'p11',title:'CHOOSE AN AUDIENCE'},12:{deck:16,id:'p12',title:'REMIX IN PROGRESS…'},13:{deck:17,id:'p13',title:'THE MULTIMODAL SHOWDOWN'},
-14:{deck:18,id:'p14',title:'POLISHED ≠ ACCURATE'},15:{deck:19,id:'p15',title:'HUMAN JUDGMENT'},16:{deck:20,id:'p16',title:'EXIT PULSE'}
+1:{deck:1,id:'p1',title:'AI REMIX LAB'},2:{deck:2,id:'p2',title:'COLD OPEN'},3:{deck:3,id:'p3',title:'QUICK VOTE'},4:{deck:4,id:'p4',title:'DEBRIEF'},
+5:{deck:5,id:'p5',title:'MINI LESSON'},6:{deck:6,id:'p6',title:'CORE MODEL'},7:{deck:7,id:'p7',title:'One idea. Four remixes.'},
+8:{deck:8,id:'p8',title:'TRADEOFFS'},9:{deck:9,id:'p9',title:'WATCH THE IDEA CHANGE'},10:{deck:10,id:'p10',title:'AI Remix Challenge'},
+11:{deck:11,id:'p11',title:'CHOOSE AN AUDIENCE'},12:{deck:12,id:'p12',title:'REMIX IN PROGRESS…'},13:{deck:13,id:'p13',title:'THE MULTIMODAL SHOWDOWN'},
+14:{deck:14,id:'p14',title:'POLISHED ≠ ACCURATE'},15:{deck:15,id:'p15',title:'HUMAN JUDGMENT'},16:{deck:16,id:'p16',title:'EXIT PULSE'}
 };
 const MAP8=[
 {start:1,end:4,phase:'EXPERIENCE'},{start:5,end:6,phase:'UNDERSTAND'},{start:7,end:8,phase:'COMPARE'},
@@ -39,7 +39,7 @@ function paint(){
     '<div class="w5titles">'+titles(c.range)+'</div></div>'+
     '<div class="w5actions"><a class="btn" target="_blank" rel="noopener" href="'+slideUrl(c.range)+'">Open '+slideLabel(c.range)+'</a>'+
     '<a class="btn" target="_blank" rel="noopener" href="/google-slides-room?session='+encodeURIComponent(WEEK5)+'">Projection</a></div>'+
-    '<p>Edit the interaction below with these slides in view. ShowRunner skips blank deck slides 3, 5, 7, and 9. Prompts, choices, timing, and instructor cues remain editable.</p>'+
+    '<p>Edit the interaction below with these slides in view. Source of truth: INF125_Week05_1_Session1. Prompts, choices, timing, and instructor cues remain editable; Slide 17 is the instructor appendix and stays outside the student-facing sequence.</p>'+
   '</section>';
   anchor.insertAdjacentHTML('afterend',html);
 }

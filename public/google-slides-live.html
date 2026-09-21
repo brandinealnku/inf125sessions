@@ -35,8 +35,8 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 
   <div class="topbar" id="topbar">
     <div class="brand">SHOWRUNNER · WEEK 05</div>
-    <input id="slidesUrl" class="url" placeholder="Paste Google Slides URL">
-    <button id="loadSlides" class="primary">Load Slides</button>
+    <input id="slidesUrl" class="url" placeholder="Session 1 source deck" readonly>
+    <button id="loadSlides" class="primary">Reload Source Deck</button>
     <a id="roomLinkTop" class="btn" target="_blank">Projection</a>
     <a id="studentLinkTop" class="btn" target="_blank">Student View</a>
     <button id="fullBtn">Fullscreen</button>
@@ -84,26 +84,26 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 <script src="/shared-v08.js"></script>
 <script>
 const C=Classroom,$=id=>document.getElementById(id);
-const URL_KEY='showrunner-google-slides-week5-url-v2';
-const DEFAULT_DECK_ID='1-g7tK_8ghPqr8zzmbBgrbb3Z-rNCTVqGQLWMIbcQ4VY';
+const URL_KEY='showrunner-google-slides-week5-session1-url-v3';
+const DEFAULT_DECK_ID='1Jx0UiNvmFICz7fS8jlwVUtmmpAwTr2N60rIdhzZpU38';
 const DEFAULT_DECK_URL='https://docs.google.com/presentation/d/'+DEFAULT_DECK_ID+'/edit?usp=drivesdk';
 const SLIDES=[
   {n:1,deck:1,id:'p1',title:'AI REMIX LAB'},
   {n:2,deck:2,id:'p2',title:'COLD OPEN'},
-  {n:3,deck:4,id:'p3',title:'QUICK VOTE'},
-  {n:4,deck:6,id:'p4',title:'DEBRIEF'},
-  {n:5,deck:8,id:'p5',title:'MINI LESSON'},
-  {n:6,deck:10,id:'p6',title:'CORE MODEL'},
-  {n:7,deck:11,id:'p7',title:'ONE IDEA. FOUR REMIXES'},
-  {n:8,deck:12,id:'p8',title:'TRADEOFFS'},
-  {n:9,deck:13,id:'p9',title:'LIVE REMIX'},
-  {n:10,deck:14,id:'p10',title:'AI REMIX CHALLENGE'},
-  {n:11,deck:15,id:'p11',title:'CHOOSE AN AUDIENCE'},
-  {n:12,deck:16,id:'p12',title:'REMIX IN PROGRESS'},
-  {n:13,deck:17,id:'p13',title:'MULTIMODAL SHOWDOWN'},
-  {n:14,deck:18,id:'p14',title:'POLISHED ≠ ACCURATE'},
-  {n:15,deck:19,id:'p15',title:'HUMAN JUDGMENT'},
-  {n:16,deck:20,id:'p16',title:'EXIT PULSE'}
+  {n:3,deck:3,id:'p3',title:'QUICK VOTE'},
+  {n:4,deck:4,id:'p4',title:'DEBRIEF'},
+  {n:5,deck:5,id:'p5',title:'MINI LESSON'},
+  {n:6,deck:6,id:'p6',title:'CORE MODEL'},
+  {n:7,deck:7,id:'p7',title:'ONE IDEA. FOUR REMIXES'},
+  {n:8,deck:8,id:'p8',title:'TRADEOFFS'},
+  {n:9,deck:9,id:'p9',title:'LIVE REMIX'},
+  {n:10,deck:10,id:'p10',title:'AI REMIX CHALLENGE'},
+  {n:11,deck:11,id:'p11',title:'CHOOSE AN AUDIENCE'},
+  {n:12,deck:12,id:'p12',title:'REMIX IN PROGRESS'},
+  {n:13,deck:13,id:'p13',title:'MULTIMODAL SHOWDOWN'},
+  {n:14,deck:14,id:'p14',title:'POLISHED ≠ ACCURATE'},
+  {n:15,deck:15,id:'p15',title:'HUMAN JUDGMENT'},
+  {n:16,deck:16,id:'p16',title:'EXIT PULSE'}
 ];
 const PHASE_MAP_8=[
   {start:1,end:4},
@@ -158,9 +158,9 @@ function syncSlideToPhase(step=C.snapshot.state.step||0){
   loadSlide(range.start);
 }
 async function loadSlides(){
-  const raw=$('slidesUrl').value.trim()||DEFAULT_DECK_URL,id=deckIdFromUrl(raw)||DEFAULT_DECK_ID;
-  deckId=id;
-  localStorage.setItem(URL_KEY,raw);
+  deckId=DEFAULT_DECK_ID;
+  $('slidesUrl').value=DEFAULT_DECK_URL;
+  localStorage.setItem(URL_KEY,DEFAULT_DECK_URL);
   syncSlideToPhase();
   if(C.session?.id) await setState({roomMoment:roomMoment('hidden')});
 }
@@ -270,8 +270,8 @@ async function toggleTimer(){
 function key(){const st=C.snapshot.state;return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',responseCount(),C.snapshot.participantCount].join('|')}
 async function poll(){
   try{
-    await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0),remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0),remoteDeck=C.snapshot.state.roomMoment?.deckId||'';
-    if(remoteDeck&&remoteDeck!==deckId)deckId=remoteDeck;
+    await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0),remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);
+    deckId=DEFAULT_DECK_ID;
     if(step!==lastPhaseStep){lastPhaseStep=step;if(!remoteSlide)syncSlideToPhase(step)}
     if(remoteSlide&&remoteSlide!==currentSlide){currentSlide=remoteSlide;loadSlide(currentSlide)}
     if(k!==struct){struct=k;render()}
@@ -305,13 +305,15 @@ document.addEventListener('keydown',e=>{
   try{
     await C.loadSession();await C.refresh();
     $('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();
-    const saved=localStorage.getItem(URL_KEY)||DEFAULT_DECK_URL;$('slidesUrl').value=saved;deckId=deckIdFromUrl(saved)||DEFAULT_DECK_ID;
+    localStorage.setItem(URL_KEY,DEFAULT_DECK_URL);$('slidesUrl').value=DEFAULT_DECK_URL;deckId=DEFAULT_DECK_ID;
     lastPhaseStep=Number(C.snapshot.state.step||0);
     const remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);
-    const remoteDeck=C.snapshot.state.roomMoment?.deckId||'';
-    if(remoteDeck)deckId=remoteDeck;
     currentSlide=remoteSlide||phaseRange(lastPhaseStep).start;
     loadSlide(currentSlide);
+    if(C.snapshot.state.roomMoment?.deckId!==DEFAULT_DECK_ID){
+      await C.state({roomMoment:{...(C.snapshot.state.roomMoment||{}),type:C.snapshot.state.roomMoment?.type||'hidden',slideNumber:currentSlide,deckId:DEFAULT_DECK_ID}});
+      await C.refresh();
+    }
     render();struct=key();setInterval(poll,900);
   }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
 })();
