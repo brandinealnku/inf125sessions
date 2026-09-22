@@ -13,11 +13,20 @@ const MAP8=[
 {start:9,end:9,phase:'LIVE TRANSFORM'},{start:10,end:11,phase:'COMMIT'},{start:12,end:12,phase:'CREATE'},
 {start:13,end:15,phase:'SHARE + QUESTION'},{start:16,end:16,phase:'REFLECT'}
 ];
+const MAP12=[
+{start:2,end:2,phase:'COLD OPEN'},{start:3,end:3,phase:'QUICK VOTE'},
+{start:4,end:4,phase:'DEBRIEF'},{start:5,end:6,phase:'CORE MODEL'},
+{start:7,end:7,phase:'FOUR REMIXES'},{start:8,end:8,phase:'TRADEOFFS'},
+{start:9,end:9,phase:'LIVE REMIX'},{start:10,end:11,phase:'AUDIENCE'},
+{start:12,end:12,phase:'CREATE'},{start:13,end:13,phase:'SHOWDOWN'},
+{start:14,end:15,phase:'HUMAN JUDGMENT'},{start:16,end:16,phase:'EXIT PULSE'}
+];
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function ctx(){
   try{
-    if(typeof s==='undefined'||!s||typeof idx==='undefined'||s.id!==WEEK5||s.steps.length!==8)return null;
-    return MAP8[idx]?{range:MAP8[idx],index:idx}:null;
+    if(typeof s==='undefined'||!s||typeof idx==='undefined'||s.id!==WEEK5)return null;
+    const map=s.steps.length===12?MAP12:MAP8;
+    return map[idx]?{range:map[idx],index:idx}:null;
   }catch(_){return null}
 }
 function deckNumbers(r){const a=[];for(let n=r.start;n<=r.end;n++)if(SLIDES[n])a.push(SLIDES[n].deck);return a}
