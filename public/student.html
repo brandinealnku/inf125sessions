@@ -28,6 +28,7 @@ button{touch-action:manipulation}
 .progressLabel,.progressCount{font-size:11px;color:var(--muted);font-weight:800}
 .progressTrack{height:6px;background:#e1ddd4;border-radius:999px;overflow:hidden}
 .progressTrack span{display:block;height:100%;background:#2457a6;border-radius:999px;transition:width .25s}
+.slideStatus{margin:-10px 0 15px;color:var(--blueInk);font-size:14px;font-weight:800}
 .card{border:1px solid rgba(0,0,0,.04);border-radius:22px;padding:22px 24px;box-shadow:var(--shadow);margin:14px 0}
 .now{background:var(--blue)}
 .now .label{color:var(--blueInk)}
@@ -81,7 +82,18 @@ button{touch-action:manipulation}
 <script>
 const C=Classroom;
 const app=document.getElementById('app');
-let studentName=localStorage.classroomName||'',lastKey='',lastStep=-1,lastUpdatedAt=0,selected=[],stopLivePush=null;
+let studentName=localStorage.classroomName||'',lastKey='',selected=[],stopLivePush=null,submitting=false;
+
+const WEEK5='inf125-week05-session1-multimodal-communication';
+function slideNumber(){
+  if(C.session.id!==WEEK5)return null;
+  const n=Number(C.snapshot.state.roomMoment?.slideNumber);
+  return Number.isInteger(n)&&n>=1&&n<=16?n:null;
+}
+function updateSlideStatus(){
+  const badge=document.getElementById('slideStatus'),n=slideNumber();
+  if(badge)badge.textContent=n?'Slide '+n+' of 16':'Waiting for the first slide';
+}
 
 function task(s,f=''){return s.studentTask||f||s.lead||''}
 function elapsedPct(){const total=Math.max(1,C.session.durationMinutes||75),elapsed=C.elapsed(C.snapshot.state.step||0);return Math.max(0,Math.min(100,Math.round(elapsed/total*100)))}
@@ -89,7 +101,8 @@ function chrome(){
   const s=C.current(),state=C.snapshot.state,step=(state.step||0)+1,total=C.session.steps.length,pct=elapsedPct();
   return '<header class="header"><div><div class="brand">'+C.esc(C.session.course||'INF 125')+'</div><div class="subbrand">'+C.esc(C.session.title)+' · Student view</div></div>'+
     '<div class="meta"><span class="pill"><span class="dot"></span>Live</span><span class="pill">'+C.snapshot.participantCount+' in room</span></div></header>'+
-    '<div class="progressWrap"><span class="progressLabel">SESSION</span><div class="progressTrack"><span style="width:'+pct+'%"></span></div><span class="progressCount">Moment '+step+' of '+total+'</span></div>';
+    '<div class="progressWrap"><span class="progressLabel">SESSION</span><div class="progressTrack"><span style="width:'+pct+'%"></span></div><span class="progressCount">Moment '+step+' of '+total+'</span></div>'+
+    (C.session.id===WEEK5?'<p id="slideStatus" class="slideStatus" role="status">'+(slideNumber()?'Slide '+slideNumber()+' of 16':'Waiting for the first slide')+'</p>':'');
 }
 function currentCard(s){
   return '<section class="card now"><div class="label">NOW · '+C.esc(s.label||'Moment')+'</div><h1 class="title">'+C.esc(s.title||'')+'</h1><p class="lead">'+C.esc(s.lead||'')+'</p></section>';
@@ -112,8 +125,11 @@ function joinView(){
 async function doJoin(){
   const i=document.getElementById('nameInput');studentName=i.value.trim();
   if(!studentName)return err('Enter a name or nickname.');
-  localStorage.classroomName=studentName;
-  await C.join(studentName);render(true);startLiveSync();
+  const button=document.getElementById('joinBtn');button.disabled=true;button.textContent='Joining…';
+  try{
+    await C.join(studentName);localStorage.classroomName=studentName;
+    render(true);startLiveSync();
+  }catch(e){button.disabled=false;button.textContent='Enter the room →';err('Could not join. Check your connection and try again.');}
 }
 function answered(s){return s.key&&!!localStorage.getItem('answer:'+C.session.id+':'+s.key)}
 function look(s){
@@ -122,9 +138,17 @@ function look(s){
 async function submit(s,v){
   const button=document.getElementById('sendBtn')||document.getElementById('commitBtn');
   const original=button?.textContent||'Submit';
+  if(submitting)return;
+  submitting=true;
   try{
+    app.querySelectorAll('.choice').forEach(b=>b.disabled=true);
     if(button){button.disabled=true;button.textContent='Sending…'}
+    err('Sending your response…');
     await C.refresh();
+    if(C.current().key!==s.key){
+      render(true);err('The class moved forward. Respond to the current prompt instead.');
+      return;
+    }
     if(C.snapshot.state.locked){
       err('Responses are closed for this moment. Look up at the room and wait for the next prompt.');
       if(button){button.textContent='Responses closed';button.disabled=true}
@@ -137,6 +161,9 @@ async function submit(s,v){
   }catch(e){
     err('Could not send: '+(e?.message||'Please try again.'));
     if(button){button.disabled=false;button.textContent=original}
+    app.querySelectorAll('.choice').forEach(b=>b.disabled=false);
+  }finally{
+    submitting=false;
   }
 }
 function vote(s){
@@ -182,10 +209,11 @@ function runtimeType(s){
   return'passive';
 }
 function render(force=false){
-  const step=Number(C.snapshot.state.step||0),updatedAt=Number(C.snapshot.state.updatedAt||0),s=C.current();
-  if(step!==lastStep||updatedAt!==lastUpdatedAt){force=true;lastStep=step;lastUpdatedAt=updatedAt;lastKey='';selected=[];}
-  const k=[step,C.snapshot.state.locked,answered(s),updatedAt].join('|');
-  if(!force&&k===lastKey)return;lastKey=k;
+  const step=Number(C.snapshot.state.step||0),s=C.current();
+  const k=[step,C.snapshot.state.locked,answered(s),C.snapshot.sessionEdits?.[step]?.updatedAt||0].join('|');
+  if(k!==lastKey)selected=[];
+  if(!force&&k===lastKey){updateSlideStatus();return}
+  lastKey=k;
   if(answered(s))return look(s);
   const t=runtimeType(s);
   if(t==='vote')vote(s);else if(t==='select')select(s);else if(t==='prompt')promptView(s);else passive(s);
@@ -193,7 +221,7 @@ function render(force=false){
 async function poll(force=false){try{await C.refresh();render(force)}catch(_){}}
 function startLiveSync(){
   if(!stopLivePush&&C.subscribe){
-    stopLivePush=C.subscribe(()=>render(true));
+    stopLivePush=C.subscribe(()=>render(false));
   }
   setInterval(C.heartbeat,30000);
   setInterval(()=>poll(false),1200);
