@@ -1,0 +1,493 @@
+{
+  "id": "inf125-week06-ai-detective-lab",
+  "title": "Week 06 · AI Detective Lab",
+  "course": "INF 125 · AI Literacy",
+  "description": "Student-facing live learning lab for evaluating AI outputs and preparing for the Week 06 discussion, assignment, and midterm.",
+  "durationMinutes": 75,
+  "version": "0.10",
+  "steps": [
+    {
+      "label": "Midterm Preview",
+      "title": "What should you expect next Thursday?",
+      "lead": "The midterm asks whether you can use what you have learned about AI—not simply memorize definitions.",
+      "minutes": 2,
+      "type": "teach",
+      "key": "midterm_preview",
+      "studentTask": "Look up. We are starting with the exam format and what strong preparation looks like.",
+      "roomInstruction": "25 questions · 100 points · 75 minutes · open note + course materials · no generative AI",
+      "visualType": "statement",
+      "mediaOverlay": "Use what you know. Don't just memorize it.",
+      "runbook": {
+        "say": "The midterm is designed to see whether you can use what we have learned about AI, not simply memorize definitions.",
+        "studentDoes": "Listen for the format, question types, and what to study.",
+        "askNext": "What part of the exam feels least clear right now?",
+        "landHere": "Application matters more than memorization.",
+        "watchFor": "Questions about time, notes, Testing Services, or AI use.",
+        "ifStuck": "Remind students that the exam is open note but timed.",
+        "advanceWhen": "Students understand the basic format.",
+        "transition": "Let's see which question type feels least comfortable."
+      }
+    },
+    {
+      "label": "Midterm Pulse",
+      "title": "Which question type feels least comfortable right now?",
+      "lead": "Choose the one you would most want to practice before the exam.",
+      "minutes": 3,
+      "type": "vote",
+      "key": "midterm_confidence",
+      "choices": [
+        "Foundations",
+        "Application",
+        "AI Judgment Cases"
+      ],
+      "studentTask": "Choose the question type you feel least confident about.",
+      "roomInstruction": "Commit first. We will reveal the room after everyone votes.",
+      "visualType": "live-results",
+      "mediaOverlay": "Where does the room need the most practice?",
+      "runbook": {
+        "say": "There are three kinds of questions. Which one makes you want the most practice?",
+        "studentDoes": "Vote privately on your phone.",
+        "askNext": "Why do you think that category feels harder?",
+        "landHere": "The hardest questions are not necessarily the ones with the hardest vocabulary—they require judgment.",
+        "watchFor": "A strong cluster around judgment cases.",
+        "ifStuck": "Define each category in one sentence.",
+        "advanceWhen": "Most of the room has voted and results are discussed.",
+        "transition": "Now let's make those three levels concrete."
+      }
+    },
+    {
+      "label": "Exam Structure",
+      "title": "Three levels of thinking",
+      "lead": "10 Foundations · 10 Application · 5 AI Judgment Cases",
+      "minutes": 4,
+      "type": "teach",
+      "key": "midterm_structure",
+      "studentTask": "Notice how the point values increase as the thinking becomes more applied.",
+      "roomInstruction": "Foundations = recognize. Application = use. Judgment = decide.",
+      "visualType": "flow",
+      "mediaOverlay": "Recognize → Apply → Judge",
+      "runbook": {
+        "say": "The first 10 questions check foundations. The next 10 ask you to apply concepts. The final 5 are richer judgment cases and are worth the most points.",
+        "studentDoes": "Connect each level to a way of studying.",
+        "askNext": "What would be a bad way to study for an exam built this way?",
+        "landHere": "Memorizing definitions alone will not prepare you for 80 percent of the points.",
+        "watchFor": "Students realizing they need scenario practice.",
+        "ifStuck": "Contrast memorizing 'bias' with recognizing bias in a case.",
+        "advanceWhen": "Students can explain the difference between the three sections.",
+        "transition": "Today's lab is practice for exactly that kind of judgment."
+      }
+    },
+    {
+      "label": "Framework Reboot",
+      "title": "CLAIM → CHECK → CONTEXT → CONSEQUENCE → CALL",
+      "lead": "No notes. What does each move mean?",
+      "minutes": 2,
+      "type": "teach",
+      "key": "framework_reboot",
+      "studentTask": "Say the five moves out loud with the room.",
+      "roomInstruction": "What exactly is it saying? What evidence matters? What's missing? What if it's wrong? What should we do?",
+      "visualType": "flow",
+      "mediaOverlay": "CLAIM → CHECK → CONTEXT → CONSEQUENCE → CALL",
+      "runbook": {
+        "say": "Let's see what survived from Tuesday.",
+        "studentDoes": "Recall the five moves without notes.",
+        "askNext": "What are our three possible calls?",
+        "landHere": "Trust · Revise · Reject.",
+        "watchFor": "Hesitation around context or consequence.",
+        "ifStuck": "Prompt one word at a time.",
+        "advanceWhen": "The room can reconstruct the framework.",
+        "transition": "Now use it fast."
+      }
+    },
+    {
+      "label": "Believe the Bot · 1",
+      "title": "AI says Norse Commons closes at 8:00 tonight.",
+      "lead": "What is your first move?",
+      "minutes": 2,
+      "type": "vote",
+      "key": "bot_campus_hours",
+      "choices": [
+        "Trust",
+        "Check",
+        "Nope"
+      ],
+      "studentTask": "Vote based on what you would actually do.",
+      "roomInstruction": "Trust · Check · Nope",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "Don't overthink it. What would you really do?",
+        "studentDoes": "Vote.",
+        "askNext": "What source would settle this quickly?",
+        "landHere": "Low stakes can still deserve a quick authoritative check.",
+        "watchFor": "Students treating convenience as evidence.",
+        "ifStuck": "Ask where official hours would live.",
+        "advanceWhen": "The room names an appropriate source.",
+        "transition": "Now raise the cost of being wrong."
+      }
+    },
+    {
+      "label": "Believe the Bot · 2",
+      "title": "AI says Sabrina Carpenter is playing in Cincinnati this Friday.",
+      "lead": "Would you act on it?",
+      "minutes": 2,
+      "type": "vote",
+      "key": "bot_concert",
+      "choices": [
+        "Trust",
+        "Check",
+        "Nope"
+      ],
+      "studentTask": "Vote before imagining buying a ticket.",
+      "roomInstruction": "Trust · Check · Nope",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "Imagine you're about to spend money. Same answer?",
+        "studentDoes": "Vote.",
+        "askNext": "What would you verify before purchasing anything?",
+        "landHere": "The consequence of being wrong changes the verification effort.",
+        "watchFor": "Students naming official venue or ticketing sources.",
+        "ifStuck": "Ask what information could be stale.",
+        "advanceWhen": "Students connect verification to money and dates.",
+        "transition": "Now move into something that affects your course."
+      }
+    },
+    {
+      "label": "Believe the Bot · 3",
+      "title": "AI says your professor accepts late work for seven days with no penalty.",
+      "lead": "Would you trust it?",
+      "minutes": 2,
+      "type": "vote",
+      "key": "bot_course_policy",
+      "choices": [
+        "Trust",
+        "Check",
+        "Nope"
+      ],
+      "studentTask": "Vote, then identify the best source for course policy.",
+      "roomInstruction": "Trust · Check · Nope",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "What would you trust more than the chatbot here?",
+        "studentDoes": "Vote and name the authoritative source.",
+        "askNext": "What if the AI gives you a very confident answer?",
+        "landHere": "Confidence is not authority.",
+        "watchFor": "Syllabus, Canvas, instructor.",
+        "ifStuck": "Ask who owns the policy.",
+        "advanceWhen": "The room separates confidence from authority.",
+        "transition": "One more—and now the stakes jump."
+      }
+    },
+    {
+      "label": "Believe the Bot · 4",
+      "title": "AI recommends doubling an over-the-counter medication dose because symptoms are severe.",
+      "lead": "Same amount of checking?",
+      "minutes": 2,
+      "type": "vote",
+      "key": "bot_medication",
+      "choices": [
+        "Trust",
+        "Check",
+        "Nope"
+      ],
+      "studentTask": "Vote based on the consequence of being wrong.",
+      "roomInstruction": "Trust · Check · Nope",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "Notice how your verification threshold changes when health is involved.",
+        "studentDoes": "Vote.",
+        "askNext": "What kind of evidence or human expertise is appropriate here?",
+        "landHere": "Verification should scale with consequence.",
+        "watchFor": "Authoritative medical information or qualified professional.",
+        "ifStuck": "Compare this with checking restaurant hours.",
+        "advanceWhen": "Students can explain why stakes matter.",
+        "transition": "That gives us today's rule."
+      }
+    },
+    {
+      "label": "The Rule",
+      "title": "Verification should scale with consequence.",
+      "lead": "The bigger the consequence of being wrong, the stronger the verification should be.",
+      "minutes": 2,
+      "type": "teach",
+      "key": "verification_rule",
+      "studentTask": "Keep this rule in mind for the rest of the lab.",
+      "roomInstruction": "LOWER STAKES → MODERATE → HIGHER → VERY HIGH",
+      "visualType": "statement",
+      "mediaOverlay": "Verification should scale with consequence.",
+      "runbook": {
+        "say": "Not every claim requires the same amount of checking.",
+        "studentDoes": "Connect the rule to the four votes.",
+        "askNext": "What else matters besides consequence?",
+        "landHere": "Source fit, context, stakeholders, and uncertainty also matter.",
+        "watchFor": "Students avoiding a simple trust/distrust binary.",
+        "ifStuck": "Return to one previous scenario.",
+        "advanceWhen": "The rule is clear.",
+        "transition": "Now let's practice breaking an answer into claims."
+      }
+    },
+    {
+      "label": "Spot the Claims",
+      "title": "How many separate claims are hiding here?",
+      "lead": "“NKU students get free parking after 5 p.m., all first-year students qualify for a technology grant, and the library stays open until midnight every weekday.”",
+      "minutes": 4,
+      "type": "prompt",
+      "key": "spot_claims",
+      "studentTask": "Type the separate claims you would investigate. Short phrases are fine.",
+      "roomInstruction": "FICTIONAL CLASSROOM SCENARIO — do not treat these statements as real NKU information.",
+      "placeholder": "Claim 1... Claim 2... Claim 3...",
+      "visualType": "statement",
+      "mediaOverlay": "One sentence can contain multiple claims.",
+      "runbook": {
+        "say": "This is a fictional classroom scenario. Your job is to pull it apart.",
+        "studentDoes": "Identify the separate checkable claims.",
+        "askNext": "Which claim would be easiest to verify first?",
+        "landHere": "You cannot check an answer well until you know exactly what it is claiming.",
+        "watchFor": "Students identifying at least three distinct claims.",
+        "ifStuck": "Ask them to underline every statement that could be true or false.",
+        "advanceWhen": "Students can isolate the claims.",
+        "transition": "Once you have a claim, the next problem is choosing evidence."
+      }
+    },
+    {
+      "label": "Source Battle",
+      "title": "Best source for: Can I park overnight on campus?",
+      "lead": "Choose the strongest starting source for this exact question.",
+      "minutes": 4,
+      "type": "vote",
+      "key": "source_battle_parking",
+      "choices": [
+        "TikTok comment",
+        "Friend",
+        "Reddit discussion",
+        "Official NKU parking information"
+      ],
+      "studentTask": "Choose the strongest source for the claim—not the source you would click first.",
+      "roomInstruction": "Best source for WHAT exact claim?",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "Source quality is not one permanent ranking. It depends on what you are trying to know.",
+        "studentDoes": "Vote.",
+        "askNext": "Would your answer change if the question were 'What is parking like after 5 p.m.?'",
+        "landHere": "Authority and usefulness depend on the claim.",
+        "watchFor": "Students recognizing that experience-based sources can answer different questions.",
+        "ifStuck": "Separate rules from opinions.",
+        "advanceWhen": "Students articulate source-fit.",
+        "transition": "Now you will investigate your own AI output."
+      }
+    },
+    {
+      "label": "Choose Your Output",
+      "title": "Pick one AI output worth investigating.",
+      "lead": "Choose something with at least three claims, details, assumptions, or recommendations you can check.",
+      "minutes": 3,
+      "type": "teach",
+      "key": "choose_output",
+      "studentTask": "Choose or generate one safe AI output. Good options: study guide, recommendation, explanation, travel idea, career advice, product recommendation, or AI visual.",
+      "roomInstruction": "If there isn't much to investigate, choose a better output.",
+      "visualType": "statement",
+      "mediaOverlay": "Choose something you can actually investigate.",
+      "runbook": {
+        "say": "The quality of your lab depends on choosing an output with enough substance to check.",
+        "studentDoes": "Select one AI output and save it.",
+        "askNext": "Can you identify three things in it that could be checked?",
+        "landHere": "Three checkable items is the threshold.",
+        "watchFor": "Students choosing vague or purely creative outputs.",
+        "ifStuck": "Offer study guide, scholarship advice, laptop recommendation, career advice, or Cincinnati weekend plan.",
+        "advanceWhen": "Most students have an output.",
+        "transition": "Now the real lab begins."
+      }
+    },
+    {
+      "label": "Main Investigation",
+      "title": "PROVE IT.",
+      "lead": "Your goal is not to catch AI being wrong. Your goal is to find out what the evidence actually supports.",
+      "minutes": 16,
+      "type": "teach",
+      "key": "main_investigation",
+      "studentTask": "Identify three claims/details/assumptions. Check at least two using appropriate sources. Record what you found and label each Supported, Partially Supported, Unsupported, or Can't Verify.",
+      "roomInstruction": "Open the source. Read what it actually says. Do not stop at the search result.",
+      "visualType": "statement",
+      "mediaOverlay": "SHOW ME HOW YOU KNOW.",
+      "runbook": {
+        "say": "Work independently or quietly with a partner nearby. I am going to circulate and ask you about your evidence.",
+        "studentDoes": "Investigate at least two claims and document the evidence.",
+        "askNext": "Does your source actually support the claim—or just look related to it?",
+        "landHere": "Evidence is a relationship between a claim and what a source actually supports.",
+        "watchFor": "Google snippets, weak sources, outdated dates, partial support, and inability to verify.",
+        "ifStuck": "Ask: What exactly is the claim? Who would be authoritative on it? Is the information current?",
+        "advanceWhen": "Students have at least two meaningful checks.",
+        "transition": "Let's surface the surprises."
+      }
+    },
+    {
+      "label": "Plot Twist",
+      "title": "What changed when you actually checked?",
+      "lead": "Share one surprise from your investigation.",
+      "minutes": 4,
+      "type": "prompt",
+      "key": "plot_twist",
+      "studentTask": "Submit one short finding: outdated, partial, unsupported, conflicting, missing, or can't verify.",
+      "roomInstruction": "Examples: outdated date · source mismatch · partial support · missing requirement · conflicting sources",
+      "placeholder": "I thought ___, but when I checked ___, I found...",
+      "visualType": "statement",
+      "mediaOverlay": "What changed your mind?",
+      "runbook": {
+        "say": "Give me one plot twist from the room.",
+        "studentDoes": "Submit a short finding.",
+        "askNext": "What evidence changed your judgment?",
+        "landHere": "Can't verify does not mean false. It means you do not have enough evidence yet.",
+        "watchFor": "Good examples to spotlight anonymously.",
+        "ifStuck": "Invite examples of partial support, not only wrong answers.",
+        "advanceWhen": "Two or three room examples have been discussed.",
+        "transition": "Facts are only part of evaluation. Now ask what the answer forgot."
+      }
+    },
+    {
+      "label": "Perspective Flip",
+      "title": "What can be missing even when some facts are correct?",
+      "lead": "AI says: “Every first-year college student should buy a car because it makes college easier.”",
+      "minutes": 5,
+      "type": "prompt",
+      "key": "perspective_flip",
+      "studentTask": "Name one missing factor AND one person or group whose perspective could change the recommendation.",
+      "roomInstruction": "Think: cost · insurance · parking · transit · accessibility · housing · income · ability to drive",
+      "placeholder": "Missing factor: ___ | Perspective: ___",
+      "visualType": "statement",
+      "mediaOverlay": "Correct facts can still produce bad advice.",
+      "runbook": {
+        "say": "Technically correct details can still lead to a poor recommendation when context is missing.",
+        "studentDoes": "Identify missing context and a stakeholder perspective.",
+        "askNext": "How would that person's situation change the recommendation?",
+        "landHere": "Context and perspective affect usefulness and fairness.",
+        "watchFor": "Students moving beyond generic 'bias' language to specific assumptions.",
+        "ifStuck": "Compare commuter vs resident, or higher-income vs limited-income student.",
+        "advanceWhen": "Students can explain why a perspective changes the answer.",
+        "transition": "Now combine context with consequence."
+      }
+    },
+    {
+      "label": "Raise the Stakes",
+      "title": "Where would you demand the strongest verification?",
+      "lead": "Choose the situation where 'probably right' is least acceptable.",
+      "minutes": 4,
+      "type": "vote",
+      "key": "raise_stakes",
+      "choices": [
+        "Coffee shop recommendation",
+        "$3,000 laptop purchase",
+        "Student loan decision",
+        "Medication advice"
+      ],
+      "studentTask": "Choose the scenario that deserves the strongest verification.",
+      "roomInstruction": "What changes as the cost of being wrong increases?",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "You are not ranking what matters emotionally. You are deciding where the consequence of error demands stronger checking.",
+        "studentDoes": "Vote.",
+        "askNext": "What kind of evidence would you require in the highest-stakes case?",
+        "landHere": "Verification should scale with consequence.",
+        "watchFor": "Students explaining, not merely choosing.",
+        "ifStuck": "Ask what harm could follow from each error.",
+        "advanceWhen": "Students connect consequence to verification depth.",
+        "transition": "Now make the call on your own output."
+      }
+    },
+    {
+      "label": "Make the Call",
+      "title": "Your AI output: Trust, Revise, or Reject?",
+      "lead": "Commit to a decision based on the evidence you actually found.",
+      "minutes": 4,
+      "type": "vote",
+      "key": "final_call",
+      "choices": [
+        "Trust",
+        "Revise",
+        "Reject"
+      ],
+      "studentTask": "Vote on your own AI output—not the example on the screen.",
+      "roomInstruction": "I would ___ this output because the strongest evidence I found was...",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "This is your call on the output you investigated.",
+        "studentDoes": "Vote based on evidence.",
+        "askNext": "What evidence would make you switch your call?",
+        "landHere": "The call should be evidence-based and reversible when better evidence appears.",
+        "watchFor": "Revise may dominate, but do not imply it is always correct.",
+        "ifStuck": "Ask whether the output is usable as-is, needs changes, or should not be used.",
+        "advanceWhen": "Students can defend their choice.",
+        "transition": "You have now created most of your discussion post."
+      }
+    },
+    {
+      "label": "Discussion Setup",
+      "title": "You already have most of your discussion post.",
+      "lead": "Choose the most interesting claim or issue from today's investigation.",
+      "minutes": 3,
+      "type": "teach",
+      "key": "discussion_setup",
+      "studentTask": "Identify: Example · Claim · Check · Context · Consequence · Call · Two Perspectives · Responsible Next Step · Closing Question.",
+      "roomInstruction": "Discussion = short + social. One focused argument, then compare your judgment with classmates.",
+      "visualType": "statement",
+      "mediaOverlay": "Turn today's evidence into your discussion.",
+      "runbook": {
+        "say": "The discussion is the short social version of this skill.",
+        "studentDoes": "Choose the strongest claim and add two perspectives plus a closing question.",
+        "askNext": "What is one question you actually want a classmate to answer?",
+        "landHere": "Your discussion should invite another perspective, not just report your conclusion.",
+        "watchFor": "Students trying to summarize all three checks.",
+        "ifStuck": "Tell them to choose the most interesting one.",
+        "advanceWhen": "Students know what they will use.",
+        "transition": "Now decide whether today's output is strong enough for the full assignment."
+      }
+    },
+    {
+      "label": "Assignment Setup",
+      "title": "Can today's output become your 50-point evaluation?",
+      "lead": "Decide whether this is a strong enough artifact to keep using.",
+      "minutes": 3,
+      "type": "vote",
+      "key": "assignment_fit",
+      "choices": [
+        "Yes",
+        "Maybe",
+        "No"
+      ],
+      "studentTask": "Vote, then write your next move in your own notes.",
+      "roomInstruction": "Before I work on this assignment again, I need to...",
+      "visualType": "live-results",
+      "runbook": {
+        "say": "The assignment is the full evidence trail. You need at least three documented checks.",
+        "studentDoes": "Decide whether to keep, strengthen, or replace today's output.",
+        "askNext": "What is your smallest next move?",
+        "landHere": "Do not restart if you already have useful evidence—build from it.",
+        "watchFor": "Students who need a stronger third claim or source.",
+        "ifStuck": "Offer: check claim three, find a stronger source, verify a date, add perspective, or choose a better output.",
+        "advanceWhen": "Everyone has a next move.",
+        "transition": "One final reflection."
+      }
+    },
+    {
+      "label": "Exit Pulse",
+      "title": "What will now make you suspicious instead of impressed?",
+      "lead": "Name one feature of AI output that you will treat differently after this week.",
+      "minutes": 4,
+      "type": "prompt",
+      "key": "exit_suspicion",
+      "studentTask": "Submit one short response.",
+      "roomInstruction": "Examples: confident wording · exact statistics · citations · official-sounding names · polished tables · long explanations",
+      "placeholder": "I will be more suspicious when AI...",
+      "visualType": "statement",
+      "mediaOverlay": "Don't just tell me whether AI was right. Show me how you know.",
+      "runbook": {
+        "say": "Give me one thing AI can do that will now make you pause instead of automatically trust it.",
+        "studentDoes": "Submit one reflection.",
+        "askNext": "What will you do differently when you see it?",
+        "landHere": "AI literacy is not suspicion of everything. It is better judgment about what deserves trust.",
+        "watchFor": "Evidence of changed thinking.",
+        "ifStuck": "Offer examples from the prompt.",
+        "advanceWhen": "A few reflections are shared.",
+        "transition": "Close with the Week 06 framework."
+      }
+    }
+  ]
+}
