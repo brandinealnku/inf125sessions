@@ -29,15 +29,17 @@
       },
       "slide": {
         "kicker": "MIDTERM PREVIEW",
-        "title": "What should you expect next Thursday?",
-        "subtitle": "The exam is designed to measure whether you can use AI literacy concepts in realistic situations—not just recognize vocabulary.",
+        "title": "Midterm: Can You Make Good AI Decisions?",
+        "subtitle": "The exam is designed to measure whether you can use AI literacy concepts in realistic situations—not simply recognize vocabulary.",
         "bullets": [
           "25 questions · 100 points · 75 minutes",
           "Open note + Canvas course materials",
           "No generative AI during the exam",
           "One attempt"
         ],
-        "takeaway": "Think application, not memorization."
+        "quote": "A question may not ask “Define hallucination.” It may ask you to recognize what is wrong with an AI-generated citation and decide what a student should do.",
+        "callout": "Think: MEMORY → APPLICATION → JUDGMENT",
+        "takeaway": "Understand the concepts well enough to use them."
       }
     },
     {
@@ -68,12 +70,24 @@
       },
       "slide": {
         "kicker": "QUICK CLASS PULSE",
-        "title": "Which question type feels least comfortable right now?",
+        "title": "Which Type of Question Feels Hardest?",
         "subtitle": "Your answer helps us decide where to spend our review energy today.",
-        "bullets": [
-          "Foundations = recognize the concept",
-          "Application = use the concept in a situation",
-          "AI Judgment Cases = weigh evidence, risk, context, and responsibility"
+        "columns": [
+          [
+            "FOUNDATIONS",
+            "Recognize",
+            "“What is an AI hallucination?”"
+          ],
+          [
+            "APPLICATION",
+            "Use",
+            "“A student receives fake citations. What should they do?”"
+          ],
+          [
+            "JUDGMENT CASES",
+            "Decide",
+            "“Should an organization trust an AI recommendation?”"
+          ]
         ],
         "takeaway": "Commit before you see the room."
       }
@@ -101,8 +115,8 @@
       },
       "slide": {
         "kicker": "HOW THE MIDTERM IS BUILT",
-        "title": "The questions get more applied as you go.",
-        "subtitle": "The point values intentionally increase as the thinking becomes more complex.",
+        "title": "The Questions Get Harder Because the Decisions Get Bigger",
+        "subtitle": "The point values increase as the thinking becomes more complex.",
         "columns": [
           [
             "FOUNDATIONS",
@@ -117,10 +131,11 @@
           [
             "JUDGMENT CASES",
             "5 questions · 40 points",
-            "Decide what should happen when evidence, risk, stakeholders, and consequences collide."
+            "Evaluate evidence, risk, stakeholders, and consequences."
           ]
         ],
-        "takeaway": "80% of the points require more than memorizing definitions."
+        "callout": "Same topic, three levels: What is bias? → What concern does this situation show? → What should the organization do?",
+        "takeaway": "The exam rewards applied thinking."
       }
     },
     {
@@ -146,35 +161,36 @@
       },
       "slide": {
         "kicker": "TUESDAY REBOOT",
-        "title": "Five moves for evaluating an AI output",
-        "subtitle": "Use this framework when the answer looks polished, confident, or convincing.",
+        "title": "The AI Detective Framework",
+        "subtitle": "When an AI answer looks polished or confident, use these five moves.",
         "columns": [
           [
-            "CLAIM",
-            "What exactly is AI saying?",
-            "Separate the output into things that can actually be checked."
+            "1 · CLAIM",
+            "What exactly is it saying?",
+            "Separate the output into checkable statements."
           ],
           [
-            "CHECK",
+            "2 · CHECK",
             "What evidence supports it?",
             "Use sources that fit the exact claim."
           ],
           [
-            "CONTEXT",
+            "3 · CONTEXT",
             "What is missing?",
-            "Look for assumptions, limitations, bias, uncertainty, or outdated information."
+            "Look for assumptions, limits, bias, uncertainty, or outdated information."
           ],
           [
-            "CONSEQUENCE",
+            "4 · CONSEQUENCE",
             "What happens if it is wrong?",
             "The stakes determine how much verification is appropriate."
           ],
           [
-            "CALL",
+            "5 · CALL",
             "What should we do?",
-            "Trust it, revise it, or reject it."
+            "Trust · Revise · Reject"
           ]
         ],
+        "quote": "AI says: “This is the best laptop for every student.”",
         "takeaway": "Your job is not to be impressed. Your job is to make a judgment."
       }
     },
@@ -205,14 +221,15 @@
       },
       "slide": {
         "kicker": "WOULD YOU BELIEVE THE BOT?",
-        "title": "AI says Norse Commons closes at 8:00 tonight.",
-        "subtitle": "This is a low-stakes claim—but it is still a claim that can be checked.",
+        "title": "AI Says: Norse Commons Closes at 8 PM",
+        "subtitle": "A confident answer is still a claim that can be checked.",
         "bullets": [
-          "What would you actually do before walking over?",
+          "What would you check before walking over?",
           "What source would settle this quickly?",
-          "How much effort is reasonable for a low-stakes decision?"
+          "How much verification is reasonable for a low-stakes decision?"
         ],
-        "takeaway": "Vote: Trust · Check · Nope"
+        "callout": "Vote: 👍 TRUST · 🤔 CHECK · 👎 NOPE",
+        "takeaway": "Confidence is not evidence."
       }
     },
     {
@@ -242,14 +259,15 @@
       },
       "slide": {
         "kicker": "WOULD YOU BELIEVE THE BOT?",
-        "title": "AI recommends doubling an over-the-counter medication dose because symptoms are severe.",
-        "subtitle": "The AI may sound just as confident as it did about dining hours. The consequence is very different.",
+        "title": "Same Confidence. Very Different Stakes.",
+        "subtitle": "AI recommends doubling an over-the-counter medication dose because symptoms are severe.",
         "bullets": [
           "What could happen if the advice is wrong?",
           "What kind of source or human expertise is appropriate?",
           "Would your verification threshold change?"
         ],
-        "takeaway": "Vote based on consequence—not confidence."
+        "callout": "Vote: TRUST · CHECK · NOPE",
+        "takeaway": "The consequence of error changes the verification you need."
       }
     },
     {
@@ -275,7 +293,7 @@
       },
       "slide": {
         "kicker": "COMPARE THE STAKES",
-        "title": "Same AI confidence. Different consequences.",
+        "title": "Same AI Confidence. Different Consequences.",
         "subtitle": "An answer can sound equally polished in every context while deserving very different levels of trust.",
         "columns": [
           [
@@ -291,7 +309,7 @@
           [
             "MEDICATION ADVICE",
             "Wrong = possible health harm",
-            "Use authoritative medical information or qualified professional guidance."
+            "Use authoritative information or qualified professional guidance."
           ]
         ],
         "takeaway": "Verification should scale with consequence."
@@ -321,14 +339,15 @@
       },
       "slide": {
         "kicker": "MINI CHALLENGE",
-        "title": "One polished sentence can hide several separate claims.",
+        "title": "One Sentence Can Hide Multiple Claims",
         "subtitle": "FICTIONAL CLASSROOM SCENARIO — do not treat these statements as real NKU information.",
-        "quote": "“NKU students get free parking after 5 p.m., all first-year students qualify for a technology grant, and the library stays open until midnight every weekday.”",
+        "quote": "“NKU students get free parking after 5 PM, all first-year students qualify for technology grants, and the library stays open until midnight.”",
         "bullets": [
           "How many separate claims are here?",
           "Which claim would be easiest to verify first?",
           "Which source would be strongest for each?"
         ],
+        "callout": "Respond with the number of separate claims you see.",
         "takeaway": "You cannot verify an answer until you know exactly what it is claiming."
       }
     },
@@ -360,13 +379,31 @@
       },
       "slide": {
         "kicker": "SOURCE BATTLE",
-        "title": "Best source for: Can I park overnight on campus?",
-        "subtitle": "Do not choose the source you would click first. Choose the source that best fits the exact claim.",
-        "bullets": [
-          "Rules and policies usually call for an authoritative source.",
-          "Experiences and opinions may call for community or user perspectives.",
-          "A source can be credible but still be wrong for the question."
+        "title": "What Source Would You Trust?",
+        "subtitle": "Scenario: “Can I park overnight on campus?”",
+        "columns": [
+          [
+            "TIKTOK",
+            "Fast + experiential",
+            "May show someone's experience, but not necessarily the current rule."
+          ],
+          [
+            "FRIEND",
+            "Personal experience",
+            "Useful context, but not authoritative policy."
+          ],
+          [
+            "REDDIT",
+            "Community experience",
+            "Can surface experiences and exceptions."
+          ],
+          [
+            "OFFICIAL PARKING SITE",
+            "Policy + authority",
+            "Best starting point for the current rule."
+          ]
         ],
+        "callout": "Vote for the strongest starting source.",
         "takeaway": "The best source depends on what you are trying to know."
       }
     },
@@ -392,16 +429,28 @@
         "transition": "Now the real lab begins."
       },
       "slide": {
-        "kicker": "YOUR TURN",
-        "title": "Choose one AI output worth investigating.",
-        "subtitle": "Your output should give you enough substance to identify at least three claims, details, assumptions, or recommendations.",
-        "bullets": [
-          "AI study guide or explanation",
-          "Product, travel, restaurant, or career recommendation",
-          "Scholarship or college advice",
-          "AI-generated visual with factual or representational claims"
+        "kicker": "YOUR INVESTIGATION STARTS HERE",
+        "title": "Choose an AI Output Worth Investigating",
+        "subtitle": "Pick something with enough substance to identify at least three claims, details, assumptions, or recommendations.",
+        "columns": [
+          [
+            "GOOD",
+            "Laptop recommendation",
+            "Study plan · career advice · travel plan · scholarship advice"
+          ],
+          [
+            "ALSO GOOD",
+            "AI explanation",
+            "Something factual enough to check"
+          ],
+          [
+            "AVOID",
+            "Purely creative output",
+            "A joke, poem, or simple decorative image gives you little to verify."
+          ]
         ],
-        "takeaway": "If there is not much to investigate, choose a better output."
+        "callout": "SAVE THE ORIGINAL AI OUTPUT. You will need it for your evidence trail.",
+        "takeaway": "If there isn't much to investigate, choose a better output."
       }
     },
     {
@@ -426,7 +475,7 @@
         "transition": "Let's surface the surprises."
       },
       "slide": {
-        "kicker": "MAIN INVESTIGATION",
+        "kicker": "MAIN INVESTIGATION · WORK TIME",
         "title": "PROVE IT.",
         "subtitle": "Your goal is not to catch AI being wrong. Your goal is to find out what the evidence actually supports.",
         "numbered": [
@@ -434,10 +483,10 @@
           "Choose the strongest source for each.",
           "Open the source—do not stop at the search result.",
           "Read what the source actually says.",
-          "Label each finding: Supported · Partially Supported · Unsupported · Can't Verify."
+          "Label each: Supported · Partially Supported · Unsupported · Can't Verify."
         ],
-        "callout": "Target for class: complete at least 2 strong checks and start the third.",
-        "takeaway": "Show me how you know."
+        "callout": "TARGET FOR CLASS: Complete at least 2 strong checks and start the third.",
+        "takeaway": "SHOW ME HOW YOU KNOW."
       }
     },
     {
@@ -464,17 +513,32 @@
       },
       "slide": {
         "kicker": "PLOT TWIST",
-        "title": "What changed when you actually checked?",
-        "subtitle": "Good evaluation often changes your first impression—even when the AI was not completely wrong.",
-        "bullets": [
-          "The date was outdated",
-          "The source looked relevant but did not support the claim",
-          "Only part of the claim was supported",
-          "An important requirement or exception was missing",
-          "Sources conflicted",
-          "You still could not verify it"
+        "title": "What Changed When You Actually Checked?",
+        "subtitle": "Good evaluation can change your first impression—even when the AI was not completely wrong.",
+        "columns": [
+          [
+            "OUTDATED",
+            "The information changed.",
+            "Date, policy, price, hours, or availability may have moved."
+          ],
+          [
+            "PARTIAL",
+            "Only part was supported.",
+            "The source supports a narrower claim than AI made."
+          ],
+          [
+            "UNSUPPORTED",
+            "The source doesn't establish it.",
+            "Related information is not proof."
+          ],
+          [
+            "CAN'T VERIFY",
+            "Evidence is insufficient.",
+            "Don't turn uncertainty into a false claim of certainty."
+          ]
         ],
-        "takeaway": "Can't verify ≠ false. It means you do not yet have enough evidence."
+        "callout": "Complete: “I thought ___, but after checking ___, I found ___.”",
+        "takeaway": "Can't Verify ≠ False."
       }
     },
     {
@@ -500,15 +564,33 @@
         "transition": "Now combine context with consequence."
       },
       "slide": {
-        "kicker": "WHAT DID AI FORGET?",
-        "title": "Correct facts can still produce bad advice.",
-        "subtitle": "AI says: “Every first-year college student should buy a car because it makes college easier.”",
-        "bullets": [
-          "What context is missing? Cost? Insurance? Parking? Transit?",
-          "Who sees this differently? Commuter? Resident? Parent? Student with limited money?",
-          "Could accessibility, housing, income, or ability to drive change the recommendation?"
+        "kicker": "PERSPECTIVE FLIP",
+        "title": "Who Did AI Forget?",
+        "subtitle": "AI says: “Every student should buy a car because it makes college easier.”",
+        "columns": [
+          [
+            "MISSING CONTEXT",
+            "Money",
+            "Purchase price · insurance · fuel · maintenance"
+          ],
+          [
+            "MISSING CONTEXT",
+            "Location",
+            "Campus parking · commute · public transit"
+          ],
+          [
+            "MISSING CONTEXT",
+            "PEOPLE",
+            "Commuter · resident · parent · student with limited money"
+          ],
+          [
+            "MISSING CONTEXT",
+            "ACCESS",
+            "Accessibility needs · ability to drive"
+          ]
         ],
-        "takeaway": "Context and perspective affect usefulness and fairness."
+        "callout": "Choose TWO perspectives and explain how they might change the recommendation.",
+        "takeaway": "Correct facts can still produce bad advice when context is missing."
       }
     },
     {
@@ -538,26 +620,27 @@
       },
       "slide": {
         "kicker": "MAKE THE CALL",
-        "title": "Your AI output: Trust, Revise, or Reject?",
+        "title": "Trust, Revise, or Reject?",
         "subtitle": "Use both the evidence you found and the consequence of being wrong.",
         "columns": [
           [
             "TRUST",
-            "Evidence strongly supports the important parts.",
+            "Evidence supports the important parts.",
             "Usable as-is for this purpose."
           ],
           [
             "REVISE",
-            "Some value is there, but something important needs correction or context.",
+            "There is value, but something important needs correction or context.",
             "Fix it before relying on it."
           ],
           [
             "REJECT",
-            "The output is too unsupported, misleading, or risky to use.",
+            "The output is too unsupported, misleading, or risky.",
             "Do not rely on it."
           ]
         ],
-        "takeaway": "What evidence would make you switch your call?"
+        "callout": "Vote on YOUR AI output. Then ask: What evidence would make you switch your call?",
+        "takeaway": "A good decision can change when better evidence appears."
       }
     },
     {
@@ -582,9 +665,9 @@
         "transition": "One final reflection."
       },
       "slide": {
-        "kicker": "USE TODAY'S WORK",
-        "title": "Do not start over.",
-        "subtitle": "Today's investigation can become the raw material for both Week 06 deliverables.",
+        "kicker": "TURN TODAY'S WORK INTO YOUR SUBMISSION",
+        "title": "Do Not Start Over.",
+        "subtitle": "Today's investigation is the raw material for both Week 06 deliverables.",
         "columns": [
           [
             "DISCUSSION",
@@ -594,9 +677,10 @@
           [
             "ASSIGNMENT",
             "Full evidence trail",
-            "Document at least three checks, evidence quality, missing context, consequence, Trust/Revise/Reject decision, safeguard, reflection, and AI-use documentation."
+            "Document at least three checks, evidence quality, missing context, consequence, decision, safeguard, reflection, and AI-use documentation."
           ]
         ],
+        "callout": "Before you leave: identify the ONE smallest next step you still need to complete.",
         "takeaway": "Discussion = explain your judgment. Assignment = prove your evaluation process."
       }
     },
@@ -624,8 +708,8 @@
       },
       "slide": {
         "kicker": "EXIT PULSE",
-        "title": "What will now make you suspicious instead of impressed?",
-        "subtitle": "Name one feature of AI output that will make you pause and verify instead of automatically trust.",
+        "title": "What Will You Never Unsee?",
+        "subtitle": "What AI behavior will now make you pause and verify instead of automatically trust?",
         "bullets": [
           "Confident wording",
           "Exact statistics",
@@ -634,6 +718,8 @@
           "Polished tables",
           "Long, detailed explanations"
         ],
+        "quote": "Don't just tell me whether AI was right. Show me how you know.",
+        "callout": "Submit one sentence: “I will be more suspicious when AI…”",
         "takeaway": "AI literacy is not distrusting everything. It is knowing what deserves trust."
       }
     }
