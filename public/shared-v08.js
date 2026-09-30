@@ -6,8 +6,12 @@ window.Classroom=(function(){
   async function loadSession(){
     try{const r=await fetch('/api/builder/session/'+encodeURIComponent(requested),{cache:'no-store'});if(r.ok){session=await r.json();return session}}
     catch(_){ }
-    if(requested!=='session-2')throw new Error('Session not found');
-    session=await fetch('/sessions/how-ai-works.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Session failed to load');return r.json()});return session;
+    const staticSession=requested==='session-2'?'how-ai-works':requested;
+    try{
+      const r=await fetch('/sessions/'+encodeURIComponent(staticSession)+'.json',{cache:'no-store'});
+      if(r.ok){session=await r.json();return session}
+    }catch(_){ }
+    throw new Error('Session not found');
   }
   async function api(path,options={}){const method=(options.method||'GET').toUpperCase(),u=new URL('/api/session/'+encodeURIComponent(session.id)+path,location.origin);if(method==='GET')u.searchParams.set('_ts',Date.now());const r=await fetch(u.toString(),{cache:'no-store',headers:{'content-type':'application/json','cache-control':'no-cache','pragma':'no-cache'},...options});if(!r.ok)throw new Error(await r.text());return r.json()}
   async function refresh(){snapshot=await api('/snapshot');return snapshot}
