@@ -39,7 +39,13 @@
         ],
         "quote": "A question may not ask “Define hallucination.” It may ask you to recognize what is wrong with an AI-generated citation and decide what a student should do.",
         "callout": "Think: MEMORY → APPLICATION → JUDGMENT",
-        "takeaway": "Understand the concepts well enough to use them."
+        "takeaway": "Understand the concepts well enough to use them.",
+        "room": {
+          "why": "The midterm asks you to recognize what matters, use course concepts, evaluate evidence, and choose a responsible response—not simply memorize definitions.",
+          "start": "Before we move on, make sure you know the format: 25 questions, 100 points, 75 minutes, 1 attempt, open note + course materials, no generative AI.",
+          "example": "Instead of “Define hallucination,” expect a realistic situation such as an AI-generated citation that has not been checked.",
+          "remember": "Best preparation: understand the concepts well enough that your notes confirm your thinking rather than create it from scratch."
+        }
       }
     },
     {
@@ -89,7 +95,13 @@
             "“Should an organization trust an AI recommendation?”"
           ]
         ],
-        "takeaway": "Commit before you see the room."
+        "takeaway": "Commit before you see the room.",
+        "room": {
+          "why": "There are three levels of thinking on the exam. Knowing which one feels hardest helps us focus our review.",
+          "start": "Vote for the question type that feels least comfortable right now. Commit before you see the room results.",
+          "example": "Foundation = recognize. Application = use. Judgment = decide what should happen.",
+          "remember": "Judgment cases require evidence, risk, stakeholders, and human judgment."
+        }
       }
     },
     {
@@ -135,7 +147,13 @@
           ]
         ],
         "callout": "Same topic, three levels: What is bias? → What concern does this situation show? → What should the organization do?",
-        "takeaway": "The exam rewards applied thinking."
+        "takeaway": "The exam rewards applied thinking.",
+        "room": {
+          "why": "The point values increase as the thinking becomes more complex.",
+          "start": "Notice how the same topic can move from a definition to an applied situation to a decision.",
+          "example": "Bias → identify a biased hiring situation → decide whether an organization should continue using the system.",
+          "remember": "80% of the points come from Application + AI Judgment Cases."
+        }
       }
     },
     {
@@ -191,7 +209,13 @@
           ]
         ],
         "quote": "AI says: “This is the best laptop for every student.”",
-        "takeaway": "Your job is not to be impressed. Your job is to make a judgment."
+        "takeaway": "Your job is not to be impressed. Your job is to make a judgment.",
+        "room": {
+          "why": "This is the thinking routine you will use today and on many real-world AI decisions.",
+          "start": "As we speed through the framework, connect each word to a question you can actually ask an AI output.",
+          "example": "AI says: “This is the best laptop for every student.” What exactly is the claim? What evidence supports it? What is missing? What happens if it is wrong? What is your call?",
+          "remember": "Your job is not to be impressed. Your job is to make a judgment."
+        }
       }
     },
     {
@@ -229,7 +253,13 @@
           "How much verification is reasonable for a low-stakes decision?"
         ],
         "callout": "Vote: 👍 TRUST · 🤔 CHECK · 👎 NOPE",
-        "takeaway": "Confidence is not evidence."
+        "takeaway": "Confidence is not evidence.",
+        "room": {
+          "why": "A low-stakes claim is a good place to practice verification without a huge consequence.",
+          "start": "Before walking to Norse Commons, what would you actually check—and what source would settle it quickly?",
+          "example": "Official dining information is more useful for current hours than another AI answer repeating the same claim.",
+          "remember": "Confidence is not evidence."
+        }
       }
     },
     {
@@ -267,7 +297,13 @@
           "Would your verification threshold change?"
         ],
         "callout": "Vote: TRUST · CHECK · NOPE",
-        "takeaway": "The consequence of error changes the verification you need."
+        "takeaway": "The consequence of error changes the verification you need.",
+        "room": {
+          "why": "The AI can sound equally confident in a high-stakes situation. The consequence of being wrong changes how much verification you need.",
+          "start": "Vote Trust / Check / Nope, then explain what kind of evidence or expertise you would want before acting.",
+          "example": "A health recommendation calls for stronger verification than a restaurant recommendation.",
+          "remember": "Higher consequence → stronger verification."
+        }
       }
     },
     {
@@ -312,7 +348,13 @@
             "Use authoritative information or qualified professional guidance."
           ]
         ],
-        "takeaway": "Verification should scale with consequence."
+        "takeaway": "Verification should scale with consequence.",
+        "room": {
+          "why": "The same polished AI response can deserve different levels of trust depending on what happens if it is wrong.",
+          "start": "Compare the four situations and decide where you would spend the most effort verifying.",
+          "example": "Coffee shop = inconvenience. Laptop = money. Student loan = financial consequences. Medication = possible health harm.",
+          "remember": "Verification should scale with consequence."
+        }
       }
     },
     {
@@ -348,7 +390,13 @@
           "Which source would be strongest for each?"
         ],
         "callout": "Respond with the number of separate claims you see.",
-        "takeaway": "You cannot verify an answer until you know exactly what it is claiming."
+        "takeaway": "You cannot verify an answer until you know exactly what it is claiming.",
+        "room": {
+          "why": "You cannot verify an AI answer until you can identify exactly what it is claiming.",
+          "start": "With a partner, count the separate things you could investigate in the fictional statement. Then choose the easiest one to verify.",
+          "example": "“Free parking,” “technology grant eligibility,” and “library hours” are three different claims.",
+          "remember": "Break compound AI answers into checkable pieces."
+        }
       }
     },
     {
@@ -404,7 +452,13 @@
           ]
         ],
         "callout": "Vote for the strongest starting source.",
-        "takeaway": "The best source depends on what you are trying to know."
+        "takeaway": "The best source depends on what you are trying to know.",
+        "room": {
+          "why": "Source quality is not one permanent ranking. The best source depends on the exact claim you are trying to answer.",
+          "start": "Choose the strongest starting source for the overnight-parking question—not simply the source you would click first.",
+          "example": "An official parking page is strongest for the current rule. Reddit or a friend may be useful for experiences, exceptions, or what parking is actually like.",
+          "remember": "Match the source to the claim."
+        }
       }
     },
     {
@@ -450,7 +504,13 @@
           ]
         ],
         "callout": "SAVE THE ORIGINAL AI OUTPUT. You will need it for your evidence trail.",
-        "takeaway": "If there isn't much to investigate, choose a better output."
+        "takeaway": "If there isn't much to investigate, choose a better output.",
+        "room": {
+          "why": "Your investigation will only work if your AI output contains enough substance to check.",
+          "start": "Choose or generate one safe AI output, save the original, and make sure you can identify at least three things that could be checked.",
+          "example": "Good options: laptop recommendation, study guide, scholarship advice, career recommendation, travel plan, restaurant recommendation, or factual explanation.",
+          "remember": "If there is not much to investigate, choose a better output."
+        }
       }
     },
     {
@@ -486,7 +546,41 @@
           "Label each: Supported · Partially Supported · Unsupported · Can't Verify."
         ],
         "callout": "TARGET FOR CLASS: Complete at least 2 strong checks and start the third.",
-        "takeaway": "SHOW ME HOW YOU KNOW."
+        "takeaway": "SHOW ME HOW YOU KNOW.",
+        "room": {
+          "why": "The goal is not to catch AI being wrong. The goal is to find out what the evidence actually supports.",
+          "start": "Open your original AI output. Identify three claims/details/assumptions, choose sources, open the actual sources, read them, and record your findings.",
+          "example": "Do not write “Google says.” Write what the actual source says and explain how it supports—or fails to support—the AI claim.",
+          "remember": "Target for class: at least two strong checks and the beginning of the third.",
+          "table": {
+            "headers": [
+              "Claim / Detail",
+              "Best Source",
+              "What You Found",
+              "Verdict"
+            ],
+            "rows": [
+              [
+                "1",
+                "",
+                "",
+                "Supported / Partial / Unsupported / Can't Verify"
+              ],
+              [
+                "2",
+                "",
+                "",
+                ""
+              ],
+              [
+                "3",
+                "",
+                "",
+                ""
+              ]
+            ]
+          }
+        }
       }
     },
     {
@@ -538,7 +632,13 @@
           ]
         ],
         "callout": "Complete: “I thought ___, but after checking ___, I found ___.”",
-        "takeaway": "Can't Verify ≠ False."
+        "takeaway": "Can't Verify ≠ False.",
+        "room": {
+          "why": "Good evaluation often changes your first impression. AI can be partly right, outdated, unsupported, or impossible to verify.",
+          "start": "Finish the sentence: “I thought ___, but after checking ___, I found ___.”",
+          "example": "The date was outdated. The source was related but did not support the claim. Part of the answer was right. An important requirement was missing. Sources disagreed.",
+          "remember": "Can't Verify ≠ False. It means you do not currently have enough evidence to rely on the claim."
+        }
       }
     },
     {
@@ -590,7 +690,13 @@
           ]
         ],
         "callout": "Choose TWO perspectives and explain how they might change the recommendation.",
-        "takeaway": "Correct facts can still produce bad advice when context is missing."
+        "takeaway": "Correct facts can still produce bad advice when context is missing.",
+        "room": {
+          "why": "An answer can contain correct facts and still produce poor advice when it assumes everyone has the same situation.",
+          "start": "Choose two perspectives and explain how they could change the recommendation.",
+          "example": "A commuter student, a student living on campus, a student with limited money, a parent, a student with a disability, and the university may see the same recommendation differently.",
+          "remember": "Ask not only “Is this fact true?” but also “For whom is this useful?”"
+        }
       }
     },
     {
@@ -640,7 +746,13 @@
           ]
         ],
         "callout": "Vote on YOUR AI output. Then ask: What evidence would make you switch your call?",
-        "takeaway": "A good decision can change when better evidence appears."
+        "takeaway": "A good decision can change when better evidence appears.",
+        "room": {
+          "why": "Your final decision combines evidence with consequence. It is also allowed to change when better evidence appears.",
+          "start": "Vote on your own AI output. Then be ready to explain why your evidence and the stakes led you there.",
+          "example": "TRUST = usable as-is. REVISE = useful but needs correction/context. REJECT = too unsupported, misleading, or risky to use.",
+          "remember": "A responsible call is evidence-based, proportional to the stakes, and revisable."
+        }
       }
     },
     {
@@ -681,7 +793,13 @@
           ]
         ],
         "callout": "Before you leave: identify the ONE smallest next step you still need to complete.",
-        "takeaway": "Discussion = explain your judgment. Assignment = prove your evaluation process."
+        "takeaway": "Discussion = explain your judgment. Assignment = prove your evaluation process.",
+        "room": {
+          "why": "You already did most of the thinking needed for the Week 06 work. Reuse today's evidence instead of starting over.",
+          "start": "Identify your smallest next step: finish a claim check, find a better source, save the output, verify a date, add a perspective, or choose a stronger example.",
+          "example": "Discussion = one focused argument. Assignment = the full evidence trail across at least three checks.",
+          "remember": "Discussion explains your judgment. Assignment proves your evaluation process."
+        }
       }
     },
     {
@@ -720,7 +838,13 @@
         ],
         "quote": "Don't just tell me whether AI was right. Show me how you know.",
         "callout": "Submit one sentence: “I will be more suspicious when AI…”",
-        "takeaway": "AI literacy is not distrusting everything. It is knowing what deserves trust."
+        "takeaway": "AI literacy is not distrusting everything. It is knowing what deserves trust.",
+        "room": {
+          "why": "AI literacy is not distrusting everything. It is recognizing what deserves a closer look.",
+          "start": "Submit one sentence: “I will be more suspicious when AI…”",
+          "example": "Confident wording, exact statistics, official-sounding names, citations, polished tables, and long explanations can all look impressive without proving accuracy.",
+          "remember": "Don't just tell me whether AI was right. Show me how you know."
+        }
       }
     }
   ]
