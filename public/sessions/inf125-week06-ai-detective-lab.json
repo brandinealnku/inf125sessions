@@ -220,8 +220,8 @@
     },
     {
       "label": "Believe the Bot · 1",
-      "title": "AI says Norse Commons closes at 8:00 tonight.",
-      "lead": "What is your first move?",
+      "title": "AI says: “Your 2:00 PM class is canceled today.”",
+      "lead": "The message includes a realistic-looking campus logo, a specific building, and a confident explanation. What is your first move?",
       "minutes": 3,
       "type": "vote",
       "key": "bot_campus_hours",
@@ -230,18 +230,18 @@
         "Check",
         "Nope"
       ],
-      "studentTask": "Vote based on what you would actually do.",
+      "studentTask": "Decide whether you would act on the message immediately, verify it first, or ignore it—and identify what evidence would settle the question.",
       "roomInstruction": "Trust · Check · Nope",
       "visualType": "live-results",
       "runbook": {
-        "say": "Don't overthink it. What would you really do?",
-        "studentDoes": "Vote.",
-        "askNext": "What source would settle this quickly?",
-        "landHere": "Low stakes can still deserve a quick authoritative check.",
-        "watchFor": "Students treating convenience as evidence.",
-        "ifStuck": "Ask where official hours would live.",
-        "advanceWhen": "The room names an appropriate source.",
-        "transition": "Now raise the cost of being wrong."
+        "say": "This one is harder than a library-hours question because the message looks official and the cost of acting too quickly is real. What would you verify before changing your plans?",
+        "studentDoes": "Choose Trust, Check, or Nope, then name the strongest evidence you would want.",
+        "askNext": "What would count as independent confirmation—not just another copy of the same message?",
+        "landHere": "Plausible details and polished branding are not evidence of authenticity.",
+        "watchFor": "Students choosing a second independent channel rather than another AI answer or repost.",
+        "ifStuck": "Ask: If this were a real campus emergency, where would the university have an authoritative record?",
+        "advanceWhen": "Students can name an authoritative, independent source.",
+        "transition": "Now make the consequence more personal."
       },
       "slide": {
         "kicker": "WOULD YOU BELIEVE THE BOT?",
@@ -264,8 +264,8 @@
     },
     {
       "label": "Believe the Bot · 4",
-      "title": "AI recommends doubling an over-the-counter medication dose because symptoms are severe.",
-      "lead": "Same amount of checking?",
+      "title": "AI says: “Your professor allows AI on the midterm if you cite your prompts.”",
+      "lead": "The answer sounds plausible—and it even claims to be based on the course policy. Would you rely on it?",
       "minutes": 3,
       "type": "vote",
       "key": "bot_medication",
@@ -274,18 +274,18 @@
         "Check",
         "Nope"
       ],
-      "studentTask": "Vote based on the consequence of being wrong.",
+      "studentTask": "Decide whether you would Trust, Check, or Nope—and identify exactly what source should settle the question.",
       "roomInstruction": "Trust · Check · Nope",
       "visualType": "live-results",
       "runbook": {
-        "say": "Notice how your verification threshold changes when health is involved.",
-        "studentDoes": "Vote.",
-        "askNext": "What kind of evidence or human expertise is appropriate here?",
-        "landHere": "Verification should scale with consequence.",
-        "watchFor": "Authoritative medical information or qualified professional.",
-        "ifStuck": "Compare this with checking restaurant hours.",
-        "advanceWhen": "Students can explain why stakes matter.",
-        "transition": "That gives us today's rule."
+        "say": "This is a policy question, not a general AI question. The important issue is whether the source actually governs your situation.",
+        "studentDoes": "Vote, then identify the authoritative policy you would check.",
+        "askNext": "Would a screenshot from another student's class settle this?",
+        "landHere": "For rules that govern your behavior, verify against the actual governing document or person.",
+        "watchFor": "Students distinguishing course-specific policy from general university advice or another student's experience.",
+        "ifStuck": "Ask: Who has the authority to set the rule?",
+        "advanceWhen": "Students identify the actual course policy/instructor as the relevant authority.",
+        "transition": "Now compare three claims where the right evidence is different."
       },
       "slide": {
         "kicker": "WOULD YOU BELIEVE THE BOT?",
@@ -308,24 +308,24 @@
     },
     {
       "label": "Compare the Stakes",
-      "title": "Same AI confidence. Different consequences.",
-      "lead": "Concert date · Course policy · Medication advice",
+      "title": "Same confidence. Three different verification problems.",
+      "lead": "AI gives each answer in the same polished tone.",
       "minutes": 3,
       "type": "teach",
       "key": "compare_stakes",
-      "studentTask": "Look at the three situations and decide why the amount and type of checking should change.",
+      "studentTask": "For each situation, decide what kind of verification you would use and why.",
       "roomInstruction": "A confident answer can still deserve very different verification depending on what happens if it is wrong.",
       "visualType": "statement",
       "mediaOverlay": "Verification should scale with consequence.",
       "runbook": {
-        "say": "The AI can sound equally confident in all three situations. What changes is what happens if the answer is wrong.",
-        "studentDoes": "Compare the verification needed for a concert date, course policy, and medication advice.",
-        "askNext": "Where would you tolerate the least uncertainty?",
-        "landHere": "Verification should scale with consequence.",
-        "watchFor": "Students naming authoritative sources and human expertise.",
-        "ifStuck": "Ask what harm follows from a wrong answer in each case.",
-        "advanceWhen": "Students can explain why verification depth changes.",
-        "transition": "Now practice breaking a polished answer into checkable claims."
+        "say": "The challenge is not simply ranking these from low to high stakes. Think about what kind of evidence each claim requires.",
+        "studentDoes": "Compare the three situations and explain what source or expertise each requires.",
+        "askNext": "Which one needs the most authoritative source? Which one needs the most context?",
+        "landHere": "Verification is not just 'more checking.' It is the right kind of checking for the claim and consequence.",
+        "watchFor": "Students recognizing source-fit, currency, and consequence as separate dimensions.",
+        "ifStuck": "Ask whether an official policy, a current primary source, or expert judgment would be most appropriate.",
+        "advanceWhen": "Students can distinguish source type from consequence level.",
+        "transition": "Now let's see how much can hide inside one confident sentence."
       },
       "slide": {
         "kicker": "COMPARE THE STAKES",
@@ -359,25 +359,25 @@
     },
     {
       "label": "Spot the Claims",
-      "title": "How many separate claims are hiding here?",
-      "lead": "“NKU students get free parking after 5 p.m., all first-year students qualify for a technology grant, and the library stays open until midnight every weekday.”",
+      "title": "How many claims—and assumptions—are hiding here?",
+      "lead": "AI says: “Most first-year students should skip buying a textbook because professors rarely use it, the digital version is always cheaper, and the bookstore refund policy lets you return it after the first month.”",
       "minutes": 5,
       "type": "prompt",
       "key": "spot_claims",
-      "studentTask": "Type the separate claims you would investigate. Short phrases are fine.",
+      "studentTask": "Identify the statements you could verify AND the assumptions you would need to investigate.",
       "roomInstruction": "FICTIONAL CLASSROOM SCENARIO — do not treat these statements as real NKU information.",
       "placeholder": "Claim 1... Claim 2... Claim 3...",
       "visualType": "statement",
       "mediaOverlay": "One sentence can contain multiple claims.",
       "runbook": {
-        "say": "This is a fictional classroom scenario. Your job is to pull it apart.",
-        "studentDoes": "Identify the separate checkable claims.",
-        "askNext": "Which claim would be easiest to verify first?",
-        "landHere": "You cannot check an answer well until you know exactly what it is claiming.",
-        "watchFor": "Students identifying at least three distinct claims.",
-        "ifStuck": "Ask them to underline every statement that could be true or false.",
-        "advanceWhen": "Students can isolate the claims.",
-        "transition": "Once you have a claim, the next problem is choosing evidence."
+        "say": "This is harder because not every problem is a simple factual claim. Some statements hide assumptions about price, course behavior, or policy.",
+        "studentDoes": "Separate factual claims from assumptions or recommendations.",
+        "askNext": "Which part sounds factual but actually depends on context?",
+        "landHere": "Good verification starts by separating facts, assumptions, predictions, and recommendations.",
+        "watchFor": "Students finding more than three checkable elements and noticing words like 'most,' 'rarely,' 'always,' and 'after the first month.'",
+        "ifStuck": "Circle absolute or broad words: most, rarely, always, after.",
+        "advanceWhen": "Students can explain why a recommendation contains multiple claims and assumptions.",
+        "transition": "Once you have the claims, source choice gets harder too."
       },
       "slide": {
         "kicker": "MINI CHALLENGE",
@@ -401,29 +401,29 @@
     },
     {
       "label": "Source Battle",
-      "title": "Best source for: Can I park overnight on campus?",
-      "lead": "Choose the strongest starting source for this exact question.",
+      "title": "Four sources. One scholarship question. Which one actually answers it?",
+      "lead": "AI says: “You qualify for this scholarship because you are a first-year student with a 3.0 GPA.”",
       "minutes": 5,
       "type": "vote",
       "key": "source_battle_parking",
       "choices": [
-        "TikTok comment",
-        "Friend",
-        "Reddit discussion",
-        "Official NKU parking information"
+        "A TikTok from a student who received it",
+        "A Reddit thread from last semester",
+        "The scholarship provider's current eligibility page",
+        "An AI answer that cites three websites"
       ],
-      "studentTask": "Choose the strongest source for the claim—not the source you would click first.",
+      "studentTask": "Choose the strongest starting source—and explain what you would still need to verify.",
       "roomInstruction": "Best source for WHAT exact claim?",
       "visualType": "live-results",
       "runbook": {
-        "say": "Source quality is not one permanent ranking. It depends on what you are trying to know.",
-        "studentDoes": "Vote.",
-        "askNext": "Would your answer change if the question were 'What is parking like after 5 p.m.?'",
-        "landHere": "Authority and usefulness depend on the claim.",
-        "watchFor": "Students recognizing that experience-based sources can answer different questions.",
-        "ifStuck": "Separate rules from opinions.",
-        "advanceWhen": "Students articulate source-fit.",
-        "transition": "Now you will investigate your own AI output."
+        "say": "This is harder because the weak sources may contain true information. The question is which source actually has authority over eligibility.",
+        "studentDoes": "Vote, then identify one additional detail you would verify beyond GPA and year.",
+        "askNext": "What could make a student appear eligible but actually not qualify?",
+        "landHere": "A source can be informative without being authoritative. Eligibility claims often contain conditions hidden behind the headline requirement.",
+        "watchFor": "Students naming deadlines, enrollment status, residency, major, application requirements, or other conditions rather than stopping at GPA.",
+        "ifStuck": "Ask: Who decides who qualifies?",
+        "advanceWhen": "Students distinguish source authority from anecdotal evidence and identify a second condition to check.",
+        "transition": "Now choose an AI output that gives you enough complexity to investigate."
       },
       "slide": {
         "kicker": "SOURCE BATTLE",
@@ -586,21 +586,21 @@
     {
       "label": "Plot Twist",
       "title": "What changed when you actually checked?",
-      "lead": "Share one surprise from your investigation.",
+      "lead": "A good investigation may reveal something more interesting than “AI was wrong.”",
       "minutes": 5,
       "type": "prompt",
       "key": "plot_twist",
-      "studentTask": "Submit one short finding: outdated, partial, unsupported, conflicting, missing, or can't verify.",
+      "studentTask": "Submit one finding: a claim that was true but missing context, technically current but misleading, partially supported, based on an outdated source, contradicted by a stronger source, or impossible to verify.",
       "roomInstruction": "Examples: outdated date · source mismatch · partial support · missing requirement · conflicting sources",
       "placeholder": "I thought ___, but when I checked ___, I found...",
       "visualType": "statement",
       "mediaOverlay": "What changed your mind?",
       "runbook": {
-        "say": "Give me one plot twist from the room.",
+        "say": "Look for the subtle failures. The most useful finding may be a statement that was technically true but led to a misleading conclusion.",
         "studentDoes": "Submit a short finding.",
-        "askNext": "What evidence changed your judgment?",
-        "landHere": "Can't verify does not mean false. It means you do not have enough evidence yet.",
-        "watchFor": "Good examples to spotlight anonymously.",
+        "askNext": "Did you find an outright error—or did you find something more complicated?",
+        "landHere": "AI evaluation is often about precision, context, and evidence—not just catching obvious falsehoods.",
+        "watchFor": "Partial truth, outdated information, missing qualifiers, conflicting authoritative sources.",
         "ifStuck": "Invite examples of partial support, not only wrong answers.",
         "advanceWhen": "Two or three room examples have been discussed.",
         "transition": "Facts are only part of evaluation. Now ask what the answer forgot."
@@ -643,8 +643,8 @@
     },
     {
       "label": "Perspective Flip",
-      "title": "What can be missing even when some facts are correct?",
-      "lead": "AI says: “Every first-year college student should buy a car because it makes college easier.”",
+      "title": "The facts can be right. The recommendation can still be wrong.",
+      "lead": "AI says: “For a first-year student, living off campus is usually the smarter financial choice because rent can be lower than campus housing.”",
       "minutes": 5,
       "type": "prompt",
       "key": "perspective_flip",
@@ -654,14 +654,14 @@
       "visualType": "statement",
       "mediaOverlay": "Correct facts can still produce bad advice.",
       "runbook": {
-        "say": "Technically correct details can still lead to a poor recommendation when context is missing.",
-        "studentDoes": "Identify missing context and a stakeholder perspective.",
-        "askNext": "How would that person's situation change the recommendation?",
-        "landHere": "Context and perspective affect usefulness and fairness.",
-        "watchFor": "Students moving beyond generic 'bias' language to specific assumptions.",
-        "ifStuck": "Compare commuter vs resident, or higher-income vs limited-income student.",
-        "advanceWhen": "Students can explain why a perspective changes the answer.",
-        "transition": "Now combine context with consequence."
+        "say": "Notice the trap: the individual facts might all be defensible, while the recommendation still fails because important variables are missing.",
+        "studentDoes": "Identify a missing variable, a stakeholder perspective, and how that could change the recommendation.",
+        "askNext": "What information would you need before giving this advice to a real student?",
+        "landHere": "A recommendation is a decision under assumptions. Good AI judgment makes those assumptions visible.",
+        "watchFor": "Students naming transportation, meal plans, lease terms, financial aid, roommates, commute, safety, accessibility, or time.",
+        "ifStuck": "Ask what would change the recommendation for a commuter, a student with a job, or a student relying on financial aid.",
+        "advanceWhen": "Students connect missing context to a changed recommendation.",
+        "transition": "Now combine evidence, context, and consequence."
       },
       "slide": {
         "kicker": "PERSPECTIVE FLIP",
@@ -847,5 +847,6 @@
         }
       }
     }
-  ]
+  ],
+  "updatedAt": 1790864676485
 }
