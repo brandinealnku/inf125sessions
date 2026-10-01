@@ -116,15 +116,15 @@ function afterCard(){
 function err(m){let e=document.getElementById('error');if(e)e.textContent=m||''}
 
 function joinView(){
-  app.innerHTML='<section class="join"><div class="joinCard"><div class="label">LIVE CLASSROOM</div><h1 class="joinTitle">'+C.esc(C.session.title)+'</h1><p class="joinLead">Your phone is part of the class today. You will respond when there is something useful to do, then the screen will get out of your way.</p>'+
+  app.innerHTML='<section class="join"><div class="joinCard"><div class="label">LIVE CLASSROOM</div><h1 class="joinTitle">'+C.esc(C.session.title)+'</h1><p class="joinLead">Enter your name so I can record attendance. Your phone is part of the class today: you will respond when there is something useful to do, then the screen will get out of the way.</p>'+
     '<div class="welcomeStrip"><div class="welcomeItem"><b>1 · Respond</b>Make your own call first.</div><div class="welcomeItem"><b>2 · Look up</b>Return to the room after you submit.</div><div class="welcomeItem"><b>3 · Stay with us</b>The class moves together.</div></div>'+
-    '<label class="label" for="nameInput">WHAT SHOULD WE CALL YOU?</label><input id="nameInput" class="field" placeholder="First name or nickname" autocomplete="given-name" value="'+C.esc(studentName)+'"><button class="action" id="joinBtn">Enter the room →</button><div id="error" class="error"></div></div></section>';
+    '<label class="label" for="nameInput">YOUR NAME FOR ATTENDANCE</label><input id="nameInput" class="field" placeholder="Enter your name" autocomplete="given-name" value="'+C.esc(studentName)+'"><button class="action" id="joinBtn">Enter the room →</button><div id="error" class="error"></div></div></section>';
   document.getElementById('joinBtn').onclick=doJoin;
   document.getElementById('nameInput').onkeydown=e=>{if(e.key==='Enter')doJoin()};
 }
 async function doJoin(){
   const i=document.getElementById('nameInput');studentName=i.value.trim();
-  if(!studentName)return err('Enter a name or nickname.');
+  if(!studentName)return err('Enter your name for attendance.');
   const button=document.getElementById('joinBtn');button.disabled=true;button.textContent='Joining…';
   try{
     await C.join(studentName);localStorage.classroomName=studentName;
