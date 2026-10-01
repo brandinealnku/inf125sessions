@@ -49,9 +49,24 @@ export class ClassroomSession {
       const active=Object.values(participants).filter(p=>p.lastSeen>=cutoff);
       return json({state,participantCount:active.length,participants:active,answers,sessionEdits:await edits()});
     }
+    if (method === 'GET' && url.pathname.endsWith('/attendance')) {
+      const participants=(await this.state.storage.get('participants'))||{}, answers=(await this.state.storage.get('answers'))||{};
+      const rows=Object.values(participants).map(p=>{
+        let responseCount=0;
+        for(const key of Object.keys(answers)) if(answers[key]?.[p.device]) responseCount++;
+        return {
+          name:String(p.name||'Anonymous').slice(0,40),
+          joinedAt:p.joinedAt||p.lastSeen||null,
+          lastSeen:p.lastSeen||null,
+          responses:responseCount
+        };
+      }).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+      return json({count:rows.length,rows});
+    }
     if (method === 'POST' && url.pathname.endsWith('/join')) {
       const body=await request.json(),participants=(await this.state.storage.get('participants'))||{};
-      participants[body.device]={device:body.device,name:String(body.name||'Anonymous').slice(0,40),lastSeen:Date.now()};
+      const now=Date.now(),existing=participants[body.device]||{};
+      participants[body.device]={device:body.device,name:String(body.name||'Anonymous').slice(0,40),joinedAt:existing.joinedAt||now,lastSeen:now};
       await this.state.storage.put('participants',participants); return json({ok:true,state:await sessionState()});
     }
     if (method === 'POST' && url.pathname.endsWith('/heartbeat')) {
