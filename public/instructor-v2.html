@@ -66,7 +66,11 @@ button,a{font:inherit}
 .sideCard p{margin:7px 0 0;color:#525c68;line-height:1.42;font-size:14px}
 .more summary{cursor:pointer;font-weight:800;color:var(--muted);font-size:12px}
 .more div{padding-top:10px;font-size:13px;color:#606975;line-height:1.45}
-.controls{position:fixed;left:0;right:0;bottom:0;background:rgba(245,243,238,.94);border-top:1px solid var(--line);backdrop-filter:blur(14px);z-index:30}
+.controls{position:fixed;left:0;right:0;bottom:0;background:rgba(245,243,238,.94);border-top:1px solid var(--line);backdrop-filter:blur(14px);z-index:30}.attendanceModal{display:none;position:fixed;inset:0;background:rgba(26,34,48,.55);backdrop-filter:blur(8px);z-index:80;padding:4vh 20px;overflow:auto}
+.attendanceModal.open{display:block}.attendanceSheet{width:min(980px,100%);margin:auto;background:#f5f3ee;color:#1a2230;border:1px solid #dedbd3;border-radius:20px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.35)}
+.attendanceHead{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;border-bottom:1px solid #dedbd3;padding-bottom:15px}.attendanceTitle{font-size:clamp(28px,4vw,46px);line-height:1;letter-spacing:-.04em;margin:5px 0}.attendanceMeta{font-size:13px;color:#6c7480}
+.attendanceActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}.attendanceCount{font-size:30px;font-weight:900}.attendanceStatus{font-size:12px;color:#6c7480;margin-right:8px}
+.attendanceTable{width:100%;border-collapse:collapse;background:#fff;border:1px solid #dedbd3;font-size:14px}.attendanceTable th{background:#1a2230;color:#fff;text-align:left;padding:10px}.attendanceTable td{padding:10px;border-top:1px solid #e8e5df}.attendanceEmpty{padding:30px;text-align:center;color:#6c7480;background:#fff;border:1px solid #dedbd3;border-radius:12px}
 .controlsIn{max-width:1320px;margin:auto;padding:10px 22px;display:flex;justify-content:space-between;gap:12px;align-items:center}
 .group{display:flex;gap:8px;flex-wrap:wrap}
 .btn{border:1px solid #cfcac0;background:#fff;color:var(--ink);padding:12px 16px;border-radius:12px;font-weight:850;cursor:pointer;text-decoration:none;min-width:92px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
@@ -165,10 +169,16 @@ button,a{font:inherit}
   <div id="error"></div>
 </main>
 
+<div class="attendanceModal" id="attendanceModal" aria-hidden="true">
+<section class="attendanceSheet">
+<div class="attendanceHead"><div><div class="label" style="color:#8c6410">ATTENDANCE</div><div class="attendanceTitle" id="attendanceTitle">INF 125</div><div class="attendanceMeta" id="attendanceMeta">Loading…</div></div><button class="btn" id="closeAttendance">Close</button></div>
+<div class="attendanceActions"><div><span class="attendanceCount" id="attendanceCount">0</span><span class="attendanceStatus">students recorded</span></div><button class="btn" id="downloadAttendance">Download CSV</button><button class="btn" id="refreshAttendance">Refresh</button></div>
+<div id="attendanceTableWrap"></div>
+</section></div>
 <footer class="controls">
   <div class="controlsIn">
     <div class="group">
-      <button class="btn" id="backBtn">← Back</button>
+      <button class="btn" id="attendanceBtn">Attendance</button><button class="btn" id="backBtn">← Back</button>
       <button class="btn reveal" id="revealBtn">Reveal</button>
     </div>
     <div class="group">
@@ -182,7 +192,29 @@ button,a{font:inherit}
 <script>
 const C=Classroom;
 const E=id=>document.getElementById(id);
-let structural='';
+let structural='',attendanceRows=[];
+function attendanceDate(v){return v?new Date(v).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—'}
+function renderAttendance(){
+ E('attendanceTitle').textContent=C.session.course||'INF 125';
+ E('attendanceMeta').textContent=C.session.title+' · Attendance report';
+ E('attendanceCount').textContent=attendanceRows.length;
+ const wrap=E('attendanceTableWrap');
+ if(!attendanceRows.length){wrap.innerHTML='<div class="attendanceEmpty">No students have entered the room yet.</div>';return}
+ wrap.innerHTML='<table class="attendanceTable"><thead><tr><th>Student name</th><th>Joined</th><th>Last seen</th><th>Responses</th></tr></thead><tbody>'+
+ attendanceRows.map(r=>'<tr><td>'+C.esc(r.name)+'</td><td>'+attendanceDate(r.joinedAt)+'</td><td>'+attendanceDate(r.lastSeen)+'</td><td>'+String(r.responses||0)+'</td></tr>').join('')+
+ '</tbody></table>';
+}
+async function loadAttendance(){try{const data=await C.api('/attendance');attendanceRows=Array.isArray(data.rows)?data.rows:[];renderAttendance()}catch(_){E('attendanceTableWrap').innerHTML='<div class="attendanceEmpty">Could not load attendance. Please try again.</div>'}}
+function openAttendance(){E('attendanceModal').classList.add('open');E('attendanceModal').setAttribute('aria-hidden','false');loadAttendance()}
+function closeAttendance(){E('attendanceModal').classList.remove('open');E('attendanceModal').setAttribute('aria-hidden','true')}
+function csvCell(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
+function downloadAttendance(){
+ const headers=['Student Name','Joined','Last Seen','Responses'];
+ const rows=attendanceRows.map(r=>[r.name,r.joinedAt?new Date(r.joinedAt).toISOString():'',r.lastSeen?new Date(r.lastSeen).toISOString():'',r.responses||0]);
+ const csv=[headers,...rows].map(row=>row.map(csvCell).join(',')).join('\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='INF125_Attendance_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
 
 function step(){return C.current()}
 function rb(){return step().runbook||{}}
@@ -259,7 +291,7 @@ function jumpToMoment(index){
   const next=Math.max(0,Math.min(C.session.steps.length-1,Number(index)||0));
   return setState({step:next,locked:false,resultsVisible:false,roomMoment:null});
 }
-E('backBtn').onclick=()=>go(-1);
+E('attendanceBtn').onclick=openAttendance;E('backBtn').onclick=()=>go(-1);
 E('nextBtn').onclick=()=>go(1);
 E('revealBtn').onclick=()=>{
   const visible=!C.snapshot.state.resultsVisible;
@@ -284,6 +316,7 @@ async function poll(force=false){
     E('error').textContent='Connection interrupted. Retrying…';
   }
 }
+E('closeAttendance').onclick=closeAttendance;E('refreshAttendance').onclick=loadAttendance;E('downloadAttendance').onclick=downloadAttendance;E('attendanceModal').onclick=e=>{if(e.target===E('attendanceModal'))closeAttendance()};
 (async()=>{
   try{
     await C.loadSession();
