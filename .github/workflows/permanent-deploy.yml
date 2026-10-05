@@ -32,9 +32,9 @@ jobs:
       - name: Verify permanent classroom surfaces
         run: |
           set -e
-          for path in student instructor room; do
+          for path in student instructor room context-quest context-quest.js; do
             echo "Checking https://classroom.itsbadlabs.com/$path"
             curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors \
               --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
-          echo "Permanent Student, Showrunner, and Room surfaces are reachable over HTTPS."
+          echo "Permanent Classroom surfaces, including Context Quest assets, are reachable over HTTPS."
