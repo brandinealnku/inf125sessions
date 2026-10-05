@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Validate Context Quest runtime syntax
+        run: node --check public/context-quest.js
       - name: Deploy Worker to Cloudflare account
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -40,7 +42,11 @@ jobs:
           echo "Checking Context Quest HTML references its runtime"
           curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors \
             --max-time 20 "https://classroom.itsbadlabs.com/context-quest" | grep -q "context-quest.js"
-          echo "Checking Context Quest runtime content"
-          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors \
-            --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js" | grep -q "function start"
-          echo "Permanent Classroom surfaces and Context Quest runtime are reachable over HTTPS."
+          echo "Checking Context Quest runtime content and release marker"
+          CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors \
+            --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js")"
+          echo "$CQ_JS" | grep -q 'cq-simplified-2026-10-05'
+          echo "$CQ_JS" | grep -q 'BAD PROMPT'
+          echo "$CQ_JS" | grep -q 'PLOT TWIST'
+          echo "$CQ_JS" | grep -q '3–4 checks = success'
+          echo "Permanent Classroom surfaces and the current simplified Context Quest runtime are reachable over HTTPS."
