@@ -22,6 +22,35 @@ export class ClassroomSession extends BaseClassroomSession {
       const moments=[];for(let i=0;i<transitions.length;i++){const t=transitions[i],next=transitions[i+1];moments.push({step:t.step,startedAt:t.at,observedSeconds:next?Math.max(0,(next.at-t.at)/1000):null});}
       return json({joined:Object.keys(participants).length,answering:answering.size,pulses:pulseSummary,comments,moments,startedAt:transitions[0]?.at||null,lastTransitionAt:transitions.at(-1)?.at||null});
     }
+    if(url.pathname.endsWith('/review/answer')&&method==='POST'){
+      const b=await request.json().catch(()=>({}));
+      if(!b.device||!b.question)return json({error:'device and question are required'},400);
+      const all=(await this.state.storage.get('reviewAnswers'))||{},device=short(b.device,120);
+      all[device]||={};
+      all[device][String(b.question)]={question:Number(b.question),level:Number(b.level)||0,skill:short(b.skill,80),concept:short(b.concept,120),selected:b.selected,correct:!!b.correct,at:Date.now()};
+      await this.state.storage.put('reviewAnswers',all);
+      const progress=(await this.state.storage.get('reviewProgress'))||{};
+      progress[device]={...(progress[device]||{}),device,name:short(b.name||progress[device]?.name||'Anonymous',80),startedAt:progress[device]?.startedAt||Date.now(),lastSeen:Date.now()};
+      await this.state.storage.put('reviewProgress',progress);
+      return json({ok:true});
+    }
+    if(url.pathname.endsWith('/review/complete')&&method==='POST'){
+      const b=await request.json().catch(()=>({}));if(!b.device)return json({error:'device is required'},400);
+      const progress=(await this.state.storage.get('reviewProgress'))||{},device=short(b.device,120);
+      progress[device]={...(progress[device]||{}),device,name:short(b.name||progress[device]?.name||'Anonymous',80),score:Number(b.score)||0,total:Number(b.total)||25,percent:Number(b.percent)||0,minutes:Number(b.minutes)||0,skills:Array.isArray(b.skills)?b.skills.slice(0,20):[],startedAt:progress[device]?.startedAt||Date.now(),lastSeen:Date.now(),completedAt:Date.now()};
+      await this.state.storage.put('reviewProgress',progress);return json({ok:true});
+    }
+    if(url.pathname.endsWith('/review/report')&&method==='GET'){
+      const participants=(await this.state.storage.get('participants'))||{},answers=(await this.state.storage.get('reviewAnswers'))||{},progress=(await this.state.storage.get('reviewProgress'))||{};
+      const ids=new Set([...Object.keys(participants),...Object.keys(answers),...Object.keys(progress)]),skillAgg={};
+      const rows=[...ids].map(device=>{
+        const p=participants[device]||{},g=progress[device]||{},a=Object.values(answers[device]||{}),correct=a.filter(x=>x.correct).length;
+        for(const x of a){if(!x.skill)continue;skillAgg[x.skill]||={skill:x.skill,n:0,c:0};skillAgg[x.skill].n++;if(x.correct)skillAgg[x.skill].c++;}
+        return {device,name:short(g.name||p.name||'Anonymous',80),answered:a.length,correct,percent:g.completedAt?g.percent:(a.length?Math.round(correct/a.length*100):null),startedAt:g.startedAt||p.joinedAt||null,lastSeen:g.lastSeen||p.lastSeen||null,completedAt:g.completedAt||null,minutes:g.minutes||null};
+      }).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+      const skills=Object.values(skillAgg).map(x=>({...x,percent:x.n?Math.round(x.c/x.n*100):0})).sort((a,b)=>a.percent-b.percent);
+      return json({rows,skills,generatedAt:Date.now()});
+    }
     const clone=request.clone();const response=await super.fetch(request);
     if(response.ok&&method==='POST'&&url.pathname.endsWith('/state')){
       try{const b=await clone.json();if(Number.isFinite(b.step)){const arr=(await this.state.storage.get('researchTransitions'))||[],last=arr[arr.length-1];if(!last||last.step!==b.step){arr.push({step:b.step,at:Date.now()});await this.state.storage.put('researchTransitions',arr.slice(-200));}}}catch(_){ }
@@ -43,6 +72,8 @@ export default {
     if (path === '/google-slides-room') { const u = new URL('/google-slides-room.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/week5-powerpoint-test') { const u = new URL('/week5-powerpoint-test.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/pilot-report') { const u = new URL('/pilot-report-v01021.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/midterm-quest' || path === '/review') { const u = new URL('/midterm-quest.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/midterm-quest-report' || path === '/review-report') { const u = new URL('/midterm-quest-report.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/instructor') { const u = new URL(request.url); u.pathname = '/instructor-v2.html'; return env.ASSETS.fetch(new Request(u, request)); }
     const response = await baseHandler.fetch(request, env); if (!response.ok) return response;
     const type = response.headers.get('content-type') || ''; if (!type.includes('text/html')) return response;
