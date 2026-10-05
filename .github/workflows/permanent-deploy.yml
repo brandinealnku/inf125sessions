@@ -53,6 +53,7 @@ jobs:
           echo "$CQ_JS" | grep -q 'LIVE CLASSROOM PARTY GAME'
           echo "$CQ_JS" | grep -q 'FORM BALANCED VIRTUAL TEAMS' || true
           echo "$CQ_JS" | grep -q 'YOUR DEVICE = YOUR CONTROLLER'
+          echo "$CQ_JS" | grep -q 'function isEditing'
           echo "Context Quest multiplayer routes, API, and runtimes are reachable."
       - name: Verify Context Quest individual-player game flow
         run: |
