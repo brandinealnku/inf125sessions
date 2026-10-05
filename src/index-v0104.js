@@ -6,6 +6,62 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    // Context Quest live classroom game
+    const cqInitial=()=>({stage:'lobby',round:0,resultsVisible:false,updatedAt:Date.now()});
+    const cqState=async()=>(await this.state.storage.get('cqState'))||cqInitial();
+    const cqTeams=async()=>(await this.state.storage.get('cqTeams'))||{};
+    const cqRoundKey=(round,final=false)=>final?'final':String(Math.max(0,Math.min(3,Number(round)||0)));
+    if(url.pathname.endsWith('/cq/snapshot')&&method==='GET'){
+      const state=await cqState(),teams=await cqTeams();
+      const rows=Object.values(teams).sort((a,b)=>(b.position||0)-(a.position||0)||(b.totalPoints||0)-(a.totalPoints||0)||String(a.name).localeCompare(String(b.name)));
+      return json({state,teams:rows,generatedAt:Date.now()});
+    }
+    if(url.pathname.endsWith('/cq/join')&&method==='POST'){
+      const b=await request.json().catch(()=>({})); if(!b.teamId)return json({error:'teamId is required'},400);
+      const teams=await cqTeams(),id=short(b.teamId,80),now=Date.now(),existing=teams[id]||{};
+      const palette=['#7654d8','#ed5c8f','#f2a13b','#42b9b1','#4b83d1','#db5a50','#5bbd82','#9b6bd6'];
+      const color=existing.color||palette[Object.keys(teams).length%palette.length];
+      teams[id]={id,name:short(b.name||existing.name||'Team Context',50),color,position:Number(existing.position)||0,totalPoints:Number(existing.totalPoints)||0,bonus:Number(existing.bonus)||0,rounds:existing.rounds||{},tutorialDone:!!existing.tutorialDone,lastSeen:now,joinedAt:existing.joinedAt||now,stakeholder:existing.stakeholder||['STUDENT','ACADEMIC ADVISOR','PROFESSOR','UNIVERSITY','PARENT','ACCESSIBILITY OFFICE'][Object.keys(teams).length%6]};
+      await this.state.storage.put('cqTeams',teams); return json({ok:true,team:teams[id],state:await cqState()});
+    }
+    if(url.pathname.endsWith('/cq/heartbeat')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80);
+      if(teams[id]){teams[id].lastSeen=Date.now();await this.state.storage.put('cqTeams',teams)} return json({ok:true});
+    }
+    if(url.pathname.endsWith('/cq/team')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80),team=teams[id]; if(!team)return json({error:'Team not found'},404);
+      const state=await cqState(),now=Date.now(),key=cqRoundKey(state.round,String(state.stage).startsWith('final'));
+      team.rounds=team.rounds||{}; team.rounds[key]=team.rounds[key]||{}; const r=team.rounds[key];
+      if(b.action==='tutorialDone'){team.tutorialDone=true;}
+      if(b.action==='build'){r.draft=short(b.text,5000);r.builtAt=now;r.status='built';}
+      if(b.action==='tested'){r.testedAt=now;r.status='tested';}
+      if(b.action==='repair'){r.repair=short(b.text,5000);r.repairedAt=now;r.status='repaired';}
+      if(b.action==='checks'){
+        const checks=Array.isArray(b.checks)?b.checks.slice(0,4).map(Boolean):[]; const n=checks.filter(Boolean).length;
+        r.checks=checks;r.checkCount=n;r.checkedAt=now;r.checkAttempts=(r.checkAttempts||0)+1;
+        if(n<3){r.status='needs-repair';r.hadLowCheck=true;}
+        else if(!r.completedAt){
+          const move=n===4?3:2;r.move=move;r.points=move;r.completedAt=now;r.status='complete';
+          team.position=(Number(team.position)||0)+move;team.totalPoints=(Number(team.totalPoints)||0)+move;
+        }
+      }
+      team.lastSeen=now;teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team,state});
+    }
+    if(url.pathname.endsWith('/cq/control')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),current=await cqState(); let next={...current,updatedAt:Date.now()};
+      const allowed=['lobby','tutorial','build','test','twist','check','reveal','final-build','final-test','final-twist','final-check','final-reveal','complete'];
+      if(allowed.includes(b.stage))next.stage=b.stage;
+      if(Number.isFinite(b.round))next.round=Math.max(0,Math.min(4,Number(b.round)));
+      if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
+      await this.state.storage.put('cqState',next);return json(next);
+    }
+    if(url.pathname.endsWith('/cq/bonus')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80),team=teams[id];if(!team)return json({error:'Team not found'},404);
+      const delta=Math.max(-1,Math.min(1,Number(b.delta)||0));team.position=Math.max(0,(Number(team.position)||0)+delta);team.totalPoints=Math.max(0,(Number(team.totalPoints)||0)+delta);team.bonus=(Number(team.bonus)||0)+delta;teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team});
+    }
+    if(url.pathname.endsWith('/cq/reset')&&method==='POST'){
+      await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
+    }
     if(url.pathname.endsWith('/research/pulse')&&method==='POST'){
       const b=await request.json().catch(()=>({}));
       if(!b.pulse||!b.device||!b.value)return json({error:'pulse, device, and value are required'},400);
@@ -78,7 +134,9 @@ export default {
     if (path === '/google-slides-room') { const u = new URL('/google-slides-room.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/week5-powerpoint-test') { const u = new URL('/week5-powerpoint-test.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/pilot-report') { const u = new URL('/pilot-report-v01021.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
-    if (path === '/context-quest' || path === '/inf128-context-quest') { const u = new URL('/context-quest.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/context-quest' || path === '/context-quest/team' || path === '/inf128-context-quest') { const u = new URL('/context-quest.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/context-quest/instructor') { const u = new URL('/context-quest-instructor.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/context-quest/board') { const u = new URL('/context-quest-board.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest.js') { const u = new URL('/context-quest.js', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/midterm-quest' || path === '/review') { const u = new URL('/midterm-quest.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/midterm-quest-report' || path === '/review-report') { const u = new URL('/midterm-quest-report.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
