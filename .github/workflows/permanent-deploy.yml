@@ -59,6 +59,10 @@ jobs:
           set -e
           BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
+          echo "Checking instructor test-player generator"
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"count":10,"watchers":2}' "$BASE/test-players" | grep -q '"created":10'
+          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"playing":10'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/clear-test-players" | grep -q '"removed":12'
           for n in 1 2 3 4; do
             curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p$n\",\"name\":\"Player $n\",\"mode\":\"play\"}" "$BASE/join" | grep -q '"ok":true'
           done
@@ -97,6 +101,8 @@ jobs:
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "$INST_DOM" | grep -q "GAME MASTER"
           echo "$INST_DOM" | grep -q "VIRTUAL TEAMS"
+          echo "$INST_DOM" | grep -q "INSTRUCTOR TEST LAB"
+          echo "$INST_DOM" | grep -q "SIMULATE CURRENT PHASE"
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
           echo "$BOARD_DOM" | grep -q "EVERYONE JOIN"
