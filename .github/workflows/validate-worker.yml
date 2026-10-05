@@ -15,3 +15,5 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm run check
+      - name: Validate Context Quest JavaScript
+        run: node --check public/context-quest.js
