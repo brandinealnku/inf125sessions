@@ -22,6 +22,12 @@ export class ClassroomSession extends BaseClassroomSession {
       const moments=[];for(let i=0;i<transitions.length;i++){const t=transitions[i],next=transitions[i+1];moments.push({step:t.step,startedAt:t.at,observedSeconds:next?Math.max(0,(next.at-t.at)/1000):null});}
       return json({joined:Object.keys(participants).length,answering:answering.size,pulses:pulseSummary,comments,moments,startedAt:transitions[0]?.at||null,lastTransitionAt:transitions.at(-1)?.at||null});
     }
+    if(url.pathname.endsWith('/review/start')&&method==='POST'){
+      const b=await request.json().catch(()=>({}));if(!b.device)return json({error:'device is required'},400);
+      const progress=(await this.state.storage.get('reviewProgress'))||{},device=short(b.device,120),now=Date.now();
+      progress[device]={...(progress[device]||{}),device,name:short(b.name||progress[device]?.name||'Anonymous',80),startedAt:progress[device]?.startedAt||now,lastSeen:now,status:'started'};
+      await this.state.storage.put('reviewProgress',progress);return json({ok:true});
+    }
     if(url.pathname.endsWith('/review/answer')&&method==='POST'){
       const b=await request.json().catch(()=>({}));
       if(!b.device||!b.question)return json({error:'device and question are required'},400);
@@ -37,7 +43,7 @@ export class ClassroomSession extends BaseClassroomSession {
     if(url.pathname.endsWith('/review/complete')&&method==='POST'){
       const b=await request.json().catch(()=>({}));if(!b.device)return json({error:'device is required'},400);
       const progress=(await this.state.storage.get('reviewProgress'))||{},device=short(b.device,120);
-      progress[device]={...(progress[device]||{}),device,name:short(b.name||progress[device]?.name||'Anonymous',80),score:Number(b.score)||0,total:Number(b.total)||25,percent:Number(b.percent)||0,minutes:Number(b.minutes)||0,skills:Array.isArray(b.skills)?b.skills.slice(0,20):[],startedAt:progress[device]?.startedAt||Date.now(),lastSeen:Date.now(),completedAt:Date.now()};
+      progress[device]={...(progress[device]||{}),device,name:short(b.name||progress[device]?.name||'Anonymous',80),score:Number(b.score)||0,total:Number(b.total)||25,percent:Number(b.percent)||0,minutes:Number(b.minutes)||0,skills:Array.isArray(b.skills)?b.skills.slice(0,20):[],xp:Number(b.xp)||0,rank:short(b.rank||'',80),bestStreak:Number(b.bestStreak)||0,recovered:Number(b.recovered)||0,status:'complete',startedAt:progress[device]?.startedAt||Date.now(),lastSeen:Date.now(),completedAt:Date.now()};
       await this.state.storage.put('reviewProgress',progress);return json({ok:true});
     }
     if(url.pathname.endsWith('/review/report')&&method==='GET'){
@@ -46,7 +52,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const rows=[...ids].map(device=>{
         const p=participants[device]||{},g=progress[device]||{},a=Object.values(answers[device]||{}),correct=a.filter(x=>x.correct).length;
         for(const x of a){if(!x.skill)continue;skillAgg[x.skill]||={skill:x.skill,n:0,c:0};skillAgg[x.skill].n++;if(x.correct)skillAgg[x.skill].c++;}
-        return {device,name:short(g.name||p.name||'Anonymous',80),answered:a.length,correct,percent:g.completedAt?g.percent:(a.length?Math.round(correct/a.length*100):null),startedAt:g.startedAt||p.joinedAt||null,lastSeen:g.lastSeen||p.lastSeen||null,completedAt:g.completedAt||null,minutes:g.minutes||null};
+        return {device,name:short(g.name||p.name||'Anonymous',80),answered:a.length,correct,percent:g.completedAt?g.percent:(a.length?Math.round(correct/a.length*100):null),xp:g.xp||0,rank:g.rank||'',bestStreak:g.bestStreak||0,recovered:g.recovered||0,status:g.status||(g.completedAt?'complete':'started'),startedAt:g.startedAt||p.joinedAt||null,lastSeen:g.lastSeen||p.lastSeen||null,completedAt:g.completedAt||null,minutes:g.minutes||null};
       }).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
       const skills=Object.values(skillAgg).map(x=>({...x,percent:x.n?Math.round(x.c/x.n*100):0})).sort((a,b)=>a.percent-b.percent);
       return json({rows,skills,generatedAt:Date.now()});
