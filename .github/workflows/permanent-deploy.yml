@@ -53,7 +53,7 @@ jobs:
       - name: Verify Context Quest renders in a browser
         run: |
           set -e
-          DOM="$(google-chrome --headless --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest)"
+          DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest)"
           echo "$DOM" | grep -q "PLAY THE TUTORIAL"
           echo "$DOM" | grep -q "You’re given a bad AI prompt"
           echo "Context Quest executed successfully and rendered the simplified start experience."
