@@ -56,8 +56,13 @@ export class ClassroomSession extends BaseClassroomSession {
       const b=await request.json().catch(()=>({}));if(!b.playerId)return json({error:'playerId is required'},400);
       const players=await cqPlayers(),id=short(b.playerId,100),now=Date.now(),existing=players[id]||{},mode=b.mode==='watch'?'watch':'play';
       players[id]={...existing,id,name:short(b.name||existing.name||'Player',50),mode,teamId:mode==='watch'?null:(existing.teamId||null),joinedAt:existing.joinedAt||now,lastSeen:now};
+      const state=await cqState(),teams=await cqTeams();
+      if(mode==='play'&&state.teamsFormed&&!players[id].teamId&&Object.keys(teams).length){
+        const smallest=Object.values(teams).sort((a,b)=>(a.members?.length||0)-(b.members?.length||0))[0];
+        smallest.members=smallest.members||[];smallest.members.push(id);players[id].teamId=smallest.id;teams[smallest.id]=smallest;await this.state.storage.put('cqTeams',teams);
+      }
       await this.state.storage.put('cqPlayers',players);
-      const state=await cqState(),teams=await cqTeams(),team=players[id].teamId?teams[players[id].teamId]:null;
+      const team=players[id].teamId?teams[players[id].teamId]:null;
       return json({ok:true,player:cqPublicPlayer(players[id]),team:team?cqHydrate(team,players,state):null,state});
     }
     if(url.pathname.endsWith('/cq/form-teams')&&method==='POST'){
