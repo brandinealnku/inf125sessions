@@ -1,33 +1,66 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827"><title>INF 125 · Midterm Quest</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b18">
+<title>INF 125 · Midterm Quest</title>
 <style>
-:root{--ink:#111827;--muted:#667085;--paper:#f6f4ef;--card:#fff;--line:#dedbd3;--blue:#315efb;--blue2:#e9efff;--gold:#f3c84b;--green:#207a4b;--green2:#e4f6eb;--red:#a63d31;--red2:#fff0ed;--purple:#6941c6;--shadow:0 18px 50px rgba(17,24,39,.10)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}
-.shell{width:min(900px,100%);margin:auto;padding:18px 18px 60px}.top{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:8px 0 16px;border-bottom:1px solid var(--line)}.brand{font-weight:950;letter-spacing:-.02em}.small{font-size:12px;color:var(--muted)}.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800}
-.hero{background:linear-gradient(135deg,#111827,#273449);color:#fff;border-radius:26px;padding:30px;margin:20px 0;box-shadow:var(--shadow)}.eyebrow{font-size:11px;font-weight:950;letter-spacing:.14em;text-transform:uppercase;color:#b9c7ff}.hero h1{font-size:clamp(44px,9vw,78px);line-height:.9;letter-spacing:-.055em;margin:9px 0 15px}.hero p{font-size:18px;line-height:1.5;color:#e5e7eb;max-width:720px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;margin:16px 0;box-shadow:0 8px 24px rgba(17,24,39,.05)}.card h2{font-size:28px;letter-spacing:-.035em;margin:0 0 10px}.field{width:100%;padding:16px;border:1px solid #b9b5ad;border-radius:14px;background:#fff;font-size:17px}.action{border:0;border-radius:14px;background:var(--ink);color:#fff;font-weight:900;padding:15px 18px;cursor:pointer;min-height:54px}.action.primary{background:var(--blue)}.action.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.action:disabled{opacity:.4;cursor:not-allowed}
-.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.rule{background:#f8f7f3;border:1px solid #ebe8e0;border-radius:15px;padding:14px;font-size:13px;color:#505967}.rule b{display:block;color:var(--ink);margin-bottom:4px}
-.progressBox{position:sticky;top:0;z-index:10;background:rgba(246,244,239,.94);backdrop-filter:blur(10px);padding:10px 0 12px}.progressRow{display:flex;align-items:center;justify-content:space-between;gap:12px}.track{height:8px;background:#ddd9d0;border-radius:999px;overflow:hidden;margin-top:9px}.track span{display:block;height:100%;background:var(--blue);transition:width .25s}.levelTag{font-size:11px;font-weight:950;letter-spacing:.1em;text-transform:uppercase;color:var(--purple)}
-.qnum{font-size:12px;font-weight:900;color:var(--muted)}.question{font-size:clamp(25px,5vw,38px);line-height:1.12;letter-spacing:-.035em;margin:9px 0 14px}.scenario{background:#f4f6fa;border-left:4px solid var(--blue);padding:15px 17px;border-radius:0 14px 14px 0;color:#344054;line-height:1.5;margin:12px 0 20px;white-space:pre-line}
-.choice{width:100%;text-align:left;background:#fff;border:1px solid #cfcac0;border-radius:15px;padding:16px 17px;margin:9px 0;cursor:pointer;font-weight:750;line-height:1.35;display:flex;gap:12px;align-items:flex-start}.choice:hover{border-color:#8da4ed}.choice.selected{border:2px solid var(--blue);background:var(--blue2)}.letter{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border-radius:9px;background:#f0eee8;font-size:12px;font-weight:950}.selected .letter{background:var(--blue);color:#fff}
-.feedback{border-radius:18px;padding:19px;margin:18px 0}.feedback.good{background:var(--green2);border:1px solid #b7dfc7}.feedback.miss{background:var(--red2);border:1px solid #f0c2ba}.feedback h3{margin:0 0 8px;font-size:22px}.feedback p{line-height:1.5;margin:6px 0}.remember{font-weight:850}
-.levelComplete{text-align:center;padding:38px 24px}.levelComplete .icon{font-size:50px}.levelComplete h2{font-size:40px;letter-spacing:-.045em;margin:8px 0}.scoreBig{font-size:64px;font-weight:950;letter-spacing:-.06em}
-.resultsHero{background:linear-gradient(135deg,#172554,#312e81);color:#fff}.resultsHero .scoreBig{font-size:80px}.resultsHero p{color:#dbe4ff}.skill{margin:15px 0}.skillHead{display:flex;justify-content:space-between;gap:10px;font-weight:850}.skillTrack{height:10px;background:#e8e5df;border-radius:999px;overflow:hidden;margin-top:7px}.skillTrack span{display:block;height:100%;background:var(--blue)}.study{border-left:4px solid var(--gold);padding-left:14px;margin:15px 0}.study b{display:block}.hidden{display:none!important}.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
-@media(max-width:640px){.shell{padding:12px 12px 40px}.hero,.card{border-radius:19px;padding:19px}.rules{grid-template-columns:1fr}.top{align-items:flex-start}.hero h1{font-size:52px}.question{font-size:28px}}
+:root{
+  --bg:#070b18;--panel:#10172a;--panel2:#151f38;--line:#263354;--ink:#f6f8ff;--muted:#9aa8c7;
+  --cyan:#64e5ff;--blue:#6f7cff;--violet:#aa75ff;--gold:#ffd36a;--green:#69e6a6;--red:#ff7d8b;
+  --shadow:0 24px 70px rgba(0,0,0,.38)
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:
+radial-gradient(circle at 14% 0%,rgba(111,124,255,.18),transparent 34%),
+radial-gradient(circle at 90% 10%,rgba(100,229,255,.10),transparent 28%),var(--bg);
+color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}.shell{width:min(980px,100%);margin:auto;padding:14px 16px 70px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand{font-weight:950;letter-spacing:-.02em}.subtle{font-size:12px;color:var(--muted)}
+.gameBadge,.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:850}
+.hero{position:relative;overflow:hidden;background:linear-gradient(140deg,#111a33,#172348 55%,#17203c);border:1px solid rgba(255,255,255,.09);border-radius:28px;padding:32px;margin:20px 0;box-shadow:var(--shadow)}
+.hero:after{content:"";position:absolute;width:280px;height:280px;border-radius:50%;right:-90px;top:-120px;background:radial-gradient(circle,rgba(100,229,255,.28),transparent 68%)}
+.kicker{font-size:11px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan)}
+.hero h1{font-size:clamp(46px,9vw,82px);line-height:.88;letter-spacing:-.06em;margin:10px 0 14px;max-width:780px}
+.hero p{font-size:18px;line-height:1.5;color:#d9e1f6;max-width:690px;position:relative;z-index:1}
+.card{background:linear-gradient(180deg,rgba(21,31,56,.98),rgba(13,21,39,.98));border:1px solid var(--line);border-radius:22px;padding:22px;margin:15px 0;box-shadow:0 14px 40px rgba(0,0,0,.22)}
+.card h2{font-size:28px;letter-spacing:-.035em;margin:0 0 9px}.field{width:100%;padding:16px;border:1px solid #3a496f;border-radius:14px;background:#0b1223;color:var(--ink);font-size:17px;outline:none}.field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(100,229,255,.12)}
+.action{border:0;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-weight:900;padding:15px 18px;cursor:pointer;min-height:52px;box-shadow:0 9px 22px rgba(111,124,255,.22)}
+.action.secondary{background:#151d31;border:1px solid #39476a;box-shadow:none}.action.gold{background:linear-gradient(135deg,#b57b19,#f3b83a);color:#14100a}.action:disabled{opacity:.4;cursor:not-allowed}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.rule{background:#0d1528;border:1px solid var(--line);border-radius:16px;padding:15px;color:#b9c5df;font-size:13px}.rule b{display:block;color:#fff;margin-bottom:4px}
+.hud{position:sticky;top:0;z-index:12;background:rgba(7,11,24,.90);backdrop-filter:blur(14px);margin:0 -4px;padding:10px 4px 12px}
+.hudTop{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.hudStats{display:flex;gap:8px;flex-wrap:wrap}.stat{border:1px solid #2a3657;background:#0c1428;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:850}.stat b{color:var(--gold)}
+.map{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}.node{position:relative;text-align:center;border-radius:12px;border:1px solid #2a3657;background:#0b1223;padding:9px 6px;color:#7583a5;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+.node.done{color:#0c1b12;background:var(--green);border-color:transparent}.node.active{color:#fff;border-color:var(--cyan);box-shadow:0 0 0 2px rgba(100,229,255,.09),0 0 20px rgba(100,229,255,.12)}
+.progress{height:7px;background:#1c2743;border-radius:999px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--violet));transition:width .28s}
+.mission{border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,#10192f,#0b1223);overflow:hidden;box-shadow:var(--shadow)}
+.missionHead{padding:19px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;gap:14px}.missionLabel{font-size:11px;color:var(--cyan);font-weight:950;letter-spacing:.13em;text-transform:uppercase}.qnum{font-size:12px;color:var(--muted);font-weight:850}
+.missionBody{padding:22px}.scenario{background:linear-gradient(135deg,rgba(100,229,255,.08),rgba(111,124,255,.08));border-left:4px solid var(--cyan);padding:16px 18px;border-radius:0 15px 15px 0;color:#d5def3;line-height:1.5;white-space:pre-line}
+.question{font-size:clamp(26px,5vw,40px);line-height:1.08;letter-spacing:-.04em;margin:18px 0}.choice{width:100%;display:flex;gap:12px;align-items:flex-start;text-align:left;background:#0d1629;color:#e8edfb;border:1px solid #2c3a5c;border-radius:16px;padding:15px 16px;margin:9px 0;cursor:pointer;font-weight:760;line-height:1.35;transition:.16s}
+.choice:hover{border-color:#5e77b7;transform:translateY(-1px)}.choice.selected{border:2px solid var(--cyan);background:#11213c}.choice.eliminated{opacity:.28;text-decoration:line-through;pointer-events:none}.choice.correct{border-color:var(--green);background:rgba(105,230,166,.10)}.choice.wrong{border-color:var(--red);background:rgba(255,125,139,.10)}
+.letter{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:9px;background:#202c4b;font-size:12px;font-weight:950}.selected .letter{background:var(--cyan);color:#07111b}
+.powerRow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.power{border:1px solid #415177;background:#141f38;color:#e8edfb;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:850;cursor:pointer}.power b{color:var(--gold)}.power:disabled{opacity:.35}
+.feedback{border-radius:18px;padding:18px;margin:16px 0;border:1px solid}.feedback.good{background:rgba(105,230,166,.09);border-color:rgba(105,230,166,.35)}.feedback.miss{background:rgba(255,125,139,.08);border-color:rgba(255,125,139,.34)}.feedback h3{margin:0 0 7px;font-size:22px}.feedback p{line-height:1.5;margin:6px 0;color:#d3dbef}.xpBurst{font-size:13px;font-weight:950;color:var(--gold);letter-spacing:.06em}
+.recovery{background:#111c34;border:1px dashed #5e6f9b;border-radius:16px;padding:15px;margin:15px 0}.recovery b{color:var(--cyan)}
+.levelComplete{text-align:center;padding:38px 24px}.levelIcon{font-size:58px;filter:drop-shadow(0 7px 24px rgba(100,229,255,.22))}.levelComplete h2{font-size:42px;letter-spacing:-.05em;margin:8px 0}.scoreBig{font-size:70px;font-weight:950;letter-spacing:-.07em}.unlock{display:inline-block;margin:10px 0;border:1px solid #705c26;background:rgba(255,211,106,.10);color:var(--gold);border-radius:999px;padding:9px 13px;font-size:12px;font-weight:900}
+.resultsHero{background:linear-gradient(140deg,#162456,#32256c 58%,#173e53);border-color:#384a87}.resultsHero .scoreBig{font-size:86px}.rank{font-size:24px;font-weight:950;color:var(--gold);margin-top:6px}
+.skill{margin:14px 0}.skillHead{display:flex;justify-content:space-between;gap:10px;font-weight:850}.skillTrack{height:10px;background:#1e2944;border-radius:999px;overflow:hidden;margin-top:7px}.skillTrack span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.study{border-left:4px solid var(--gold);padding-left:14px;margin:15px 0;color:#d7def0}.study b{display:block;color:#fff}.hidden{display:none!important}.footer{text-align:center;color:#6f7d9d;font-size:12px;margin-top:24px}
+.flash{animation:flash .45s ease}@keyframes flash{0%{transform:scale(.985);opacity:.7}100%{transform:scale(1);opacity:1}}@keyframes pop{0%{transform:scale(.6);opacity:0}75%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}.pop{animation:pop .35s ease}
+@media(max-width:650px){.shell{padding:10px 11px 45px}.hero,.card{border-radius:19px;padding:18px}.hero h1{font-size:50px}.rules{grid-template-columns:1fr}.map{grid-template-columns:repeat(5,minmax(48px,1fr));overflow:auto}.node{font-size:8px}.question{font-size:28px}.missionBody{padding:17px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body><main class="shell"><div id="app"></div></main>
 <script>
 const SESSION='inf125-midterm-quest';
 const LEVELS=[
- {name:'Level 1 · Do You Actually Know AI?',icon:'🤖',blurb:'Foundations, but in real situations.'},
- {name:'Level 2 · Use It Without Making a Mess',icon:'🛠️',blurb:'Prompting, privacy, transparency, and responsible use.'},
- {name:"Level 3 · Don't Get Fooled",icon:'🕵️',blurb:'Evidence, reliability, citations, and testing.'},
- {name:"Level 4 · It's Complicated",icon:'⚖️',blurb:'Bias, people, consequences, and human oversight.'},
- {name:'Level 5 · Final Boss',icon:'🔥',blurb:'Put the pieces together.'}
+ {name:'Signal Check',short:'Foundations',icon:'🤖',blurb:'Do you actually know AI?',unlock:'Pattern Reader'},
+ {name:'Toolsmith',short:'Use It',icon:'🛠️',blurb:'Use AI without making a mess.',unlock:'Prompt Crafter'},
+ {name:'Truth Hunter',short:'Verify',icon:'🕵️',blurb:"Don't get fooled.",unlock:'Evidence Lens'},
+ {name:'Judgment Zone',short:'Judge',icon:'⚖️',blurb:"It's complicated.",unlock:'Human Override'},
+ {name:'Final Boss',short:'Boss',icon:'🔥',blurb:'Put the pieces together.',unlock:'AI Literate'}
 ];
 const Q=[
 {level:1,skill:'Foundations',concept:'AI vs software',scenario:'A campus app shows the same dining-hall hours stored in a database to every student. Another feature predicts which dining location a student may prefer based on patterns in prior choices.',q:'Which feature is the stronger example of AI, and why?',choices:['The hours display, because any app on a computer is AI','The prediction feature, because it uses patterns in data to produce a recommendation','Both equally, because both use digital data','Neither, because AI must generate text or images'],a:1,why:'AI is not simply software running on a computer. Pattern-based prediction, classification, recommendation, or generation is the stronger AI signal here.',remember:'Ask what the system is doing with data—not whether it has a screen.'},
@@ -61,55 +94,77 @@ const Q=[
 {level:5,skill:'Evidence of Learning',concept:'Preserving evidence',scenario:'FINAL BOSS · PART 5\nYou finish the review and want evidence you can use later to show how your AI literacy has improved.',q:'What would be most useful to preserve?',choices:['Only your final score','Only screenshots of correct answers','Examples of prompts or tasks, AI outputs, your checks and revisions, and short reflections explaining what changed in your judgment','Nothing; completed work has no value after grading'],a:2,why:'A strong learning record shows process and growth: what you tried, what the AI produced, how you evaluated or revised it, and what you learned.',remember:'Save evidence of thinking, not just evidence of completion.'}
 ];
 let name='',idx=0,answers=[],selected=null,submitted=false,startedAt=null;
+let xp=0,streak=0,bestStreak=0,lens=3,recovery=false,firstAttempt=null;
 const app=document.getElementById('app');
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 async function api(path,opts={}){const r=await fetch('/api/session/'+SESSION+path,{cache:'no-store',headers:{'content-type':'application/json'},...opts});if(!r.ok)throw new Error(await r.text());return r.json()}
-function shell(body){return '<div class="top"><div><div class="brand">INF 125 · AI Literacy</div><div class="small">Midterm Week · Self-Guided Review</div></div><span class="badge">🎮 MIDTERM QUEST</span></div>'+body+'<div class="footer">Practice the concepts. Make the judgment. Show how you know.</div>'}
+function device(){return localStorage.classroomDevice||(localStorage.classroomDevice=(crypto.randomUUID?crypto.randomUUID():'dev-'+Math.random().toString(36).slice(2)))}
+function rank(){if(xp>=2800)return'Legendary Verifier';if(xp>=2200)return'AI Strategist';if(xp>=1600)return'Evidence Hunter';if(xp>=1000)return'Prompt Pilot';return'Rookie Analyst'}
+function shell(body){return '<div class="top"><div><div class="brand">INF 125 · AI Literacy</div><div class="subtle">Midterm Week · Mission-Based Review</div></div><span class="gameBadge">🎮 MIDTERM QUEST</span></div>'+body+'<div class="footer">Practice the concepts. Make the judgment. Show how you know.</div>'}
 function start(){
  const saved=localStorage.getItem('midtermQuestName')||localStorage.getItem('classroomName')||'';
- app.innerHTML=shell('<section class="hero"><div class="eyebrow">Tomorrow’s mission</div><h1>BEAT YOUR BLIND SPOTS.</h1><p>25 original challenges. Same concepts you need for the midterm. Different situations. Immediate feedback. Your goal is not to memorize answers—it is to find what you still need to study.</p></section><section class="card"><h2>Enter the quest</h2><p class="small">Your name records attendance and lets your instructor see your progress. Your results are for review—not a grade.</p><label class="small" for="nm"><b>YOUR NAME</b></label><input class="field" id="nm" autocomplete="name" value="'+esc(saved)+'" placeholder="First and last name"><button class="action primary" id="go" style="width:100%;margin-top:12px">Start Midterm Quest →</button><div id="err" class="small" style="color:#a63d31;margin-top:8px"></div></section><section class="rules"><div class="rule"><b>🧠 Think first</b>Choose before reading the explanation.</div><div class="rule"><b>🔎 Learn from misses</b>Feedback tells you what to review.</div><div class="rule"><b>📈 Finish with a plan</b>Your results identify your weak areas.</div></section>');
+ app.innerHTML=shell('<section class="hero"><div class="kicker">Mission Control</div><h1>BEAT YOUR BLIND SPOTS.</h1><p>You have 25 missions before the Final Boss is defeated. Every mission practices a concept that matters for the midterm—but none of these are copied exam questions.</p><div class="pill">⚡ Earn XP</div> <div class="pill">🔥 Build streaks</div> <div class="pill">🔎 Use Evidence Lenses</div> <div class="pill">🛡 Recover from misses</div></section><section class="card"><h2>Initialize player</h2><p class="subtle">Your name records attendance and lets your instructor see progress. This review is diagnostic—not a grade.</p><label class="subtle" for="nm"><b>PLAYER NAME</b></label><input class="field" id="nm" autocomplete="name" value="'+esc(saved)+'" placeholder="First and last name"><button class="action" id="go" style="width:100%;margin-top:12px">ENTER THE QUEST →</button><div id="err" class="subtle" style="color:var(--red);margin-top:8px"></div></section><section class="rules"><div class="rule"><b>🎯 First attempt matters</b>Your readiness score uses your first answer.</div><div class="rule"><b>🛡 Recovery is learning</b>Miss one? Get a clue and fight back for XP.</div><div class="rule"><b>🔎 Evidence Lens ×3</b>Remove one distractor when you need it.</div></section>');
  document.getElementById('go').onclick=join;
 }
 async function join(){
  name=document.getElementById('nm').value.trim();if(!name){document.getElementById('err').textContent='Enter your name first.';return}
- const b=document.getElementById('go');b.disabled=true;b.textContent='Starting…';
- try{const device=localStorage.classroomDevice||(localStorage.classroomDevice=(crypto.randomUUID?crypto.randomUUID():'dev-'+Math.random().toString(36).slice(2)));await api('/join',{method:'POST',body:JSON.stringify({device,name})});localStorage.midtermQuestName=name;localStorage.classroomName=name;startedAt=Date.now();renderQ()}catch(e){b.disabled=false;b.textContent='Start Midterm Quest →';document.getElementById('err').textContent='Could not start. Check your connection and try again.'}
+ const b=document.getElementById('go');b.disabled=true;b.textContent='Connecting…';
+ try{await api('/join',{method:'POST',body:JSON.stringify({device:device(),name})});localStorage.midtermQuestName=name;localStorage.classroomName=name;startedAt=Date.now();renderQ()}catch(e){b.disabled=false;b.textContent='ENTER THE QUEST →';document.getElementById('err').textContent='Could not start. Check your connection and try again.'}
 }
-function progress(){return Math.round(idx/Q.length*100)}
+function mapHtml(){
+ const level=Math.floor(idx/5);
+ return '<div class="map">'+LEVELS.map((l,i)=>'<div class="node '+(i<level?'done':i===level?'active':'')+'">'+(i<level?'✓ ':l.icon+' ')+esc(l.short)+'</div>').join('')+'</div>';
+}
+function hud(){
+ return '<div class="hud"><div class="hudTop"><div class="hudStats"><span class="stat">XP <b>'+xp+'</b></span><span class="stat">🔥 STREAK <b>'+streak+'</b></span><span class="stat">🔎 LENS <b>'+lens+'</b></span><span class="stat">'+esc(rank())+'</span></div><span class="subtle">'+(idx+1)+' / '+Q.length+'</span></div>'+mapHtml()+'<div class="progress"><span style="width:'+(idx/Q.length*100)+'%"></span></div></div>';
+}
 function renderQ(){
- const q=Q[idx],lev=LEVELS[q.level-1];
- app.innerHTML=shell('<div class="progressBox"><div class="progressRow"><span class="levelTag">'+esc(lev.icon+' '+lev.name)+'</span><span class="qnum">'+(idx+1)+' / '+Q.length+'</span></div><div class="track"><span style="width:'+progress()+'%"></span></div></div><section class="card"><div class="levelTag">'+esc(q.concept)+'</div><div class="scenario">'+esc(q.scenario)+'</div><h1 class="question">'+esc(q.q)+'</h1><div id="choices">'+q.choices.map((c,i)=>'<button class="choice" data-i="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+esc(c)+'</span></button>').join('')+'</div><button class="action primary" id="check" style="width:100%;margin-top:12px" disabled>Check my thinking →</button><div id="fb"></div></section>');
- document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{if(submitted)return;selected=Number(b.dataset.i);document.querySelectorAll('.choice').forEach(x=>x.classList.toggle('selected',x===b));document.getElementById('check').disabled=false});
- document.getElementById('check').onclick=check;
+ selected=null;submitted=false;recovery=false;firstAttempt=null;
+ const q=Q[idx],lev=LEVELS[q.level-1],boss=q.level===5;
+ app.innerHTML=shell(hud()+'<section class="mission '+(boss?'flash':'')+'"><div class="missionHead"><div><div class="missionLabel">'+(boss?'🔥 FINAL BOSS · ':'MISSION · ')+esc(q.concept)+'</div><div class="subtle">'+esc(lev.name)+' · '+esc(lev.blurb)+'</div></div><div class="qnum">'+(idx+1)+' / '+Q.length+'</div></div><div class="missionBody"><div class="scenario">'+esc(q.scenario)+'</div><h1 class="question">'+esc(q.q)+'</h1><div class="powerRow"><button class="power" id="lens" '+(lens<=0?'disabled':'')+'>🔎 Evidence Lens <b>×'+lens+'</b> · remove one distractor</button></div><div id="choices">'+q.choices.map((c,i)=>'<button class="choice" data-i="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+esc(c)+'</span></button>').join('')+'</div><button class="action" id="check" style="width:100%;margin-top:13px" disabled>LOCK IN →</button><div id="fb"></div></div></section>');
+ wireChoices();document.getElementById('lens').onclick=useLens;document.getElementById('check').onclick=check;
+}
+function wireChoices(){document.querySelectorAll('.choice:not(.eliminated)').forEach(b=>b.onclick=()=>{if(submitted)return;selected=Number(b.dataset.i);document.querySelectorAll('.choice').forEach(x=>x.classList.toggle('selected',x===b));document.getElementById('check').disabled=false})}
+function useLens(){
+ if(lens<=0||submitted)return;const q=Q[idx],wrong=q.choices.map((_,i)=>i).filter(i=>i!==q.a && i!==selected);if(!wrong.length)return;
+ const kill=wrong[Math.floor(Math.random()*wrong.length)],btn=document.querySelector('.choice[data-i="'+kill+'"]');btn.classList.add('eliminated');btn.disabled=true;lens--;xp=Math.max(0,xp-20);
+ document.getElementById('lens').innerHTML='🔎 Evidence Lens <b>×'+lens+'</b> · remove one distractor';if(lens<=0)document.getElementById('lens').disabled=true;
 }
 async function check(){
- if(selected===null||submitted)return;submitted=true;const q=Q[idx],correct=selected===q.a;
- answers.push({idx,correct,skill:q.skill,concept:q.concept,selected});
- document.querySelectorAll('.choice').forEach(b=>b.disabled=true);document.getElementById('check').classList.add('hidden');
- const fb=document.getElementById('fb');fb.innerHTML='<div class="feedback '+(correct?'good':'miss')+'"><h3>'+(correct?'✓ Strong call.':'↻ This is one to review.')+'</h3><p>'+esc(q.why)+'</p><p class="remember">Remember: '+esc(q.remember)+'</p></div><button class="action" id="next" style="width:100%">'+(idx===Q.length-1?'See my readiness report →':'Continue →')+'</button>';
- try{const device=localStorage.classroomDevice;await api('/review/answer',{method:'POST',body:JSON.stringify({device,name,question:idx+1,level:q.level,skill:q.skill,concept:q.concept,selected,correct})})}catch(_){}
+ if(selected===null||submitted)return;submitted=true;const q=Q[idx],correct=selected===q.a;if(firstAttempt===null)firstAttempt=selected;
+ document.querySelectorAll('.choice').forEach(b=>b.disabled=true);document.getElementById('check').classList.add('hidden');document.getElementById('lens').disabled=true;
+ if(correct){const bonus=Math.min(streak,4)*20,earned=recovery?45:100+bonus;xp+=earned;streak=recovery?0:streak+1;bestStreak=Math.max(bestStreak,streak);showResolved(true,earned)}
+ else if(!recovery){streak=0;showRecovery()}
+ else{showResolved(false,0)}
+ try{await api('/review/answer',{method:'POST',body:JSON.stringify({device:device(),name,question:idx+1,level:q.level,skill:q.skill,concept:q.concept,selected,correct:firstAttempt===q.a,attempt:recovery?2:1,recovered:recovery&&correct,xp,streak})})}catch(_){}
+}
+function showRecovery(){
+ const q=Q[idx],fb=document.getElementById('fb');fb.innerHTML='<div class="feedback miss pop"><h3>⚠ Signal disrupted.</h3><p>Your first answer is locked for the readiness score—but this mission is not over.</p><div class="recovery"><b>RECOVERY CLUE</b><br>'+esc(q.remember)+'</div><button class="action secondary" id="recover" style="width:100%">🛡 TRY A RECOVERY ATTEMPT · +45 XP</button></div>';
+ document.getElementById('recover').onclick=()=>{recovery=true;submitted=false;selected=null;document.querySelectorAll('.choice').forEach(b=>{if(!b.classList.contains('eliminated'))b.disabled=false;b.classList.remove('selected')});document.getElementById('fb').innerHTML='<div class="recovery"><b>RECOVERY MODE</b><br>Use the clue. Make a new call.</div>';document.getElementById('check').classList.remove('hidden');document.getElementById('check').disabled=true;wireChoices()};
+}
+function showResolved(correct,earned){
+ const q=Q[idx];document.querySelectorAll('.choice').forEach(b=>{const i=Number(b.dataset.i);if(i===q.a)b.classList.add('correct');else if(i===selected)b.classList.add('wrong')});
+ const rawCorrect=firstAttempt===q.a;answers.push({idx,correct:rawCorrect,skill:q.skill,concept:q.concept,selected:firstAttempt,recovered:recovery&&correct});
+ const fb=document.getElementById('fb');fb.innerHTML='<div class="feedback '+(correct?'good':'miss')+' pop"><div class="xpBurst">'+(earned?('+'+earned+' XP'):'MISSION DEBRIEF')+'</div><h3>'+(correct?(recovery?'🛡 Recovery successful.':'✓ Mission cleared.'):'✕ Mission unresolved.')+'</h3><p>'+esc(q.why)+'</p><p><b>Remember:</b> '+esc(q.remember)+'</p></div><button class="action '+(idx===Q.length-1?'gold':'')+'" id="next" style="width:100%">'+(idx===Q.length-1?'CLAIM FINAL READINESS REPORT →':'CONTINUE →')+'</button>';
  document.getElementById('next').onclick=next;
 }
 function next(){
- const justFinished=(idx+1)%5===0;if(idx===Q.length-1)return results();
- idx++;selected=null;submitted=false;
- if(justFinished)return levelBreak(Math.ceil(idx/5));
- renderQ();
+ const justFinished=(idx+1)%5===0;if(idx===Q.length-1)return results();idx++;
+ if(justFinished)return levelBreak(Math.ceil(idx/5));renderQ();
 }
 function levelBreak(done){
- const score=answers.slice((done-1)*5,done*5).filter(x=>x.correct).length,lev=LEVELS[done-1];
- app.innerHTML=shell('<section class="card levelComplete"><div class="icon">'+lev.icon+'</div><div class="levelTag">LEVEL '+done+' COMPLETE</div><h2>'+esc(lev.name.replace(/^Level \d+ · /,''))+'</h2><div class="scoreBig">'+score+'/5</div><p>'+esc(score>=4?'Strong. Keep moving.':score>=3?'You have the shape of it. Watch the explanations you missed.':'This level belongs on your study list before the midterm.')+'</p><button class="action primary" id="cont">'+(done===4?'Enter the Final Boss 🔥':'Unlock Level '+(done+1)+' →')+'</button></section>');
+ const slice=answers.slice((done-1)*5,done*5),score=slice.filter(x=>x.correct).length,lev=LEVELS[done-1];
+ app.innerHTML=shell(hud()+'<section class="card levelComplete"><div class="levelIcon">'+lev.icon+'</div><div class="kicker">ZONE '+done+' CLEARED</div><h2>'+esc(lev.name)+'</h2><div class="scoreBig">'+score+'/5</div><div class="unlock">UNLOCKED · '+esc(lev.unlock)+'</div><p style="color:var(--muted)">'+esc(score>=4?'Strong signal. Your reasoning held up.':score>=3?'You cleared the zone, but there are concepts worth revisiting.':'Zone cleared—but this should be on your study plan before the midterm.')+'</p><button class="action" id="cont">'+(done===4?'ENTER THE FINAL BOSS 🔥':'ENTER ZONE '+(done+1)+' →')+'</button></section>');
  document.getElementById('cont').onclick=renderQ;
 }
 function results(){
- const total=answers.filter(x=>x.correct).length,pct=Math.round(total/Q.length*100);
- const groups={};answers.forEach(x=>{groups[x.skill]??={n:0,c:0};groups[x.skill].n++;if(x.correct)groups[x.skill].c++});
- const skills=Object.entries(groups).map(([k,v])=>({k,p:Math.round(v.c/v.n*100),...v})).sort((a,b)=>a.p-b.p);
- const focus=skills.filter(x=>x.p<80).slice(0,3);
- const mins=Math.max(1,Math.round((Date.now()-(startedAt||Date.now()))/60000));
- app.innerHTML=shell('<section class="card resultsHero"><div class="eyebrow">QUEST COMPLETE</div><h2 style="font-size:38px;margin:8px 0">Your Midterm Readiness</h2><div class="scoreBig">'+pct+'%</div><p>'+total+' of '+Q.length+' challenges · about '+mins+' minutes</p></section><section class="card"><h2>Your concept map</h2>'+skills.map(x=>'<div class="skill"><div class="skillHead"><span>'+esc(x.k)+'</span><span>'+x.p+'%</span></div><div class="skillTrack"><span style="width:'+x.p+'%"></span></div></div>').join('')+'</section><section class="card"><h2>Study prescription</h2>'+(focus.length?focus.map((x,i)=>'<div class="study"><b>'+(i+1)+'. '+esc(x.k)+'</b><span>'+x.p+'% in this review. Revisit the explanations you missed and practice the idea in a new situation.</span></div>').join(''):'<p>You were strong across every measured area. Use your remaining review time to revisit any answer you guessed on rather than adding new material.</p>')+'<p class="small"><b>Important:</b> This is a review diagnostic, not a prediction of your exam grade.</p></section><section class="card"><h2>Before you leave</h2><p>Write down the <b>one concept</b> you are most likely to review before the midterm. That is the value of today: finding the blind spot before the exam does.</p><button class="action secondary" id="restart">Restart the quest</button></section>');
- document.getElementById('restart').onclick=()=>{idx=0;answers=[];selected=null;submitted=false;startedAt=Date.now();renderQ()};
- try{const device=localStorage.classroomDevice;api('/review/complete',{method:'POST',body:JSON.stringify({device,name,score:total,total:Q.length,percent:pct,minutes:mins,skills})})}catch(_){}
+ const total=answers.filter(x=>x.correct).length,pct=Math.round(total/Q.length*100),groups={};answers.forEach(x=>{groups[x.skill]??={n:0,c:0};groups[x.skill].n++;if(x.correct)groups[x.skill].c++});
+ const skills=Object.entries(groups).map(([k,v])=>({k,p:Math.round(v.c/v.n*100),...v})).sort((a,b)=>a.p-b.p),focus=skills.filter(x=>x.p<80).slice(0,3),mins=Math.max(1,Math.round((Date.now()-(startedAt||Date.now()))/60000)),recovered=answers.filter(x=>x.recovered).length;
+ app.innerHTML=shell('<section class="card resultsHero"><div class="kicker">QUEST COMPLETE</div><h2 style="font-size:40px;margin:8px 0">MIDTERM READINESS</h2><div class="scoreBig">'+pct+'%</div><div class="rank">'+esc(rank())+'</div><p style="color:#d6ddf4">'+total+' / '+Q.length+' first-attempt missions · '+xp+' XP · best streak '+bestStreak+' · '+recovered+' recoveries</p></section><section class="card"><h2>Skill map</h2>'+skills.map(x=>'<div class="skill"><div class="skillHead"><span>'+esc(x.k)+'</span><span>'+x.p+'%</span></div><div class="skillTrack"><span style="width:'+x.p+'%"></span></div></div>').join('')+'</section><section class="card"><h2>Next mission: study smart</h2>'+(focus.length?focus.map((x,i)=>'<div class="study"><b>'+(i+1)+'. '+esc(x.k)+' · '+x.p+'%</b><span>Revisit the explanations you missed, then practice the concept in a new scenario.</span></div>').join(''):'<p style="color:var(--muted)">Strong across every measured area. Use remaining review time on any answer you guessed on rather than adding new material.</p>')+'<p class="subtle"><b>Important:</b> This is a diagnostic review, not a prediction of your exam grade.</p></section><section class="card"><h2>Mission accomplished.</h2><p style="color:var(--muted)">The win is not the XP. The win is knowing what deserves your attention before the midterm.</p><button class="action secondary" id="restart">REPLAY QUEST</button></section>');
+ document.getElementById('restart').onclick=()=>{idx=0;answers=[];selected=null;submitted=false;startedAt=Date.now();xp=0;streak=0;bestStreak=0;lens=3;renderQ()};
+ try{api('/review/complete',{method:'POST',body:JSON.stringify({device:device(),name,score:total,total:Q.length,percent:pct,minutes:mins,skills,xp,rank:rank(),bestStreak,recovered})})}catch(_){}
 }
 start();
-</script></body></html>
+</script>
+</body>
+</html>
