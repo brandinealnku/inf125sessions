@@ -20,7 +20,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const i=Math.max(0,members.indexOf(playerId));
       return cqRoles[(i+(Number(round)||0))%cqRoles.length];
     };
-    const cqPublicPlayer=p=>({id:p.id,name:p.name,mode:p.mode,teamId:p.teamId||null,lastSeen:p.lastSeen,joinedAt:p.joinedAt});
+    const cqPublicPlayer=p=>({id:p.id,name:p.name,mode:p.mode,teamId:p.teamId||null,tutorialDone:!!p.tutorialDone,lastSeen:p.lastSeen,joinedAt:p.joinedAt});
     const cqHydrate=(team,players,state)=>({
       ...team,
       members:(team.members||[]).map(id=>cqPublicPlayer(players[id]||{id,name:'Player',mode:'play'})),
