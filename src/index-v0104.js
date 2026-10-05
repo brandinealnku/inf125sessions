@@ -26,6 +26,18 @@ export class ClassroomSession extends BaseClassroomSession {
       members:(team.members||[]).map(id=>cqPublicPlayer(players[id]||{id,name:'Player',mode:'play'})),
       roles:Object.fromEntries((team.members||[]).map(id=>[id,cqRole(team,id,state.round)]))
     });
+    const cqUpdateCandidate=(team,key,field)=>{
+      team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
+      const proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||{},rows=Object.values(proposals),counts={};
+      for(const v of Object.values(votes))counts[v]=(counts[v]||0)+1;
+      rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||(a.at||0)-(b.at||0));
+      const top=rows[0],topCount=top?(counts[top.id]||0):0,second=rows[1]?(counts[rows[1].id]||0):0;
+      const allVoted=Object.keys(votes).length===(team.members||[]).length&&(team.members||[]).length>0;
+      const tie=!!top&&topCount===second&&topCount>0;
+      r[field+'AllVoted']=allVoted;r[field+'Tie']=tie;r[field+'Candidate']=allVoted&&!tie&&top?{id:top.id,text:top.text,name:top.name,votes:topCount,totalVotes:Object.keys(votes).length}:null;
+      if(!r[field+'Candidate']||r[field+'ApprovedId']!==r[field+'Candidate']?.id){r[field+'Approved']=false;r[field+'ApprovedId']=null;r[field+'ApprovedAt']=null;}
+      return r[field+'Candidate'];
+    };
     const cqFinalizeChoice=(team,key,field)=>{
       team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
       const proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||{};
@@ -127,12 +139,12 @@ export class ClassroomSession extends BaseClassroomSession {
         if(state.stage==='tutorial'){p.tutorialDone=true;}
         if(state.stage==='build'||state.stage==='final-build'){
           r.buildProposals=r.buildProposals||{};const pid='sim-build-'+p.id;r.buildProposals[pid]={id:pid,playerId:p.id,name:p.name,text:base,at:now};
-          r.buildVotes=r.buildVotes||{};r.buildVotes[p.id]=pid;r.status='building';
+          r.buildVotes=r.buildVotes||{};r.buildVotes[p.id]='sim-build-'+(team.members?.[0]||p.id);r.status='building';cqUpdateCandidate(team,key,'build');
         }
         if(state.stage==='test'||state.stage==='final-test'){r.tested=r.tested||{};r.tested[p.id]=now;r.status='tested';}
         if(state.stage==='twist'||state.stage==='final-twist'){
           r.repairProposals=r.repairProposals||{};const pid='sim-repair-'+p.id;r.repairProposals[pid]={id:pid,playerId:p.id,name:p.name,text:base+' Also account for the new information and state uncertainty clearly.',at:now};
-          r.repairVotes=r.repairVotes||{};r.repairVotes[p.id]=pid;r.status='repairing';
+          r.repairVotes=r.repairVotes||{};r.repairVotes[p.id]='sim-repair-'+(team.members?.[0]||p.id);r.status='repairing';cqUpdateCandidate(team,key,'repair');
         }
         if(state.stage==='check'||state.stage==='final-check'){
           r.checkBallots=r.checkBallots||{};
@@ -169,23 +181,47 @@ export class ClassroomSession extends BaseClassroomSession {
       if(b.action==='proposeBuild'){
         r.buildProposals=r.buildProposals||{};const pid=id+'-'+now;r.buildProposals[pid]={id:pid,playerId:id,name:player.name,text:short(b.text,5000),at:now};r.status='building';
       }
-      if(b.action==='voteBuild'){r.buildVotes=r.buildVotes||{};r.buildVotes[id]=short(b.proposalId,150);}
+      if(b.action==='voteBuild'){r.buildVotes=r.buildVotes||{};const pid=short(b.proposalId,150);if(r.buildVotes[id]===pid||!pid)delete r.buildVotes[id];else r.buildVotes[id]=pid;cqUpdateCandidate(team,key,'build');}
       if(b.action==='tested'){r.tested=r.tested||{};r.tested[id]=now;r.status='tested';}
       if(b.action==='proposeRepair'){
         r.repairProposals=r.repairProposals||{};const pid=id+'-'+now;r.repairProposals[pid]={id:pid,playerId:id,name:player.name,text:short(b.text,5000),at:now};r.status='repairing';
       }
-      if(b.action==='voteRepair'){r.repairVotes=r.repairVotes||{};r.repairVotes[id]=short(b.proposalId,150);}
+      if(b.action==='voteRepair'){r.repairVotes=r.repairVotes||{};const pid=short(b.proposalId,150);if(r.repairVotes[id]===pid||!pid)delete r.repairVotes[id];else r.repairVotes[id]=pid;cqUpdateCandidate(team,key,'repair');}
       if(b.action==='checks'){const checks=Array.isArray(b.checks)?b.checks.slice(0,4).map(Boolean):[];r.checkBallots=r.checkBallots||{};r.checkBallots[id]={playerId:id,name:player.name,checks,at:now};r.status='checking';}
       player.lastSeen=now;players[id]=player;teams[team.id]=team;await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
       return json({ok:true,player:cqPublicPlayer(player),team:cqHydrate(team,players,state),state});
+    }
+    if(url.pathname.endsWith('/cq/review-team')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),state=await cqState(),teams=await cqTeams(),team=teams[short(b.teamId,80)];
+      if(!team)return json({error:'Team not found'},404);
+      const field=b.field==='repair'?'repair':'build',key=cqRoundKey(state.round,String(state.stage).startsWith('final')),r=team.rounds?.[key]||{};
+      const candidate=cqUpdateCandidate(team,key,field);
+      if(!candidate)return json({error:r[field+'Tie']?'Team vote is tied. The team must resolve the tie first.':'Every team member must vote before instructor review.'},409);
+      r[field+'Approved']=true;r[field+'ApprovedId']=candidate.id;r[field+'ApprovedAt']=Date.now();
+      team.rounds[key]=r;teams[team.id]=team;await this.state.storage.put('cqTeams',teams);
+      return json({ok:true,teamId:team.id,field,candidate});
     }
     if(url.pathname.endsWith('/cq/control')&&method==='POST'){
       const b=await request.json().catch(()=>({})),current=await cqState(),teams=await cqTeams(),players=await cqPlayers();let next={...current,updatedAt:Date.now()};
       const allowed=['lobby','tutorial','build','test','twist','check','reveal','final-build','final-test','final-twist','final-check','final-reveal','complete'];
       const oldStage=current.stage;if(allowed.includes(b.stage))next.stage=b.stage;if(Number.isFinite(b.round))next.round=Math.max(0,Math.min(4,Number(b.round)));if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
       const oldFinal=String(oldStage).startsWith('final'),oldKey=cqRoundKey(current.round,oldFinal);
-      if((oldStage==='build'&&next.stage==='test')||(oldStage==='final-build'&&next.stage==='final-test'))for(const t of Object.values(teams))cqFinalizeChoice(t,oldKey,'build');
-      if((oldStage==='twist'&&next.stage==='check')||(oldStage==='final-twist'&&next.stage==='final-check'))for(const t of Object.values(teams))cqFinalizeChoice(t,oldKey,'repair');
+      if((oldStage==='build'&&next.stage==='test')||(oldStage==='final-build'&&next.stage==='final-test')){
+        for(const t of Object.values(teams)){
+          const candidate=cqUpdateCandidate(t,oldKey,'build'),r=t.rounds?.[oldKey]||{};
+          if(!candidate)return json({error:r.buildTie?`${t.name} has a tied vote. The team must resolve it.`:`${t.name} is still waiting for every member to vote.`},409);
+          if(!r.buildApproved||r.buildApprovedId!==candidate.id)return json({error:`${t.name}'s winning answer still needs instructor review.`},409);
+          cqFinalizeChoice(t,oldKey,'build');
+        }
+      }
+      if((oldStage==='twist'&&next.stage==='check')||(oldStage==='final-twist'&&next.stage==='final-check')){
+        for(const t of Object.values(teams)){
+          const candidate=cqUpdateCandidate(t,oldKey,'repair'),r=t.rounds?.[oldKey]||{};
+          if(!candidate)return json({error:r.repairTie?`${t.name} has a tied repair vote. The team must resolve it.`:`${t.name} is still waiting for every member to vote on a repair.`},409);
+          if(!r.repairApproved||r.repairApprovedId!==candidate.id)return json({error:`${t.name}'s winning repair still needs instructor review.`},409);
+          cqFinalizeChoice(t,oldKey,'repair');
+        }
+      }
       if((oldStage==='check'&&next.stage==='reveal')||(oldStage==='final-check'&&next.stage==='final-reveal'))for(const t of Object.values(teams))cqFinalizeChecks(t,oldKey);
       await this.state.storage.put('cqTeams',teams);await this.state.storage.put('cqState',next);return json(next);
     }
