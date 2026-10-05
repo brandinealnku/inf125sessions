@@ -20,7 +20,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const i=Math.max(0,members.indexOf(playerId));
       return cqRoles[(i+(Number(round)||0))%cqRoles.length];
     };
-    const cqPublicPlayer=p=>({id:p.id,name:p.name,mode:p.mode,teamId:p.teamId||null,tutorialDone:!!p.tutorialDone,lastSeen:p.lastSeen,joinedAt:p.joinedAt});
+    const cqPublicPlayer=p=>({id:p.id,name:p.name,mode:p.mode,teamId:p.teamId||null,tutorialDone:!!p.tutorialDone,isTest:!!p.isTest,lastSeen:p.lastSeen,joinedAt:p.joinedAt});
     const cqHydrate=(team,players,state)=>({
       ...team,
       members:(team.members||[]).map(id=>cqPublicPlayer(players[id]||{id,name:'Player',mode:'play'})),
@@ -64,6 +64,67 @@ export class ClassroomSession extends BaseClassroomSession {
       await this.state.storage.put('cqPlayers',players);
       const team=players[id].teamId?teams[players[id].teamId]:null;
       return json({ok:true,player:cqPublicPlayer(players[id]),team:team?cqHydrate(team,players,state):null,state});
+    }
+    if(url.pathname.endsWith('/cq/test-players')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),players=await cqPlayers(),teams=await cqTeams(),state=await cqState(),now=Date.now();
+      const count=Math.max(1,Math.min(60,Number(b.count)||10)),watchers=Math.max(0,Math.min(20,Number(b.watchers)||0));
+      const first=['Alex','Jordan','Taylor','Morgan','Casey','Riley','Avery','Cameron','Quinn','Parker','Drew','Reese','Skyler','Rowan','Hayden','Emerson','Finley','Sawyer','Dakota','Charlie','Jamie','Kendall','Logan','Bailey','Harper','Reagan','Blake','Sydney','Mason','Devon'];
+      let created=0;
+      for(let i=0;i<count;i++){
+        const id='test-player-'+(i+1),existing=players[id]||{},name=first[i%first.length]+' '+(Math.floor(i/first.length)+1);
+        players[id]={...existing,id,name,mode:'play',isTest:true,teamId:existing.teamId||null,tutorialDone:state.stage!=='lobby',joinedAt:existing.joinedAt||now+i,lastSeen:now};
+        if(state.teamsFormed&&!players[id].teamId&&Object.keys(teams).length){
+          const smallest=Object.values(teams).sort((a,b)=>(a.members?.length||0)-(b.members?.length||0))[0];
+          smallest.members=smallest.members||[];if(!smallest.members.includes(id))smallest.members.push(id);players[id].teamId=smallest.id;teams[smallest.id]=smallest;
+        }
+        created++;
+      }
+      for(let i=0;i<watchers;i++){
+        const id='test-watcher-'+(i+1);players[id]={id,name:'Guest '+(i+1),mode:'watch',isTest:true,teamId:null,tutorialDone:false,joinedAt:players[id]?.joinedAt||now+count+i,lastSeen:now};
+      }
+      await this.state.storage.put('cqPlayers',players);if(state.teamsFormed)await this.state.storage.put('cqTeams',teams);
+      return json({ok:true,created,watchers,total:Object.keys(players).length});
+    }
+    if(url.pathname.endsWith('/cq/clear-test-players')&&method==='POST'){
+      const players=await cqPlayers(),teams=await cqTeams();
+      const testIds=new Set(Object.values(players).filter(p=>p.isTest).map(p=>p.id));
+      for(const id of testIds)delete players[id];
+      for(const team of Object.values(teams))team.members=(team.members||[]).filter(id=>!testIds.has(id));
+      await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
+      return json({ok:true,removed:testIds.size});
+    }
+    if(url.pathname.endsWith('/cq/simulate-test-stage')&&method==='POST'){
+      const state=await cqState(),players=await cqPlayers(),teams=await cqTeams(),now=Date.now(),final=String(state.stage).startsWith('final'),key=cqRoundKey(state.round,final);
+      const testPlayers=Object.values(players).filter(p=>p.isTest&&p.mode==='play'&&p.teamId);
+      if(!testPlayers.length)return json({error:'No test players are available'},400);
+      for(const p of testPlayers){
+        const team=teams[p.teamId];if(!team)continue;
+        team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
+        const base=final?'Help a first-year student make a safe course decision using verified university information.':[
+          'Explain AI to a first-year College of Informatics student using plain language and one example.',
+          'Help a first-year student decide when AI is useful for schoolwork and when it is not.',
+          'Recommend a free study AI tool for a first-year student in three bullets without using private course data.',
+          'Evaluate this AI answer, separate facts from assumptions, and flag claims that need verification.'
+        ][Math.min(3,state.round||0)];
+        if(state.stage==='tutorial'){p.tutorialDone=true;}
+        if(state.stage==='build'||state.stage==='final-build'){
+          r.buildProposals=r.buildProposals||{};const pid='sim-build-'+p.id;r.buildProposals[pid]={id:pid,playerId:p.id,name:p.name,text:base,at:now};
+          r.buildVotes=r.buildVotes||{};r.buildVotes[p.id]=pid;r.status='building';
+        }
+        if(state.stage==='test'||state.stage==='final-test'){r.tested=r.tested||{};r.tested[p.id]=now;r.status='tested';}
+        if(state.stage==='twist'||state.stage==='final-twist'){
+          r.repairProposals=r.repairProposals||{};const pid='sim-repair-'+p.id;r.repairProposals[pid]={id:pid,playerId:p.id,name:p.name,text:base+' Also account for the new information and state uncertainty clearly.',at:now};
+          r.repairVotes=r.repairVotes||{};r.repairVotes[p.id]=pid;r.status='repairing';
+        }
+        if(state.stage==='check'||state.stage==='final-check'){
+          r.checkBallots=r.checkBallots||{};
+          const variant=(p.id.charCodeAt(p.id.length-1)||0)%5;
+          r.checkBallots[p.id]={playerId:p.id,name:p.name,checks:variant===0?[true,true,true,false]:[true,true,true,true],at:now};r.status='checking';
+        }
+        team.rounds[key]=r;teams[team.id]=team;players[p.id]=p;
+      }
+      await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
+      return json({ok:true,stage:state.stage,simulated:testPlayers.length});
     }
     if(url.pathname.endsWith('/cq/form-teams')&&method==='POST'){
       const b=await request.json().catch(()=>({})),players=await cqPlayers(),play=Object.values(players).filter(p=>p.mode==='play');
