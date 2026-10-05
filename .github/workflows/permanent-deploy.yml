@@ -50,22 +50,34 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/api/session/context-quest-live/cq/snapshot" | grep -q '"stage"'
           echo "Checking team runtime"
           CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js")"
-          echo "$CQ_JS" | grep -q 'LIVE CLASSROOM BOARD GAME'
-          echo "$CQ_JS" | grep -q 'LOCK IN OUR CHECK'
+          echo "$CQ_JS" | grep -q 'LIVE CLASSROOM PARTY GAME'
+          echo "$CQ_JS" | grep -q 'FORM BALANCED VIRTUAL TEAMS' || true
+          echo "$CQ_JS" | grep -q 'YOUR DEVICE = YOUR CONTROLLER'
           echo "Context Quest multiplayer routes, API, and runtimes are reachable."
-      - name: Verify Context Quest multiplayer game flow
+      - name: Verify Context Quest individual-player game flow
         run: |
           set -e
           BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"smoke-team","name":"Smoke Team"}' "$BASE/join" | grep -q '"ok":true'
+          for n in 1 2 3 4; do
+            curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p$n\",\"name\":\"Player $n\",\"mode\":\"play\"}" "$BASE/join" | grep -q '"ok":true'
+          done
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"watcher","name":"Guest","mode":"watch"}' "$BASE/join" | grep -q '"mode":"watch"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$BASE/form-teams" | grep -q '"teamsFormed":true'
+          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"playing":4'
+          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"watching":1'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"smoke-team","action":"build","text":"Explain AI to a first-year student."}' "$BASE/team" | grep -q '"ok":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeBuild","text":"Explain AI to a first-year student."}' "$BASE/player-action" | grep -q '"ok":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"test","round":0}' "$BASE/control" | grep -q '"stage":"test"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"twist","round":0}' "$BASE/control" > /dev/null
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeRepair","text":"Explain AI simply to a first-year student who has never used AI."}' "$BASE/player-action" | grep -q '"ok":true'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"check","round":0}' "$BASE/control" > /dev/null
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"smoke-team","action":"checks","checks":[true,true,true,true]}' "$BASE/team" | grep -q '"position":3'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"checks","checks":[true,true,true,true]}' "$BASE/player-action" > /dev/null
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p3","action":"checks","checks":[true,true,true,true]}' "$BASE/player-action" > /dev/null
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"reveal","round":0}' "$BASE/control" > /dev/null
           curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"position":3'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
-          echo "Context Quest join → submit → score → movement flow passed."
+          echo "Context Quest individual join → virtual teams → proposal → repair → ballots → movement flow passed."
       - name: Verify Context Quest renders in a browser
         run: |
           set -e
@@ -80,12 +92,12 @@ jobs:
             return 1
           }
           TEAM_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest)"
-          echo "$TEAM_DOM" | grep -q "JOIN YOUR"
-          echo "$TEAM_DOM" | grep -q "JOIN CONTEXT QUEST"
+          echo "$TEAM_DOM" | grep -q "EVERYONE"
+          echo "$TEAM_DOM" | grep -q "PLAY"
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "$INST_DOM" | grep -q "GAME MASTER"
-          echo "$INST_DOM" | grep -q "START TUTORIAL"
+          echo "$INST_DOM" | grep -q "VIRTUAL TEAMS"
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
-          echo "$BOARD_DOM" | grep -q "FORM YOUR TEAMS"
+          echo "$BOARD_DOM" | grep -q "EVERYONE JOIN"
           echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
