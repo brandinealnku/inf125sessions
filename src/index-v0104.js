@@ -6,61 +6,111 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
-    // Context Quest live classroom game
-    const cqInitial=()=>({stage:'lobby',round:0,resultsVisible:false,updatedAt:Date.now()});
+    // Context Quest live classroom game — individual join + virtual teams
+    const cqInitial=()=>({stage:'lobby',round:0,resultsVisible:false,teamsFormed:false,updatedAt:Date.now()});
     const cqState=async()=>(await this.state.storage.get('cqState'))||cqInitial();
     const cqTeams=async()=>(await this.state.storage.get('cqTeams'))||{};
+    const cqPlayers=async()=>(await this.state.storage.get('cqPlayers'))||{};
     const cqRoundKey=(round,final=false)=>final?'final':String(Math.max(0,Math.min(3,Number(round)||0)));
+    const cqRoles=['PROMPT BUILDER','CONTEXT DETECTIVE','SKEPTIC','CHAOS CAPTAIN','JUDGE'];
+    const cqTeamNames=['Context Crushers','Prompt Pirates','Chaos Crew','Evidence Squad','Constraint Club','Goal Getters','Human Override','Plot Twisters'];
+    const cqPalette=['#7654d8','#ed5c8f','#f2a13b','#42b9b1','#4b83d1','#db5a50','#5bbd82','#9b6bd6'];
+    const cqRole=(team,playerId,round=0)=>{
+      const members=Array.isArray(team?.members)?team.members:[];
+      const i=Math.max(0,members.indexOf(playerId));
+      return cqRoles[(i+(Number(round)||0))%cqRoles.length];
+    };
+    const cqPublicPlayer=p=>({id:p.id,name:p.name,mode:p.mode,teamId:p.teamId||null,lastSeen:p.lastSeen,joinedAt:p.joinedAt});
+    const cqHydrate=(team,players,state)=>({
+      ...team,
+      members:(team.members||[]).map(id=>cqPublicPlayer(players[id]||{id,name:'Player',mode:'play'})),
+      roles:Object.fromEntries((team.members||[]).map(id=>[id,cqRole(team,id,state.round)]))
+    });
+    const cqFinalizeChoice=(team,key,field)=>{
+      team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
+      const proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||{};
+      const rows=Object.values(proposals);
+      if(!rows.length)return;
+      const counts={};for(const v of Object.values(votes))counts[v]=(counts[v]||0)+1;
+      rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||(a.at||0)-(b.at||0));
+      const winner=rows[0];r[field]=winner.text;r[field+'Winner']=winner.id;r[field+'FinalizedAt']=Date.now();
+    };
+    const cqFinalizeChecks=(team,key)=>{
+      team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
+      if(r.completedAt)return;
+      const ballots=Object.values(r.checkBallots||{});if(!ballots.length)return;
+      const totals=[0,0,0,0];for(const b of ballots)for(let i=0;i<4;i++)if(b.checks?.[i])totals[i]++;
+      const threshold=Math.ceil(ballots.length/2),checks=totals.map(n=>n>=threshold),n=checks.filter(Boolean).length;
+      r.teamChecks=checks;r.checkCount=n;r.ballotCount=ballots.length;r.checkedAt=Date.now();
+      if(n<3){r.status='needs-repair';r.hadLowCheck=true;r.move=0;return;}
+      const move=n===4?3:2;r.move=move;r.points=move;r.completedAt=Date.now();r.status='complete';
+      team.position=(Number(team.position)||0)+move;team.totalPoints=(Number(team.totalPoints)||0)+move;
+    };
     if(url.pathname.endsWith('/cq/snapshot')&&method==='GET'){
-      const state=await cqState(),teams=await cqTeams();
-      const rows=Object.values(teams).sort((a,b)=>(b.position||0)-(a.position||0)||(b.totalPoints||0)-(a.totalPoints||0)||String(a.name).localeCompare(String(b.name)));
-      return json({state,teams:rows,generatedAt:Date.now()});
+      const state=await cqState(),teams=await cqTeams(),players=await cqPlayers();
+      const rows=Object.values(teams).map(t=>cqHydrate(t,players,state)).sort((a,b)=>(b.position||0)-(a.position||0)||(b.totalPoints||0)-(a.totalPoints||0)||String(a.name).localeCompare(String(b.name)));
+      const playerRows=Object.values(players).map(cqPublicPlayer);
+      return json({state,teams:rows,players:playerRows,joined:playerRows.length,playing:playerRows.filter(p=>p.mode==='play').length,watching:playerRows.filter(p=>p.mode==='watch').length,generatedAt:Date.now()});
     }
     if(url.pathname.endsWith('/cq/join')&&method==='POST'){
-      const b=await request.json().catch(()=>({})); if(!b.teamId)return json({error:'teamId is required'},400);
-      const teams=await cqTeams(),id=short(b.teamId,80),now=Date.now(),existing=teams[id]||{};
-      const palette=['#7654d8','#ed5c8f','#f2a13b','#42b9b1','#4b83d1','#db5a50','#5bbd82','#9b6bd6'];
-      const color=existing.color||palette[Object.keys(teams).length%palette.length];
-      teams[id]={id,name:short(b.name||existing.name||'Team Context',50),color,position:Number(existing.position)||0,totalPoints:Number(existing.totalPoints)||0,bonus:Number(existing.bonus)||0,rounds:existing.rounds||{},tutorialDone:!!existing.tutorialDone,lastSeen:now,joinedAt:existing.joinedAt||now,stakeholder:existing.stakeholder||['STUDENT','ACADEMIC ADVISOR','PROFESSOR','UNIVERSITY','PARENT','ACCESSIBILITY OFFICE'][Object.keys(teams).length%6]};
-      await this.state.storage.put('cqTeams',teams); return json({ok:true,team:teams[id],state:await cqState()});
+      const b=await request.json().catch(()=>({}));if(!b.playerId)return json({error:'playerId is required'},400);
+      const players=await cqPlayers(),id=short(b.playerId,100),now=Date.now(),existing=players[id]||{},mode=b.mode==='watch'?'watch':'play';
+      players[id]={...existing,id,name:short(b.name||existing.name||'Player',50),mode,teamId:mode==='watch'?null:(existing.teamId||null),joinedAt:existing.joinedAt||now,lastSeen:now};
+      await this.state.storage.put('cqPlayers',players);
+      const state=await cqState(),teams=await cqTeams(),team=players[id].teamId?teams[players[id].teamId]:null;
+      return json({ok:true,player:cqPublicPlayer(players[id]),team:team?cqHydrate(team,players,state):null,state});
+    }
+    if(url.pathname.endsWith('/cq/form-teams')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),players=await cqPlayers(),play=Object.values(players).filter(p=>p.mode==='play');
+      if(play.length<2)return json({error:'At least 2 players are needed to form teams'},400);
+      const target=Math.max(2,Math.min(6,Number(b.teamSize)||5)),teamCount=Math.max(2,Math.ceil(play.length/target)),teams={};
+      for(let i=0;i<teamCount;i++){const id='team-'+(i+1);teams[id]={id,name:cqTeamNames[i%cqTeamNames.length],color:cqPalette[i%cqPalette.length],position:0,totalPoints:0,bonus:0,rounds:{},members:[],stakeholder:['STUDENT','ACADEMIC ADVISOR','PROFESSOR','UNIVERSITY','PARENT','ACCESSIBILITY OFFICE'][i%6]};}
+      play.sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)).forEach((p,i)=>{const id='team-'+((i%teamCount)+1);teams[id].members.push(p.id);players[p.id].teamId=id;});
+      await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
+      const state={...(await cqState()),teamsFormed:true,updatedAt:Date.now()};await this.state.storage.put('cqState',state);
+      return json({ok:true,state,teams:Object.values(teams).map(t=>cqHydrate(t,players,state))});
     }
     if(url.pathname.endsWith('/cq/heartbeat')&&method==='POST'){
-      const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80);
-      if(teams[id]){teams[id].lastSeen=Date.now();await this.state.storage.put('cqTeams',teams)} return json({ok:true});
+      const b=await request.json().catch(()=>({})),players=await cqPlayers(),id=short(b.playerId,100);
+      if(players[id]){players[id].lastSeen=Date.now();await this.state.storage.put('cqPlayers',players)}return json({ok:true});
     }
-    if(url.pathname.endsWith('/cq/team')&&method==='POST'){
-      const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80),team=teams[id]; if(!team)return json({error:'Team not found'},404);
+    if(url.pathname.endsWith('/cq/player-action')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),players=await cqPlayers(),teams=await cqTeams(),id=short(b.playerId,100),player=players[id];
+      if(!player)return json({error:'Player not found'},404);if(player.mode!=='play')return json({error:'Spectators cannot submit team actions'},403);
+      const team=teams[player.teamId];if(!team)return json({error:'Teams have not been formed yet'},409);
       const state=await cqState(),now=Date.now(),key=cqRoundKey(state.round,String(state.stage).startsWith('final'));
-      team.rounds=team.rounds||{}; team.rounds[key]=team.rounds[key]||{}; const r=team.rounds[key];
-      if(b.action==='tutorialDone'){team.tutorialDone=true;}
-      if(b.action==='build'){r.draft=short(b.text,5000);r.builtAt=now;r.status='built';}
-      if(b.action==='tested'){r.testedAt=now;r.status='tested';}
-      if(b.action==='repair'){r.repair=short(b.text,5000);r.repairedAt=now;r.status='repaired';}
-      if(b.action==='checks'){
-        const checks=Array.isArray(b.checks)?b.checks.slice(0,4).map(Boolean):[]; const n=checks.filter(Boolean).length;
-        r.checks=checks;r.checkCount=n;r.checkedAt=now;r.checkAttempts=(r.checkAttempts||0)+1;
-        if(n<3){r.status='needs-repair';r.hadLowCheck=true;}
-        else if(!r.completedAt){
-          const move=n===4?3:2;r.move=move;r.points=move;r.completedAt=now;r.status='complete';
-          team.position=(Number(team.position)||0)+move;team.totalPoints=(Number(team.totalPoints)||0)+move;
-        }
+      team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
+      if(b.action==='tutorialDone'){player.tutorialDone=true;}
+      if(b.action==='note'){r.notes=r.notes||{};r.notes[id]={playerId:id,name:player.name,text:short(b.text,800),at:now};}
+      if(b.action==='proposeBuild'){
+        r.buildProposals=r.buildProposals||{};const pid=id+'-'+now;r.buildProposals[pid]={id:pid,playerId:id,name:player.name,text:short(b.text,5000),at:now};r.status='building';
       }
-      team.lastSeen=now;teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team,state});
+      if(b.action==='voteBuild'){r.buildVotes=r.buildVotes||{};r.buildVotes[id]=short(b.proposalId,150);}
+      if(b.action==='tested'){r.tested=r.tested||{};r.tested[id]=now;r.status='tested';}
+      if(b.action==='proposeRepair'){
+        r.repairProposals=r.repairProposals||{};const pid=id+'-'+now;r.repairProposals[pid]={id:pid,playerId:id,name:player.name,text:short(b.text,5000),at:now};r.status='repairing';
+      }
+      if(b.action==='voteRepair'){r.repairVotes=r.repairVotes||{};r.repairVotes[id]=short(b.proposalId,150);}
+      if(b.action==='checks'){const checks=Array.isArray(b.checks)?b.checks.slice(0,4).map(Boolean):[];r.checkBallots=r.checkBallots||{};r.checkBallots[id]={playerId:id,name:player.name,checks,at:now};r.status='checking';}
+      player.lastSeen=now;players[id]=player;teams[team.id]=team;await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
+      return json({ok:true,player:cqPublicPlayer(player),team:cqHydrate(team,players,state),state});
     }
     if(url.pathname.endsWith('/cq/control')&&method==='POST'){
-      const b=await request.json().catch(()=>({})),current=await cqState(); let next={...current,updatedAt:Date.now()};
+      const b=await request.json().catch(()=>({})),current=await cqState(),teams=await cqTeams(),players=await cqPlayers();let next={...current,updatedAt:Date.now()};
       const allowed=['lobby','tutorial','build','test','twist','check','reveal','final-build','final-test','final-twist','final-check','final-reveal','complete'];
-      if(allowed.includes(b.stage))next.stage=b.stage;
-      if(Number.isFinite(b.round))next.round=Math.max(0,Math.min(4,Number(b.round)));
-      if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
-      await this.state.storage.put('cqState',next);return json(next);
+      const oldStage=current.stage;if(allowed.includes(b.stage))next.stage=b.stage;if(Number.isFinite(b.round))next.round=Math.max(0,Math.min(4,Number(b.round)));if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
+      const oldFinal=String(oldStage).startsWith('final'),oldKey=cqRoundKey(current.round,oldFinal);
+      if((oldStage==='build'&&next.stage==='test')||(oldStage==='final-build'&&next.stage==='final-test'))for(const t of Object.values(teams))cqFinalizeChoice(t,oldKey,'build');
+      if((oldStage==='twist'&&next.stage==='check')||(oldStage==='final-twist'&&next.stage==='final-check'))for(const t of Object.values(teams))cqFinalizeChoice(t,oldKey,'repair');
+      if((oldStage==='check'&&next.stage==='reveal')||(oldStage==='final-check'&&next.stage==='final-reveal'))for(const t of Object.values(teams))cqFinalizeChecks(t,oldKey);
+      await this.state.storage.put('cqTeams',teams);await this.state.storage.put('cqState',next);return json(next);
     }
     if(url.pathname.endsWith('/cq/bonus')&&method==='POST'){
       const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80),team=teams[id];if(!team)return json({error:'Team not found'},404);
       const delta=Math.max(-1,Math.min(1,Number(b.delta)||0));team.position=Math.max(0,(Number(team.position)||0)+delta);team.totalPoints=Math.max(0,(Number(team.totalPoints)||0)+delta);team.bonus=(Number(team.bonus)||0)+delta;teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team});
     }
     if(url.pathname.endsWith('/cq/reset')&&method==='POST'){
-      await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
+      await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');await this.state.storage.delete('cqPlayers');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
     }
     if(url.pathname.endsWith('/research/pulse')&&method==='POST'){
       const b=await request.json().catch(()=>({}));
