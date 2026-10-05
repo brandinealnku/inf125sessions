@@ -109,7 +109,7 @@ function start(){
 async function join(){
  name=document.getElementById('nm').value.trim();if(!name){document.getElementById('err').textContent='Enter your name first.';return}
  const b=document.getElementById('go');b.disabled=true;b.textContent='Connecting…';
- try{await api('/join',{method:'POST',body:JSON.stringify({device:device(),name})});localStorage.midtermQuestName=name;localStorage.classroomName=name;startedAt=Date.now();renderQ()}catch(e){b.disabled=false;b.textContent='ENTER THE QUEST →';document.getElementById('err').textContent='Could not start. Check your connection and try again.'}
+ try{await api('/join',{method:'POST',body:JSON.stringify({device:device(),name})});await api('/review/start',{method:'POST',body:JSON.stringify({device:device(),name})});localStorage.midtermQuestName=name;localStorage.classroomName=name;startedAt=Date.now();renderQ()}catch(e){b.disabled=false;b.textContent='ENTER THE QUEST →';document.getElementById('err').textContent='Could not start. Check your connection and try again.'}
 }
 function mapHtml(){
  const level=Math.floor(idx/5);
