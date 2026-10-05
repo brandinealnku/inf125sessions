@@ -50,3 +50,10 @@ jobs:
           echo "$CQ_JS" | grep -q 'PLOT TWIST'
           echo "$CQ_JS" | grep -q '3–4 checks = success'
           echo "Permanent Classroom surfaces and the current simplified Context Quest runtime are reachable over HTTPS."
+      - name: Verify Context Quest renders in a browser
+        run: |
+          set -e
+          DOM="$(google-chrome --headless --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest)"
+          echo "$DOM" | grep -q "PLAY THE TUTORIAL"
+          echo "$DOM" | grep -q "You’re given a bad AI prompt"
+          echo "Context Quest executed successfully and rendered the simplified start experience."
