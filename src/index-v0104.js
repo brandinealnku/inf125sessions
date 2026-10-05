@@ -66,24 +66,42 @@ export class ClassroomSession extends BaseClassroomSession {
       return json({ok:true,player:cqPublicPlayer(players[id]),team:team?cqHydrate(team,players,state):null,state});
     }
     if(url.pathname.endsWith('/cq/test-players')&&method==='POST'){
-      const b=await request.json().catch(()=>({})),players=await cqPlayers(),teams=await cqTeams(),state=await cqState(),now=Date.now();
-      const count=Math.max(1,Math.min(60,Number(b.count)||10)),watchers=Math.max(0,Math.min(20,Number(b.watchers)||0));
-      const first=['Alex','Jordan','Taylor','Morgan','Casey','Riley','Avery','Cameron','Quinn','Parker','Drew','Reese','Skyler','Rowan','Hayden','Emerson','Finley','Sawyer','Dakota','Charlie','Jamie','Kendall','Logan','Bailey','Harper','Reagan','Blake','Sydney','Mason','Devon'];
-      let created=0;
-      for(let i=0;i<count;i++){
-        const id='test-player-'+(i+1),existing=players[id]||{},name=first[i%first.length]+' '+(Math.floor(i/first.length)+1);
-        players[id]={...existing,id,name,mode:'play',isTest:true,teamId:existing.teamId||null,tutorialDone:state.stage!=='lobby',joinedAt:existing.joinedAt||now+i,lastSeen:now};
-        if(state.teamsFormed&&!players[id].teamId&&Object.keys(teams).length){
-          const smallest=Object.values(teams).sort((a,b)=>(a.members?.length||0)-(b.members?.length||0))[0];
-          smallest.members=smallest.members||[];if(!smallest.members.includes(id))smallest.members.push(id);players[id].teamId=smallest.id;teams[smallest.id]=smallest;
+      try{
+        const body=await request.json().catch(()=>({}));
+        const players=await cqPlayers();
+        const teams=await cqTeams();
+        const state=await cqState();
+        const now=Date.now();
+        const count=Math.max(1,Math.min(60,parseInt(body.count,10)||10));
+        const watcherCount=Math.max(0,Math.min(20,parseInt(body.watchers,10)||0));
+        const names=['Alex','Jordan','Taylor','Morgan','Casey','Riley','Avery','Cameron','Quinn','Parker','Drew','Reese','Skyler','Rowan','Hayden','Emerson','Finley','Sawyer','Dakota','Charlie','Jamie','Kendall','Logan','Bailey','Harper','Reagan','Blake','Sydney','Mason','Devon'];
+        for(let i=0;i<count;i++){
+          const id='test-player-'+String(i+1);
+          const prev=players[id]||{};
+          const player={id,name:names[i%names.length]+' '+String(Math.floor(i/names.length)+1),mode:'play',isTest:true,teamId:prev.teamId||null,tutorialDone:state.stage!=='lobby',joinedAt:prev.joinedAt||now+i,lastSeen:now};
+          if(state.teamsFormed&&!player.teamId&&Object.keys(teams).length){
+            const list=Object.values(teams).sort((x,y)=>(x.members?.length||0)-(y.members?.length||0));
+            const smallest=list[0];
+            if(smallest){
+              smallest.members=Array.isArray(smallest.members)?smallest.members:[];
+              if(!smallest.members.includes(id))smallest.members.push(id);
+              player.teamId=smallest.id;
+              teams[smallest.id]=smallest;
+            }
+          }
+          players[id]=player;
         }
-        created++;
+        for(let i=0;i<watcherCount;i++){
+          const id='test-watcher-'+String(i+1);
+          const prev=players[id]||{};
+          players[id]={id,name:'Guest '+String(i+1),mode:'watch',isTest:true,teamId:null,tutorialDone:false,joinedAt:prev.joinedAt||now+count+i,lastSeen:now};
+        }
+        await this.state.storage.put('cqPlayers',players);
+        if(state.teamsFormed)await this.state.storage.put('cqTeams',teams);
+        return json({ok:true,created:count,watchers:watcherCount,total:Object.keys(players).length});
+      }catch(err){
+        return json({error:'Unable to create test players',detail:short(err?.message||String(err),300)},500);
       }
-      for(let i=0;i<watchers;i++){
-        const id='test-watcher-'+(i+1);players[id]={id,name:'Guest '+(i+1),mode:'watch',isTest:true,teamId:null,tutorialDone:false,joinedAt:players[id]?.joinedAt||now+count+i,lastSeen:now};
-      }
-      await this.state.storage.put('cqPlayers',players);if(state.teamsFormed)await this.state.storage.put('cqTeams',teams);
-      return json({ok:true,created,watchers,total:Object.keys(players).length});
     }
     if(url.pathname.endsWith('/cq/clear-test-players')&&method==='POST'){
       const players=await cqPlayers(),teams=await cqTeams();
