@@ -7,48 +7,112 @@
 <title>INF 125 · Midterm Quest</title>
 <style>
 :root{
-  --bg:#070b18;--panel:#10172a;--panel2:#151f38;--line:#263354;--ink:#f6f8ff;--muted:#9aa8c7;
-  --cyan:#64e5ff;--blue:#6f7cff;--violet:#aa75ff;--gold:#ffd36a;--green:#69e6a6;--red:#ff7d8b;
-  --shadow:0 24px 70px rgba(0,0,0,.38)
+  --sky:#86c8ff;--sky2:#d8f0ff;--grass:#56a63a;--grass2:#72bd4d;--dirt:#8b5a32;--dirt2:#6f4528;
+  --stone:#6f7780;--stone2:#4d545b;--wood:#9b6a3f;--ink:#172016;--paper:#f8f4df;--cream:#fffbe9;
+  --gold:#f5c542;--green:#53a93f;--red:#c94a3c;--blue:#3b77c3;--purple:#7d5bb7;--shadow:#20351e;
 }
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:
-radial-gradient(circle at 14% 0%,rgba(111,124,255,.18),transparent 34%),
-radial-gradient(circle at 90% 10%,rgba(100,229,255,.10),transparent 28%),var(--bg);
-color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input{font:inherit}.shell{width:min(980px,100%);margin:auto;padding:14px 16px 70px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0 14px;border-bottom:1px solid rgba(255,255,255,.08)}
-.brand{font-weight:950;letter-spacing:-.02em}.subtle{font-size:12px;color:var(--muted)}
-.gameBadge,.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:850}
-.hero{position:relative;overflow:hidden;background:linear-gradient(140deg,#111a33,#172348 55%,#17203c);border:1px solid rgba(255,255,255,.09);border-radius:28px;padding:32px;margin:20px 0;box-shadow:var(--shadow)}
-.hero:after{content:"";position:absolute;width:280px;height:280px;border-radius:50%;right:-90px;top:-120px;background:radial-gradient(circle,rgba(100,229,255,.28),transparent 68%)}
-.kicker{font-size:11px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan)}
-.hero h1{font-size:clamp(46px,9vw,82px);line-height:.88;letter-spacing:-.06em;margin:10px 0 14px;max-width:780px}
-.hero p{font-size:18px;line-height:1.5;color:#d9e1f6;max-width:690px;position:relative;z-index:1}
-.card{background:linear-gradient(180deg,rgba(21,31,56,.98),rgba(13,21,39,.98));border:1px solid var(--line);border-radius:22px;padding:22px;margin:15px 0;box-shadow:0 14px 40px rgba(0,0,0,.22)}
-.card h2{font-size:28px;letter-spacing:-.035em;margin:0 0 9px}.field{width:100%;padding:16px;border:1px solid #3a496f;border-radius:14px;background:#0b1223;color:var(--ink);font-size:17px;outline:none}.field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(100,229,255,.12)}
-.action{border:0;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-weight:900;padding:15px 18px;cursor:pointer;min-height:52px;box-shadow:0 9px 22px rgba(111,124,255,.22)}
-.action.secondary{background:#151d31;border:1px solid #39476a;box-shadow:none}.action.gold{background:linear-gradient(135deg,#b57b19,#f3b83a);color:#14100a}.action:disabled{opacity:.4;cursor:not-allowed}
-.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.rule{background:#0d1528;border:1px solid var(--line);border-radius:16px;padding:15px;color:#b9c5df;font-size:13px}.rule b{display:block;color:#fff;margin-bottom:4px}
-.hud{position:sticky;top:0;z-index:12;background:rgba(7,11,24,.90);backdrop-filter:blur(14px);margin:0 -4px;padding:10px 4px 12px}
-.hudTop{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.hudStats{display:flex;gap:8px;flex-wrap:wrap}.stat{border:1px solid #2a3657;background:#0c1428;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:850}.stat b{color:var(--gold)}
-.map{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}.node{position:relative;text-align:center;border-radius:12px;border:1px solid #2a3657;background:#0b1223;padding:9px 6px;color:#7583a5;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
-.node.done{color:#0c1b12;background:var(--green);border-color:transparent}.node.active{color:#fff;border-color:var(--cyan);box-shadow:0 0 0 2px rgba(100,229,255,.09),0 0 20px rgba(100,229,255,.12)}
-.progress{height:7px;background:#1c2743;border-radius:999px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--violet));transition:width .28s}
-.mission{border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,#10192f,#0b1223);overflow:hidden;box-shadow:var(--shadow)}
-.missionHead{padding:19px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;gap:14px}.missionLabel{font-size:11px;color:var(--cyan);font-weight:950;letter-spacing:.13em;text-transform:uppercase}.qnum{font-size:12px;color:var(--muted);font-weight:850}
-.missionBody{padding:22px}.scenario{background:linear-gradient(135deg,rgba(100,229,255,.08),rgba(111,124,255,.08));border-left:4px solid var(--cyan);padding:16px 18px;border-radius:0 15px 15px 0;color:#d5def3;line-height:1.5;white-space:pre-line}
-.question{font-size:clamp(26px,5vw,40px);line-height:1.08;letter-spacing:-.04em;margin:18px 0}.choice{width:100%;display:flex;gap:12px;align-items:flex-start;text-align:left;background:#0d1629;color:#e8edfb;border:1px solid #2c3a5c;border-radius:16px;padding:15px 16px;margin:9px 0;cursor:pointer;font-weight:760;line-height:1.35;transition:.16s}
-.choice:hover{border-color:#5e77b7;transform:translateY(-1px)}.choice.selected{border:2px solid var(--cyan);background:#11213c}.choice.eliminated{opacity:.28;text-decoration:line-through;pointer-events:none}.choice.correct{border-color:var(--green);background:rgba(105,230,166,.10)}.choice.wrong{border-color:var(--red);background:rgba(255,125,139,.10)}
-.letter{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:9px;background:#202c4b;font-size:12px;font-weight:950}.selected .letter{background:var(--cyan);color:#07111b}
-.powerRow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.power{border:1px solid #415177;background:#141f38;color:#e8edfb;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:850;cursor:pointer}.power b{color:var(--gold)}.power:disabled{opacity:.35}
-.feedback{border-radius:18px;padding:18px;margin:16px 0;border:1px solid}.feedback.good{background:rgba(105,230,166,.09);border-color:rgba(105,230,166,.35)}.feedback.miss{background:rgba(255,125,139,.08);border-color:rgba(255,125,139,.34)}.feedback h3{margin:0 0 7px;font-size:22px}.feedback p{line-height:1.5;margin:6px 0;color:#d3dbef}.xpBurst{font-size:13px;font-weight:950;color:var(--gold);letter-spacing:.06em}
-.recovery{background:#111c34;border:1px dashed #5e6f9b;border-radius:16px;padding:15px;margin:15px 0}.recovery b{color:var(--cyan)}
-.levelComplete{text-align:center;padding:38px 24px}.levelIcon{font-size:58px;filter:drop-shadow(0 7px 24px rgba(100,229,255,.22))}.levelComplete h2{font-size:42px;letter-spacing:-.05em;margin:8px 0}.scoreBig{font-size:70px;font-weight:950;letter-spacing:-.07em}.unlock{display:inline-block;margin:10px 0;border:1px solid #705c26;background:rgba(255,211,106,.10);color:var(--gold);border-radius:999px;padding:9px 13px;font-size:12px;font-weight:900}
-.resultsHero{background:linear-gradient(140deg,#162456,#32256c 58%,#173e53);border-color:#384a87}.resultsHero .scoreBig{font-size:86px}.rank{font-size:24px;font-weight:950;color:var(--gold);margin-top:6px}
-.skill{margin:14px 0}.skillHead{display:flex;justify-content:space-between;gap:10px;font-weight:850}.skillTrack{height:10px;background:#1e2944;border-radius:999px;overflow:hidden;margin-top:7px}.skillTrack span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue))}
-.study{border-left:4px solid var(--gold);padding-left:14px;margin:15px 0;color:#d7def0}.study b{display:block;color:#fff}.hidden{display:none!important}.footer{text-align:center;color:#6f7d9d;font-size:12px;margin-top:24px}
-.flash{animation:flash .45s ease}@keyframes flash{0%{transform:scale(.985);opacity:.7}100%{transform:scale(1);opacity:1}}@keyframes pop{0%{transform:scale(.6);opacity:0}75%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}.pop{animation:pop .35s ease}
-@media(max-width:650px){.shell{padding:10px 11px 45px}.hero,.card{border-radius:19px;padding:18px}.hero h1{font-size:50px}.rules{grid-template-columns:1fr}.map{grid-template-columns:repeat(5,minmax(48px,1fr));overflow:auto}.node{font-size:8px}.question{font-size:28px}.missionBody{padding:17px}}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+body{
+  background:
+    linear-gradient(rgba(255,255,255,.28),rgba(255,255,255,0) 28%),
+    linear-gradient(180deg,var(--sky) 0 52%,var(--grass2) 52% 56%,var(--grass) 56% 60%,var(--dirt) 60% 100%);
+  background-attachment:fixed;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.11;
+  background-image:
+    linear-gradient(90deg,rgba(0,0,0,.18) 1px,transparent 1px),
+    linear-gradient(rgba(0,0,0,.18) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+button,input{font:inherit}
+.shell{width:min(980px,100%);margin:auto;padding:14px 16px 72px;position:relative}
+.top{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 13px;
+  background:rgba(255,251,233,.94);border:4px solid #263c23;box-shadow:0 6px 0 #1d2b1a;
+}
+.brand{font-weight:1000;letter-spacing:-.04em;text-transform:uppercase}
+.subtle{font-size:12px;color:#5d684f}
+.gameBadge,.pill{
+  display:inline-flex;align-items:center;gap:7px;border:3px solid #263c23;background:#fff8d6;
+  padding:8px 11px;font-size:12px;font-weight:950;box-shadow:3px 3px 0 #263c23;
+}
+.hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#fff7d0,#f2e5af);
+  border:5px solid #263c23;padding:28px;margin:22px 0;box-shadow:9px 9px 0 rgba(32,53,30,.85);
+}
+.hero:before{
+  content:"";position:absolute;right:20px;top:20px;width:86px;height:86px;
+  background:
+    linear-gradient(90deg,#7b5837 0 33%,#956842 33% 66%,#684829 66%),
+    linear-gradient(#7b5837 0 33%,#956842 33% 66%,#684829 66%);
+  background-blend-mode:multiply;opacity:.18;image-rendering:pixelated;
+}
+.kicker{font-size:11px;font-weight:1000;letter-spacing:.13em;text-transform:uppercase;color:#3f6e2c}
+.hero h1{font-size:clamp(43px,9vw,78px);line-height:.88;letter-spacing:-.075em;margin:10px 0 15px;text-transform:uppercase;max-width:760px;text-shadow:3px 3px 0 #d2bd72}
+.hero p{font-family:Inter,system-ui,sans-serif;font-size:18px;line-height:1.5;color:#3e4938;max-width:700px;position:relative;z-index:1}
+.card,.mission{
+  background:rgba(255,251,233,.97);border:5px solid #263c23;box-shadow:8px 8px 0 rgba(32,53,30,.78);
+}
+.card{padding:22px;margin:18px 0}.card h2{font-size:27px;letter-spacing:-.04em;margin:0 0 10px;text-transform:uppercase}
+.field{
+  width:100%;padding:15px;border:4px solid #42513b;background:#fffef5;color:var(--ink);font-size:17px;outline:none;
+  box-shadow:inset 3px 3px 0 #d7d0b6;
+}
+.field:focus{border-color:#2e6cae;box-shadow:inset 3px 3px 0 #d7d0b6,0 0 0 3px #9bd1ff}
+.action{
+  border:4px solid #263c23;background:#4d9a38;color:#fff;font-weight:1000;padding:14px 18px;cursor:pointer;min-height:52px;
+  text-transform:uppercase;box-shadow:0 6px 0 #2d6022;text-shadow:2px 2px 0 rgba(0,0,0,.22)
+}
+.action:hover{transform:translateY(-1px)}.action:active{transform:translateY(4px);box-shadow:0 2px 0 #2d6022}
+.action.secondary{background:#77818a;box-shadow:0 6px 0 #4b535a}.action.gold{background:#e2a72a;color:#241a08;box-shadow:0 6px 0 #9e7019;text-shadow:none}.action:disabled{opacity:.45;cursor:not-allowed}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.rule{
+  background:#f7ecc0;border:4px solid #42513b;padding:15px;color:#4e5846;font-family:Inter,system-ui,sans-serif;font-size:13px;box-shadow:5px 5px 0 rgba(38,60,35,.65)
+}.rule b{display:block;color:#1d2c1a;margin-bottom:4px;font-family:ui-monospace,monospace;text-transform:uppercase}
+.hud{position:sticky;top:0;z-index:12;background:rgba(134,200,255,.94);backdrop-filter:blur(7px);padding:10px 0 12px}
+.hudTop{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.hudStats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{
+  border:3px solid #263c23;background:#fff7d0;padding:7px 10px;font-size:12px;font-weight:1000;box-shadow:3px 3px 0 #263c23
+}.stat b{color:#7e5c0d}
+.map{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}
+.node{
+  position:relative;text-align:center;border:4px solid #42513b;background:#9ba4aa;padding:9px 6px;color:#273029;
+  font-size:10px;font-weight:1000;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 4px 0 #596167
+}
+.node.done{background:#68b04a;border-color:#284b22;box-shadow:0 4px 0 #34662a}.node.active{background:#f2c94c;border-color:#624b14;box-shadow:0 4px 0 #9f781b}
+.progress{height:13px;background:#4b3827;border:3px solid #263c23;overflow:hidden;margin-top:9px}
+.progress span{display:block;height:100%;background:repeating-linear-gradient(90deg,#68b04a 0 22px,#5aa03e 22px 44px);transition:width .28s}
+.mission{overflow:hidden}.missionHead{
+  padding:17px 20px;border-bottom:5px solid #263c23;display:flex;justify-content:space-between;gap:14px;
+  background:linear-gradient(180deg,#d8cfac,#beb38f)
+}
+.missionLabel{font-size:11px;color:#305e27;font-weight:1000;letter-spacing:.11em;text-transform:uppercase}.qnum{font-size:12px;color:#55604d;font-weight:900}
+.missionBody{padding:22px}.scenario{
+  background:#e6dcad;border:4px solid #6e6244;border-left:9px solid #5c8f3a;padding:16px 17px;color:#343b31;
+  line-height:1.5;white-space:pre-line;font-family:Inter,system-ui,sans-serif;box-shadow:inset 3px 3px 0 rgba(255,255,255,.35)
+}
+.question{font-size:clamp(25px,5vw,38px);line-height:1.1;letter-spacing:-.045em;margin:19px 0;text-transform:none}
+.choice{
+  width:100%;display:flex;gap:12px;align-items:flex-start;text-align:left;background:#fff9df;color:#1e281d;border:4px solid #5b654f;
+  padding:14px 15px;margin:10px 0;cursor:pointer;font-family:Inter,system-ui,sans-serif;font-weight:760;line-height:1.35;box-shadow:0 4px 0 #879078;transition:.1s
+}
+.choice:hover{transform:translateY(-1px);border-color:#3f7131}.choice.selected{border-color:#2e6cae;background:#dcecff;box-shadow:0 4px 0 #255681}
+.choice.eliminated{opacity:.28;text-decoration:line-through;pointer-events:none}.choice.correct{border-color:#347326;background:#daf0c9;box-shadow:0 4px 0 #2d6322}.choice.wrong{border-color:#a73b30;background:#f5d5cf;box-shadow:0 4px 0 #7c2f28}
+.letter{display:grid;place-items:center;flex:0 0 31px;width:31px;height:31px;border:3px solid #465044;background:#d4c89f;font-family:ui-monospace,monospace;font-size:12px;font-weight:1000}.selected .letter{background:#79b9ef}
+.powerRow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.power{
+  border:4px solid #3e4b39;background:#b9ac78;color:#1f291d;padding:9px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 4px 0 #756b48;text-transform:uppercase
+}.power b{color:#6c4b00}.power:disabled{opacity:.35}
+.feedback{padding:17px;margin:17px 0;border:5px solid}.feedback.good{background:#d9efc9;border-color:#347326}.feedback.miss{background:#f4d2cb;border-color:#a73b30}.feedback h3{margin:0 0 7px;font-size:21px;text-transform:uppercase}.feedback p{line-height:1.5;margin:6px 0;font-family:Inter,system-ui,sans-serif;color:#344033}.xpBurst{font-size:13px;font-weight:1000;color:#7e5c0d;letter-spacing:.06em}
+.recovery{background:#d9e8f2;border:4px dashed #426b87;padding:15px;margin:15px 0;font-family:Inter,system-ui,sans-serif}.recovery b{color:#254f69;font-family:ui-monospace,monospace}
+.levelComplete{text-align:center;padding:38px 24px}.levelIcon{font-size:58px;filter:drop-shadow(5px 5px 0 rgba(0,0,0,.17))}.levelComplete h2{font-size:41px;letter-spacing:-.055em;margin:8px 0;text-transform:uppercase}.scoreBig{font-size:70px;font-weight:1000;letter-spacing:-.075em}
+.unlock{display:inline-block;margin:10px 0;border:4px solid #6c5014;background:#f4d46b;color:#4b3505;padding:9px 13px;font-size:12px;font-weight:1000;box-shadow:4px 4px 0 #8e6b1c;text-transform:uppercase}
+.resultsHero{background:#2f5f29;color:#fff;border-color:#173a16}.resultsHero .scoreBig{font-size:84px}.rank{font-size:23px;font-weight:1000;color:#ffe16f;margin-top:6px;text-transform:uppercase}
+.skill{margin:14px 0}.skillHead{display:flex;justify-content:space-between;gap:10px;font-weight:900}.skillTrack{height:14px;background:#6b5032;border:3px solid #3c2c1d;overflow:hidden;margin-top:7px}.skillTrack span{display:block;height:100%;background:repeating-linear-gradient(90deg,#69b54a 0 20px,#5ca341 20px 40px)}
+.study{border-left:7px solid #d69b21;padding-left:14px;margin:15px 0;color:#3e4738;font-family:Inter,system-ui,sans-serif}.study b{display:block;color:#1c281a;font-family:ui-monospace,monospace}.hidden{display:none!important}.footer{text-align:center;color:#34412f;font-size:12px;margin-top:27px;font-weight:900;text-shadow:0 1px rgba(255,255,255,.4)}
+.flash{animation:flash .38s steps(2,end)}@keyframes flash{0%{filter:brightness(1.25)}100%{filter:none}}@keyframes pop{0%{transform:scale(.94);opacity:0}100%{transform:scale(1);opacity:1}}.pop{animation:pop .25s steps(3,end)}
+@media(max-width:650px){.shell{padding:10px 11px 46px}.hero,.card{padding:18px}.hero h1{font-size:48px}.rules{grid-template-columns:1fr}.map{grid-template-columns:repeat(5,minmax(52px,1fr));overflow:auto}.node{font-size:8px}.question{font-size:27px}.missionBody{padding:17px}.top{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -58,7 +122,7 @@ const SESSION='inf125-midterm-quest';
 const LEVELS=[
  {name:'Signal Check',short:'Foundations',icon:'🤖',blurb:'Do you actually know AI?',unlock:'Pattern Reader'},
  {name:'Toolsmith',short:'Use It',icon:'🛠️',blurb:'Use AI without making a mess.',unlock:'Prompt Crafter'},
- {name:'Truth Hunter',short:'Verify',icon:'🕵️',blurb:"Don't get fooled.",unlock:'Evidence Lens'},
+ {name:'Truth Hunter',short:'Verify',icon:'🕵️',blurb:"Don't get fooled.",unlock:'Evidence Tool'},
  {name:'Judgment Zone',short:'Judge',icon:'⚖️',blurb:"It's complicated.",unlock:'Human Override'},
  {name:'Final Boss',short:'Boss',icon:'🔥',blurb:'Put the pieces together.',unlock:'AI Literate'}
 ];
@@ -103,32 +167,32 @@ function rank(){if(xp>=2800)return'Legendary Verifier';if(xp>=2200)return'AI Str
 function shell(body){return '<div class="top"><div><div class="brand">INF 125 · AI Literacy</div><div class="subtle">Midterm Week · Mission-Based Review</div></div><span class="gameBadge">🎮 MIDTERM QUEST</span></div>'+body+'<div class="footer">Practice the concepts. Make the judgment. Show how you know.</div>'}
 function start(){
  const saved=localStorage.getItem('midtermQuestName')||localStorage.getItem('classroomName')||'';
- app.innerHTML=shell('<section class="hero"><div class="kicker">Mission Control</div><h1>BEAT YOUR BLIND SPOTS.</h1><p>You have 25 missions before the Final Boss is defeated. Every mission practices a concept that matters for the midterm—but none of these are copied exam questions.</p><div class="pill">⚡ Earn XP</div> <div class="pill">🔥 Build streaks</div> <div class="pill">🔎 Use Evidence Lenses</div> <div class="pill">🛡 Recover from misses</div></section><section class="card"><h2>Initialize player</h2><p class="subtle">Your name records attendance and lets your instructor see progress. This review is diagnostic—not a grade.</p><label class="subtle" for="nm"><b>PLAYER NAME</b></label><input class="field" id="nm" autocomplete="name" value="'+esc(saved)+'" placeholder="First and last name"><button class="action" id="go" style="width:100%;margin-top:12px">ENTER THE QUEST →</button><div id="err" class="subtle" style="color:var(--red);margin-top:8px"></div></section><section class="rules"><div class="rule"><b>🎯 First attempt matters</b>Your readiness score uses your first answer.</div><div class="rule"><b>🛡 Recovery is learning</b>Miss one? Get a clue and fight back for XP.</div><div class="rule"><b>🔎 Evidence Lens ×3</b>Remove one distractor when you need it.</div></section>');
+ app.innerHTML=shell('<section class="hero"><div class="kicker">WORLD SPAWN</div><h1>BEAT YOUR BLIND SPOTS.</h1><p>You have 25 missions before the Final Boss is defeated. Every mission practices a concept that matters for the midterm—but none of these are copied exam questions.</p><div class="pill">⚡ Earn XP</div> <div class="pill">🔥 Build streaks</div> <div class="pill">🔎 Use Evidence Tooles</div> <div class="pill">🛡 Recover from misses</div></section><section class="card"><h2>Create player</h2><p class="subtle">Your name records attendance and lets your instructor see progress. This review is diagnostic—not a grade.</p><label class="subtle" for="nm"><b>PLAYER NAME</b></label><input class="field" id="nm" autocomplete="name" value="'+esc(saved)+'" placeholder="First and last name"><button class="action" id="go" style="width:100%;margin-top:12px">ENTER WORLD →</button><div id="err" class="subtle" style="color:var(--red);margin-top:8px"></div></section><section class="rules"><div class="rule"><b>🎯 First attempt matters</b>Your readiness score uses your first answer.</div><div class="rule"><b>🛡 Recovery is learning</b>Miss one? Get a clue and fight back for XP.</div><div class="rule"><b>🔎 Evidence Tool ×3</b>Remove one distractor when you need it.</div></section>');
  document.getElementById('go').onclick=join;
 }
 async function join(){
  name=document.getElementById('nm').value.trim();if(!name){document.getElementById('err').textContent='Enter your name first.';return}
  const b=document.getElementById('go');b.disabled=true;b.textContent='Connecting…';
- try{await api('/join',{method:'POST',body:JSON.stringify({device:device(),name})});await api('/review/start',{method:'POST',body:JSON.stringify({device:device(),name})});localStorage.midtermQuestName=name;localStorage.classroomName=name;startedAt=Date.now();renderQ()}catch(e){b.disabled=false;b.textContent='ENTER THE QUEST →';document.getElementById('err').textContent='Could not start. Check your connection and try again.'}
+ try{await api('/join',{method:'POST',body:JSON.stringify({device:device(),name})});await api('/review/start',{method:'POST',body:JSON.stringify({device:device(),name})});localStorage.midtermQuestName=name;localStorage.classroomName=name;startedAt=Date.now();renderQ()}catch(e){b.disabled=false;b.textContent='ENTER WORLD →';document.getElementById('err').textContent='Could not start. Check your connection and try again.'}
 }
 function mapHtml(){
  const level=Math.floor(idx/5);
  return '<div class="map">'+LEVELS.map((l,i)=>'<div class="node '+(i<level?'done':i===level?'active':'')+'">'+(i<level?'✓ ':l.icon+' ')+esc(l.short)+'</div>').join('')+'</div>';
 }
 function hud(){
- return '<div class="hud"><div class="hudTop"><div class="hudStats"><span class="stat">XP <b>'+xp+'</b></span><span class="stat">🔥 STREAK <b>'+streak+'</b></span><span class="stat">🔎 LENS <b>'+lens+'</b></span><span class="stat">'+esc(rank())+'</span></div><span class="subtle">'+(idx+1)+' / '+Q.length+'</span></div>'+mapHtml()+'<div class="progress"><span style="width:'+(idx/Q.length*100)+'%"></span></div></div>';
+ return '<div class="hud"><div class="hudTop"><div class="hudStats"><span class="stat">XP <b>'+xp+'</b></span><span class="stat">🔥 STREAK <b>'+streak+'</b></span><span class="stat">🧰 TOOLS <b>'+lens+'</b></span><span class="stat">'+esc(rank())+'</span></div><span class="subtle">'+(idx+1)+' / '+Q.length+'</span></div>'+mapHtml()+'<div class="progress"><span style="width:'+(idx/Q.length*100)+'%"></span></div></div>';
 }
 function renderQ(){
  selected=null;submitted=false;recovery=false;firstAttempt=null;
  const q=Q[idx],lev=LEVELS[q.level-1],boss=q.level===5;
- app.innerHTML=shell(hud()+'<section class="mission '+(boss?'flash':'')+'"><div class="missionHead"><div><div class="missionLabel">'+(boss?'🔥 FINAL BOSS · ':'MISSION · ')+esc(q.concept)+'</div><div class="subtle">'+esc(lev.name)+' · '+esc(lev.blurb)+'</div></div><div class="qnum">'+(idx+1)+' / '+Q.length+'</div></div><div class="missionBody"><div class="scenario">'+esc(q.scenario)+'</div><h1 class="question">'+esc(q.q)+'</h1><div class="powerRow"><button class="power" id="lens" '+(lens<=0?'disabled':'')+'>🔎 Evidence Lens <b>×'+lens+'</b> · remove one distractor</button></div><div id="choices">'+q.choices.map((c,i)=>'<button class="choice" data-i="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+esc(c)+'</span></button>').join('')+'</div><button class="action" id="check" style="width:100%;margin-top:13px" disabled>LOCK IN →</button><div id="fb"></div></div></section>');
+ app.innerHTML=shell(hud()+'<section class="mission '+(boss?'flash':'')+'"><div class="missionHead"><div><div class="missionLabel">'+(boss?'🔥 FINAL BOSS · ':'MISSION · ')+esc(q.concept)+'</div><div class="subtle">'+esc(lev.name)+' · '+esc(lev.blurb)+'</div></div><div class="qnum">'+(idx+1)+' / '+Q.length+'</div></div><div class="missionBody"><div class="scenario">'+esc(q.scenario)+'</div><h1 class="question">'+esc(q.q)+'</h1><div class="powerRow"><button class="power" id="lens" '+(lens<=0?'disabled':'')+'>🔎 Evidence Tool <b>×'+lens+'</b> · break one distractor block</button></div><div id="choices">'+q.choices.map((c,i)=>'<button class="choice" data-i="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+esc(c)+'</span></button>').join('')+'</div><button class="action" id="check" style="width:100%;margin-top:13px" disabled>LOCK IN →</button><div id="fb"></div></div></section>');
  wireChoices();document.getElementById('lens').onclick=useLens;document.getElementById('check').onclick=check;
 }
 function wireChoices(){document.querySelectorAll('.choice:not(.eliminated)').forEach(b=>b.onclick=()=>{if(submitted)return;selected=Number(b.dataset.i);document.querySelectorAll('.choice').forEach(x=>x.classList.toggle('selected',x===b));document.getElementById('check').disabled=false})}
 function useLens(){
  if(lens<=0||submitted)return;const q=Q[idx],wrong=q.choices.map((_,i)=>i).filter(i=>i!==q.a && i!==selected);if(!wrong.length)return;
  const kill=wrong[Math.floor(Math.random()*wrong.length)],btn=document.querySelector('.choice[data-i="'+kill+'"]');btn.classList.add('eliminated');btn.disabled=true;lens--;xp=Math.max(0,xp-20);
- document.getElementById('lens').innerHTML='🔎 Evidence Lens <b>×'+lens+'</b> · remove one distractor';if(lens<=0)document.getElementById('lens').disabled=true;
+ document.getElementById('lens').innerHTML='🔎 Evidence Tool <b>×'+lens+'</b> · break one distractor block';if(lens<=0)document.getElementById('lens').disabled=true;
 }
 async function check(){
  if(selected===null||submitted)return;submitted=true;const q=Q[idx],correct=selected===q.a;if(firstAttempt===null)firstAttempt=selected;
@@ -154,13 +218,13 @@ function next(){
 }
 function levelBreak(done){
  const slice=answers.slice((done-1)*5,done*5),score=slice.filter(x=>x.correct).length,lev=LEVELS[done-1];
- app.innerHTML=shell(hud()+'<section class="card levelComplete"><div class="levelIcon">'+lev.icon+'</div><div class="kicker">ZONE '+done+' CLEARED</div><h2>'+esc(lev.name)+'</h2><div class="scoreBig">'+score+'/5</div><div class="unlock">UNLOCKED · '+esc(lev.unlock)+'</div><p style="color:var(--muted)">'+esc(score>=4?'Strong signal. Your reasoning held up.':score>=3?'You cleared the zone, but there are concepts worth revisiting.':'Zone cleared—but this should be on your study plan before the midterm.')+'</p><button class="action" id="cont">'+(done===4?'ENTER THE FINAL BOSS 🔥':'ENTER ZONE '+(done+1)+' →')+'</button></section>');
+ app.innerHTML=shell(hud()+'<section class="card levelComplete"><div class="levelIcon">'+lev.icon+'</div><div class="kicker">WORLD '+done+' CLEARED</div><h2>'+esc(lev.name)+'</h2><div class="scoreBig">'+score+'/5</div><div class="unlock">CRAFTED · '+esc(lev.unlock)+'</div><p style="color:var(--muted)">'+esc(score>=4?'Strong signal. Your reasoning held up.':score>=3?'You cleared the world, but there are concepts worth revisiting.':'World cleared—but this should be on your study plan before the midterm.')+'</p><button class="action" id="cont">'+(done===4?'ENTER THE FINAL BOSS 🔥':'ENTER WORLD '+(done+1)+' →')+'</button></section>');
  document.getElementById('cont').onclick=renderQ;
 }
 function results(){
  const total=answers.filter(x=>x.correct).length,pct=Math.round(total/Q.length*100),groups={};answers.forEach(x=>{groups[x.skill]??={n:0,c:0};groups[x.skill].n++;if(x.correct)groups[x.skill].c++});
  const skills=Object.entries(groups).map(([k,v])=>({k,p:Math.round(v.c/v.n*100),...v})).sort((a,b)=>a.p-b.p),focus=skills.filter(x=>x.p<80).slice(0,3),mins=Math.max(1,Math.round((Date.now()-(startedAt||Date.now()))/60000)),recovered=answers.filter(x=>x.recovered).length;
- app.innerHTML=shell('<section class="card resultsHero"><div class="kicker">QUEST COMPLETE</div><h2 style="font-size:40px;margin:8px 0">MIDTERM READINESS</h2><div class="scoreBig">'+pct+'%</div><div class="rank">'+esc(rank())+'</div><p style="color:#d6ddf4">'+total+' / '+Q.length+' first-attempt missions · '+xp+' XP · best streak '+bestStreak+' · '+recovered+' recoveries</p></section><section class="card"><h2>Skill map</h2>'+skills.map(x=>'<div class="skill"><div class="skillHead"><span>'+esc(x.k)+'</span><span>'+x.p+'%</span></div><div class="skillTrack"><span style="width:'+x.p+'%"></span></div></div>').join('')+'</section><section class="card"><h2>Next mission: study smart</h2>'+(focus.length?focus.map((x,i)=>'<div class="study"><b>'+(i+1)+'. '+esc(x.k)+' · '+x.p+'%</b><span>Revisit the explanations you missed, then practice the concept in a new scenario.</span></div>').join(''):'<p style="color:var(--muted)">Strong across every measured area. Use remaining review time on any answer you guessed on rather than adding new material.</p>')+'<p class="subtle"><b>Important:</b> This is a diagnostic review, not a prediction of your exam grade.</p></section><section class="card"><h2>Mission accomplished.</h2><p style="color:var(--muted)">The win is not the XP. The win is knowing what deserves your attention before the midterm.</p><button class="action secondary" id="restart">REPLAY QUEST</button></section>');
+ app.innerHTML=shell('<section class="card resultsHero"><div class="kicker">QUEST COMPLETE</div><h2 style="font-size:40px;margin:8px 0">MIDTERM WORLD COMPLETE</h2><div class="scoreBig">'+pct+'%</div><div class="rank">'+esc(rank())+'</div><p style="color:#d6ddf4">'+total+' / '+Q.length+' first-attempt missions · '+xp+' XP · best streak '+bestStreak+' · '+recovered+' recoveries</p></section><section class="card"><h2>World stats</h2>'+skills.map(x=>'<div class="skill"><div class="skillHead"><span>'+esc(x.k)+'</span><span>'+x.p+'%</span></div><div class="skillTrack"><span style="width:'+x.p+'%"></span></div></div>').join('')+'</section><section class="card"><h2>Next build: study smart</h2>'+(focus.length?focus.map((x,i)=>'<div class="study"><b>'+(i+1)+'. '+esc(x.k)+' · '+x.p+'%</b><span>Revisit the explanations you missed, then practice the concept in a new scenario.</span></div>').join(''):'<p style="color:var(--muted)">Strong across every measured area. Use remaining review time on any answer you guessed on rather than adding new material.</p>')+'<p class="subtle"><b>Important:</b> This is a diagnostic review, not a prediction of your exam grade.</p></section><section class="card"><h2>Mission accomplished.</h2><p style="color:var(--muted)">The win is not the XP. The win is knowing what deserves your attention before the midterm.</p><button class="action secondary" id="restart">REPLAY QUEST</button></section>');
  document.getElementById('restart').onclick=()=>{idx=0;answers=[];selected=null;submitted=false;startedAt=Date.now();xp=0;streak=0;bestStreak=0;lens=3;renderQ()};
  try{api('/review/complete',{method:'POST',body:JSON.stringify({device:device(),name,score:total,total:Q.length,percent:pct,minutes:mins,skills,xp,rank:rank(),bestStreak,recovered})})}catch(_){}
 }
