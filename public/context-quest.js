@@ -64,6 +64,31 @@ function render(){
  if(s==="build")return buildScreen(false);if(s==="test")return testScreen(false);if(s==="twist")return twistScreen(false);if(s==="check")return checkScreen(false);if(s==="reveal")return revealScreen(false);
  if(s==="final-build")return buildScreen(true);if(s==="final-test")return testScreen(true);if(s==="final-twist")return twistScreen(true);if(s==="final-check")return checkScreen(true);if(s==="final-reveal")return revealScreen(true);if(s==="complete")return complete();
 }
-async function refresh(force=false){if(!local.name)return render();try{snap=await req("/snapshot");const sig=JSON.stringify(snap);if(force||sig!==lastSig){lastSig=sig;render()}}catch(e){console.error(e)}}
+function stableSnapshot(x){
+ if(!x)return "";
+ const clone=JSON.parse(JSON.stringify(x));
+ delete clone.generatedAt;
+ for(const p of clone.players||[])delete p.lastSeen;
+ for(const t of clone.teams||[])for(const m of t.members||[])delete m.lastSeen;
+ return JSON.stringify(clone);
+}
+function isEditing(){
+ const a=document.activeElement;
+ return !!a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT")&&!a.readOnly&&!a.disabled;
+}
+async function refresh(force=false){
+ if(!local.name)return render();
+ try{
+   const next=await req("/snapshot");
+   const sig=stableSnapshot(next);
+   const stageChanged=next?.state?.stage!==snap?.state?.stage||next?.state?.round!==snap?.state?.round;
+   snap=next;
+   if(force||stageChanged||sig!==lastSig){
+     lastSig=sig;
+     if(!force&&!stageChanged&&isEditing())return;
+     render();
+   }
+ }catch(e){console.error(e)}
+}
 async function heartbeat(){if(!local.name)return;try{await req("/heartbeat",{method:"POST",body:JSON.stringify({playerId:local.playerId})})}catch(_){}}
 save();if(local.name){req("/join",{method:"POST",body:JSON.stringify({playerId:local.playerId,name:local.name,mode:local.mode})}).then(()=>refresh(true));poller=setInterval(refresh,900);setInterval(heartbeat,15000)}else joinScreen();
