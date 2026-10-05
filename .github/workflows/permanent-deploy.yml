@@ -53,16 +53,39 @@ jobs:
           echo "$CQ_JS" | grep -q 'LIVE CLASSROOM BOARD GAME'
           echo "$CQ_JS" | grep -q 'LOCK IN OUR CHECK'
           echo "Context Quest multiplayer routes, API, and runtimes are reachable."
+      - name: Verify Context Quest multiplayer game flow
+        run: |
+          set -e
+          BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke/cq"
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"smoke-team","name":"Smoke Team"}' "$BASE/join" | grep -q '"ok":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"smoke-team","action":"build","text":"Explain AI to a first-year student."}' "$BASE/team" | grep -q '"ok":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"check","round":0}' "$BASE/control" > /dev/null
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"smoke-team","action":"checks","checks":[true,true,true,true]}' "$BASE/team" | grep -q '"position":3'
+          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"position":3'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
+          echo "Context Quest join → submit → score → movement flow passed."
       - name: Verify Context Quest renders in a browser
         run: |
           set -e
-          TEAM_DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest)"
+          dump_dom() {
+            URL="$1"
+            for attempt in 1 2 3; do
+              if timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom "$URL" 2>/dev/null; then
+                return 0
+              fi
+              sleep 2
+            done
+            return 1
+          }
+          TEAM_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest)"
           echo "$TEAM_DOM" | grep -q "JOIN YOUR"
           echo "$TEAM_DOM" | grep -q "JOIN CONTEXT QUEST"
-          INST_DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest/instructor)"
+          INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "$INST_DOM" | grep -q "GAME MASTER"
           echo "$INST_DOM" | grep -q "START TUTORIAL"
-          BOARD_DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest/board)"
+          BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
           echo "$BOARD_DOM" | grep -q "FORM YOUR TEAMS"
           echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
