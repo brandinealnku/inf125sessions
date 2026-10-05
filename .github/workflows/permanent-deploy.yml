@@ -60,9 +60,15 @@ jobs:
           BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
           echo "Checking instructor test-player generator"
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"count":10,"watchers":2}' "$BASE/test-players" | grep -q '"created":10'
-          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"playing":10'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/clear-test-players" | grep -q '"removed":12'
+          TEST_CREATE="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"count":10,"watchers":2}' "$BASE/test-players")"
+          echo "$TEST_CREATE"
+          echo "$TEST_CREATE" | grep -q '"created":10'
+          TEST_SNAPSHOT="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "$TEST_SNAPSHOT"
+          echo "$TEST_SNAPSHOT" | grep -q '"playing":10'
+          TEST_CLEAR="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/clear-test-players")"
+          echo "$TEST_CLEAR"
+          echo "$TEST_CLEAR" | grep -q '"removed":12'
           for n in 1 2 3 4; do
             curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p$n\",\"name\":\"Player $n\",\"mode\":\"play\"}" "$BASE/join" | grep -q '"ok":true'
           done
