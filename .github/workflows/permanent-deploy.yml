@@ -25,7 +25,11 @@ jobs:
           node-version: 22
       - run: npm install
       - name: Validate Context Quest runtime syntax
-        run: node --check public/context-quest.js
+        run: |
+          node --check public/context-quest.js
+          node --check public/context-quest-instructor.js
+          node --check public/context-quest-board.js
+          node --check public/context-quest-data.js
       - name: Deploy Worker to Cloudflare account
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -36,24 +40,29 @@ jobs:
           set -e
           for path in student instructor room; do
             echo "Checking https://classroom.itsbadlabs.com/$path"
-            curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors \
-              --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
+            curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
-          echo "Checking Context Quest HTML references its runtime"
-          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors \
-            --max-time 20 "https://classroom.itsbadlabs.com/context-quest" | grep -q "context-quest.js"
-          echo "Checking Context Quest runtime content and release marker"
-          CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors \
-            --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js")"
-          echo "$CQ_JS" | grep -q 'cq-simplified-2026-10-05'
-          echo "$CQ_JS" | grep -q 'BAD PROMPT'
-          echo "$CQ_JS" | grep -q 'PLOT TWIST'
-          echo "$CQ_JS" | grep -q '3–4 checks = success'
-          echo "Permanent Classroom surfaces and the current simplified Context Quest runtime are reachable over HTTPS."
+          for path in context-quest context-quest/instructor context-quest/board; do
+            echo "Checking https://classroom.itsbadlabs.com/$path"
+            curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
+          done
+          echo "Checking Context Quest shared API"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/api/session/context-quest-live/cq/snapshot" | grep -q '"stage"'
+          echo "Checking team runtime"
+          CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js")"
+          echo "$CQ_JS" | grep -q 'LIVE CLASSROOM BOARD GAME'
+          echo "$CQ_JS" | grep -q 'LOCK IN OUR CHECK'
+          echo "Context Quest multiplayer routes, API, and runtimes are reachable."
       - name: Verify Context Quest renders in a browser
         run: |
           set -e
-          DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest)"
-          echo "$DOM" | grep -q "PLAY THE TUTORIAL"
-          echo "$DOM" | grep -q "You’re given a bad AI prompt"
-          echo "Context Quest executed successfully and rendered the simplified start experience."
+          TEAM_DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest)"
+          echo "$TEAM_DOM" | grep -q "JOIN YOUR"
+          echo "$TEAM_DOM" | grep -q "JOIN CONTEXT QUEST"
+          INST_DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest/instructor)"
+          echo "$INST_DOM" | grep -q "GAME MASTER"
+          echo "$INST_DOM" | grep -q "START TUTORIAL"
+          BOARD_DOM="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=3000 --dump-dom https://classroom.itsbadlabs.com/context-quest/board)"
+          echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
+          echo "$BOARD_DOM" | grep -q "FORM YOUR TEAMS"
+          echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
