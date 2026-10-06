@@ -1,4 +1,4 @@
-const API="/api/session/context-quest-live/cq",D=window.CQ_DATA,$=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));let snap=null,last="";
+const SESSION_KEY=new URLSearchParams(location.search).get("session")||"context-quest-live";const API="/api/session/"+encodeURIComponent(SESSION_KEY)+"/cq",D=window.CQ_DATA,$=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));let snap=null,last="";
 const BOARD_SPACES=[
  ["START","start"],["CONTEXT MATCH","who"],["WEIRD PROMPT","goal"],["TALK IT OUT","context"],["TEST","test"],["CONTEXT MVP","corner"],
  ["BUILD + TEST","constraint"],["SECRET CONTEXT","context"],["TEAM VOTE","check"],["TEST","test"],["PLOT TWIST","corner"],
