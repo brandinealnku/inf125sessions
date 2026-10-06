@@ -116,11 +116,15 @@ jobs:
 
           # Team winner auto-selects and each team moves itself into Test.
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "=== AFTER TEAM VOTING ==="
+          echo "$SNAP"
           echo "$SNAP" | grep -q '"progressPhase":"test"'
           echo "$SNAP" | grep -q '"build":"UPDATED: first-year student context answer"'
 
           for p in p1 p2 p3 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"tested\"}" "$BASE/player-action" > /dev/null; done
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "=== AFTER TESTING ==="
+          echo "$SNAP"
           [ "$(printf '%s' "$SNAP" | grep -o '"progressPhase":"ready-twist"' | wc -l)" -ge 2 ]
 
           # Instructor controls the shared Plot Twist.
@@ -134,15 +138,21 @@ jobs:
           for p in p2 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"voteRepair\",\"proposalId\":\"$R2_ID\"}" "$BASE/player-action" > /dev/null; done
 
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "=== AFTER REPAIR VOTING ==="
+          echo "$SNAP"
           echo "$SNAP" | grep -q '"progressPhase":"check"'
 
           for p in p1 p2 p3 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"checks\",\"checks\":[true,true,true,true]}" "$BASE/player-action" > /dev/null; done
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "=== AFTER JUDGMENT ==="
+          echo "$SNAP"
           [ "$(printf '%s' "$SNAP" | grep -o '"progressPhase":"ready-reveal"' | wc -l)" -ge 2 ]
 
           # Instructor controls shared score/movement reveal.
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"reveal","round":0}' "$BASE/control" | grep -q '"stage":"reveal"'
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "=== AFTER SCORE REVEAL ==="
+          echo "$SNAP"
           [ "$(printf '%s' "$SNAP" | grep -o '"position":3' | wc -l)" -ge 2 ]
 
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
