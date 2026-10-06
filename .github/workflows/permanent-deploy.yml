@@ -168,5 +168,5 @@ jobs:
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD" || { echo "Board header did not render"; exit 1; }
-          echo "$BOARD_DOM" | grep -Eq "EVERYONE JOIN|CUSTOMIZE YOUR TEAM|CONTEXT QUEST|ROUND|FINAL" || { echo "Board state did not render"; exit 1; }
+          echo "$BOARD_DOM" | grep -Eq "EVERYONE JOIN|CUSTOMIZE YOUR TEAM|CONTEXT QUEST|MOMENT|FINAL" || { echo "Board state did not render"; exit 1; }
           echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
