@@ -19,8 +19,8 @@ function studentGuide(){
  <div><b>1 · TALK</b><p>Share what you notice with your team. Your role gives you a lens, not control.</p></div>
  <div><b>2 · SUBMIT ONE ANSWER</b><p>You get <strong>one active answer</strong> in each Build/Repair phase. Submit again only to replace your own answer.</p></div>
  <div><b>3 · VOTE</b><p>Read every teammate option and vote for the strongest. You may change or remove your vote.</p></div>
- <div><b>4 · TEAM WINNER</b><p>Everyone must vote. The option with the most votes goes to the Game Master. Ties must be resolved.</p></div>
- <div><b>5 · TEST + ADAPT</b><p>Test the selected answer, react to the Plot Twist, repair it, and judge the AI response.</p></div>
+ <div><b>4 · TEAM WINNER</b><p>Everyone must vote. The highest-voted answer is selected automatically. Ties must be resolved.</p></div>
+ <div><b>5 · TEST + ADAPT</b><p>Your team automatically moves into Test. When finished, wait for the Game Master to reveal the Plot Twist to the whole room.</p></div>
  <div><b>WIN THE RIGHT WAY</b><p>Points reward good context, recovery, and evidence—not fancy wording.</p></div>
  </div></details>`;
 }
@@ -136,12 +136,47 @@ async function markTested(){await req("/player-action",{method:"POST",body:JSON.
 async function submitChecks(){const checks=[...document.querySelectorAll(".check")].map(x=>x.checked);await req("/player-action",{method:"POST",body:JSON.stringify({playerId:local.playerId,action:"checks",checks})});toast("Your judgment is in.");await refresh(true)}
 function copyText(sel){const e=$(sel);navigator.clipboard?.writeText(e?.value||"");toast("Copied.");}
 function complete(){const sorted=[...(snap.teams||[])].sort((a,b)=>(b.position||0)-(a.position||0)),t=team(),rank=t?sorted.findIndex(x=>x.id===t.id)+1:null;$("#app").innerHTML=mast(`<section class="panel hero"><div class="tiny">QUEST COMPLETE</div><h1>CONTEXT<br>CHANGES EVERYTHING.</h1><p>${t?`${esc(t.name)} finished <b>#${rank}</b> with <b>${t.position||0} spaces</b>.`:"You watched the whole room work the problem."}</p></section><section class="panel"><div class="label">THE MODEL</div><div class="bigq">WHO → WHAT → WHY → CONTEXT → CONSTRAINTS → OUTPUT → CHECK</div><p>The winning move was never magic wording. It was noticing what the situation required, testing the answer, and changing course when the context changed.</p></section>`)}
+function teamWait(kind,final=false){
+ const t=team(),r=rec(final);
+ const cfg=kind==="ready-twist"
+  ?{icon:"⚡",label:"TEAM READY",title:"Your team is ready for the Plot Twist.",text:"Look up. The Game Master will reveal the new information to the whole room when the other teams are ready."}
+  :{icon:"🏁",label:"TEAM READY",title:"Your judgment is locked.",text:"Look up. The Game Master will reveal scoring and board movement when the room is ready."};
+ $("#app").innerHTML=mast(`<section class="panel wait"><div class="icon">${cfg.icon}</div><div class="label">${cfg.label}</div><h2>${cfg.title}</h2><p>${cfg.text}</p><div class="success"><b>${esc(t?.name||"Your team")}</b> has completed this part of the Moment. You do not need to click anything else.</div></section>`);
+}
 function render(){
  if(!local.name)return joinScreen();if(!snap)return;const p=me();if(!p)return joinScreen();if(p.mode==="watch")return spectator();
- const s=snap.state.stage;if(s==="lobby"){$("#app").innerHTML=teamLobby();return}
- if(s==="tutorial"){if(p.tutorialDone){$("#app").innerHTML=mast(`<section class="panel wait"><div class="icon">✅</div><h2>You're ready.</h2><p>Meet your team and look up. The Game Master will launch Round 1.</p></section>`)}else tutorial();return}
- if(s==="build")return buildScreen(false);if(s==="test")return testScreen(false);if(s==="twist")return twistScreen(false);if(s==="check")return checkScreen(false);if(s==="reveal")return revealScreen(false);
- if(s==="final-build")return buildScreen(true);if(s==="final-test")return testScreen(true);if(s==="final-twist")return twistScreen(true);if(s==="final-check")return checkScreen(true);if(s==="final-reveal")return revealScreen(true);if(s==="complete")return complete();
+ const s=snap.state.stage,t=team(),phase=t?.progressPhase||"";
+ if(s==="lobby"){$("#app").innerHTML=teamLobby();return}
+ if(s==="tutorial"){if(p.tutorialDone){$("#app").innerHTML=mast(`<section class="panel wait"><div class="icon">✅</div><h2>You're ready.</h2><p>Meet your team and look up. The Game Master will launch Moment 1.</p></section>`)}else tutorial();return}
+
+ if(s==="build"){
+   if(phase==="test")return testScreen(false);
+   if(phase==="ready-twist")return teamWait("ready-twist",false);
+   return buildScreen(false);
+ }
+ if(s==="twist"){
+   if(phase==="check")return checkScreen(false);
+   if(phase==="ready-reveal")return teamWait("ready-reveal",false);
+   return twistScreen(false);
+ }
+ if(s==="reveal")return revealScreen(false);
+
+ if(s==="final-build"){
+   if(phase==="test")return testScreen(true);
+   if(phase==="ready-twist")return teamWait("ready-twist",true);
+   return buildScreen(true);
+ }
+ if(s==="final-twist"){
+   if(phase==="check")return checkScreen(true);
+   if(phase==="ready-reveal")return teamWait("ready-reveal",true);
+   return twistScreen(true);
+ }
+ if(s==="final-reveal")return revealScreen(true);
+ if(s==="complete")return complete();
+
+ // Backward-compatible fallback for an older in-progress session.
+ if(s==="test")return testScreen(false);if(s==="check")return checkScreen(false);
+ if(s==="final-test")return testScreen(true);if(s==="final-check")return checkScreen(true);
 }
 function stableSnapshot(x){
  if(!x)return "";
