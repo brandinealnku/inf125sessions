@@ -7,7 +7,7 @@ function nextControl(){const s=snap.state.stage,r=snap.state.round;const map={lo
 function quickGuide(){const s=snap.state.stage,r=snap.state.round,m=D.rounds[r];const g={
  lobby:["SETUP","Create a fake room, form teams, then advance. Test Mode auto-finishes team identity when Tutorial starts."],
  tutorial:["TUTORIAL","Use Simulate Current Phase if you want all fake players marked ready."],
- build:["PLAY","${m?.key||"Moment"}: test the student interaction, proposals, voting, and instructor flow."],
+ build:["PLAY",(m?.key||"Moment")+": test the student interaction, proposals, voting, and instructor flow."],
  test:["TEST","Simulate to mark fake players as tested, or open a player tab and do it manually."],
  twist:["PLOT TWIST","Use Play As links to manually submit/vote on repairs, or simulate the phase."],
  check:["JUDGMENT","Simulate ballots, then reveal movement."],
