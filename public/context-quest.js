@@ -87,7 +87,7 @@ function roundBuildUI(r){
  return "";
 }
 function buildScreen(final=false){
- const r=final?D.final:D.rounds[snap.state.round],title=final?"FINAL CHALLENGE":`ROUND ${snap.state.round+1} · ${r.icon} ${r.key}`;
+ const r=final?D.final:D.rounds[snap.state.round],title=final?"FINAL BOSS":`MOMENT ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;
  if(final){
    $("#app").innerHTML=mast(`<section class="panel"><div class="tiny">${title}</div>${roleCard()}<div class="label">FINAL FREEFORM BUILD</div><div class="bigq">“${esc(r.bad)}”</div>${cards(r.cards)}<p>This is the first time the game asks you to build the full interaction yourself. Use what the earlier rounds taught you.</p><textarea id="proposal" class="prompt" placeholder="Build the strongest complete prompt / AI interaction…"></textarea><div class="actions"><button class="btn purple" onclick="submitProposal('build')">SUBMIT MY FINAL PROPOSAL</button></div><div class="label">TEAM PROPOSALS</div>${proposals("build")}${noteBox()}</section>`);
    return;
