@@ -3,24 +3,20 @@ async function req(path,opts={}){const r=await fetch(API+path,{headers:{"content
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1900)}
 function mast(body){return `<header class="mast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">TEST SANDBOX · ISOLATED FROM LIVE CLASS</div></div><div class="actions"><a class="btn soft" style="text-decoration:none" href="/context-quest/board?session=${SESSION}" target="_blank">OPEN SANDBOX BOARD ↗</a><a class="btn soft" style="text-decoration:none" href="/context-quest/instructor">BACK TO LIVE INSTRUCTOR</a></div></header>${body}`}
 function stageName(){return D.stages[snap?.state?.stage]||snap?.state?.stage||"Lobby"}
-function nextControl(){const s=snap.state.stage,r=snap.state.round;const map={lobby:["START TUTORIAL","tutorial",0],tutorial:["START MOMENT 1","build",0],build:["LOCK + GO TO TEST","test",r],test:["TRIGGER PLOT TWIST","twist",r],twist:["LOCK REPAIR + JUDGE","check",r],check:["REVEAL MOVES","reveal",r],reveal:[r<2?`START MOMENT ${r+2}`:"START FINAL BOSS",r<2?"build":"final-build",r<2?r+1:3],"final-build":["LOCK FINAL + TEST","final-test",3],"final-test":["FINAL PLOT TWIST","final-twist",3],"final-twist":["LOCK FINAL REPAIR + JUDGE","final-check",3],"final-check":["REVEAL FINAL","final-reveal",3],"final-reveal":["FINISH GAME","complete",3]};return map[s]||null}
+function nextControl(){const s=snap.state.stage,r=snap.state.round;const map={lobby:["START TUTORIAL","tutorial",0],tutorial:["START MOMENT 1","build",0],build:["REVEAL PLOT TWIST","twist",r],twist:["REVEAL SCORES + MOVEMENT","reveal",r],reveal:[r<2?`START MOMENT ${r+2}`:"START FINAL BOSS",r<2?"build":"final-build",r<2?r+1:3],"final-build":["REVEAL FINAL PLOT TWIST","final-twist",3],"final-twist":["REVEAL FINAL SCORES","final-reveal",3],"final-reveal":["FINISH GAME","complete",3]};return map[s]||null}
 function quickGuide(){const s=snap.state.stage,r=snap.state.round,m=D.rounds[r];const g={
- lobby:["SETUP","Create a fake room, form teams, then advance. Test Mode auto-finishes team identity when Tutorial starts."],
- tutorial:["TUTORIAL","Use Simulate Current Phase if you want all fake players marked ready."],
- build:["PLAY",(m?.key||"Moment")+": test the student interaction, proposals, voting, and instructor flow."],
- test:["TEST","Simulate to mark fake players as tested, or open a player tab and do it manually."],
- twist:["PLOT TWIST","Use Play As links to manually submit/vote on repairs, or simulate the phase."],
- check:["JUDGMENT","Simulate ballots, then reveal movement."],
- reveal:["BOARD","Check movement, charms, standings, and bonus behavior before advancing."],
- "final-build":["FINAL BOSS","Test the full freeform build and voting flow."],
- "final-test":["FINAL TEST","Confirm the selected team prompt is readable and usable."],
- "final-twist":["FINAL TWIST","Check high-stakes repair behavior."],
- "final-check":["FINAL JUDGMENT","Simulate or manually cast ballots."],
- "final-reveal":["FINAL REVEAL","Check the board and standings before finishing."],
+ lobby:["SETUP","Create a fake room, form teams, then start. Test Mode auto-finishes team identity when Tutorial starts."],
+ tutorial:["TUTORIAL","Students learn the basic loop. Launch Moment 1 when ready."],
+ build:["TEAM WORKFLOW",(m?.key||"Moment")+": teams auto-flow through submit → vote → selected answer → test. You only reveal the Plot Twist."],
+ twist:["PLOT TWIST","Teams auto-flow through repair → vote → judgment. You only reveal scores/movement."],
+ reveal:["BOARD","Check movement, charms, standings, and bonus behavior before starting the next shared Moment."],
+ "final-build":["FINAL BOSS","Teams build, vote, select, and test automatically."],
+ "final-twist":["FINAL TWIST","Teams repair, vote, and judge automatically."],
+ "final-reveal":["FINAL REVEAL","Check final movement and standings before finishing."],
  complete:["COMPLETE","Reset whenever you want another rehearsal."]
- }[s]||["TEST","Use the sandbox controls below."];return `<section class="phasecard"><div class="label">CURRENT SANDBOX STAGE</div><div class="bigq" style="color:white">${esc(stageName())}${s==="build"||s==="test"||s==="twist"||s==="check"||s==="reveal"?` · MOMENT ${r+1}/3`:""}</div><p><b>${g[0]}:</b> ${g[1]}</p></section>`}
+ }[s]||["TEST","Use the sandbox controls below."];return `<section class="phasecard"><div class="label">CURRENT SANDBOX STAGE</div><div class="bigq" style="color:white">${esc(stageName())}${s==="build"||s==="twist"||s==="reveal"?` · MOMENT ${r+1}/3`:""}</div><p><b>${g[0]}:</b> ${g[1]}</p></section>`}
 function sandboxSubmissions(t){
- const final=String(snap.state.stage).startsWith("final"),key=final?"final":String(snap.state.round||0),r=t.rounds?.[key]||{},s=snap.state.stage,field=(s.includes("twist")||s.includes("check")||s.includes("reveal"))?"repair":"build";
+ const final=String(snap.state.stage).startsWith("final"),key=final?"final":String(snap.state.round||0),r=t.rounds?.[key]||{},s=snap.state.stage,field=(s==="twist"||s==="final-twist"||s==="reveal"||s==="final-reveal")?"repair":"build";
  const rows=Object.values(r[field+"Proposals"]||{}),votes=r[field+"Votes"]||{},counts={};Object.values(votes).forEach(v=>counts[v]=(counts[v]||0)+1);
  if(!rows.length)return `<div class="liveSubs empty"><div class="label">LIVE TEAM SUBMISSIONS</div><p>No ${field==="repair"?"repair":"answer"} submissions yet. Open a Play As tab and submit one to see it here.</p></div>`;
  const max=Math.max(0,...rows.map(x=>counts[x.id]||0)),voted=Object.keys(votes).length,total=t.members?.length||0;
