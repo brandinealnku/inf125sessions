@@ -49,7 +49,7 @@ jobs:
           echo "Checking Context Quest shared API"
           curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/api/session/context-quest-live/cq/snapshot" | grep -q '"stage"'
           echo "Checking team runtime"
-          CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js")"
+          CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js?verify=$GITHUB_SHA")"
           echo "$CQ_JS" | grep -q 'LIVE CLASSROOM PARTY GAME'
           echo "$CQ_JS" | grep -q 'FORM BALANCED VIRTUAL TEAMS' || true
           echo "$CQ_JS" | grep -q 'YOUR DEVICE = YOUR CONTROLLER'
