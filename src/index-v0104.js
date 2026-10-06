@@ -374,6 +374,7 @@ export default {
     if (path === '/pilot-report') { const u = new URL('/pilot-report-v01021.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest' || path === '/context-quest/team' || path === '/inf128-context-quest') { const u = new URL('/context-quest.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest/instructor') { const u = new URL('/context-quest-instructor.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/context-quest/test') { const u = new URL('/context-quest-test.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest/board') { const u = new URL('/context-quest-board.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest.js') { const u = new URL('/context-quest.js', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/midterm-quest' || path === '/review') { const u = new URL('/midterm-quest.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
