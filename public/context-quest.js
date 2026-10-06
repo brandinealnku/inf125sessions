@@ -17,10 +17,28 @@ function mast(body){const t=team(),p=me();return `<header class="mast"><div><div
 function joinScreen(){$("#app").innerHTML=mast(`<section class="panel hero"><div class="tiny">LIVE CLASSROOM PARTY GAME</div><h1>EVERYONE<br>PLAYS.</h1><p>Join on your own device. Context Quest will put you on a virtual team, give you a rotating role, and turn the whole room into one shared AI challenge.</p></section><section class="panel"><div class="label">YOUR NAME OR NICKNAME</div><input id="playerName" class="field" maxlength="50" placeholder="e.g. Brandi" value="${esc(local.name)}"><div class="label" style="margin-top:16px">HOW DO YOU WANT TO JOIN?</div><div class="actions"><button class="btn purple" onclick="joinGame('play')">🎮 PLAY</button><button class="btn soft" onclick="joinGame('watch')">👀 WATCH</button></div><p><b>PLAY</b> puts you on a team. <b>WATCH</b> gives faculty, staff, and visitors a live spectator view without affecting the competition.</p></section>`)}
 async function joinGame(mode){const name=$("#playerName").value.trim();if(!name)return toast("Add your name or nickname.");local.name=name;local.mode=mode;save();await req("/join",{method:"POST",body:JSON.stringify({playerId:local.playerId,name,mode})});await refresh(true)}
 function teamLobby(){
- const t=team(),p=me();
+ const t=team();
  if(!snap.state.teamsFormed)return mast(`<section class="panel wait"><div class="icon">🎲</div><div class="label">YOU'RE IN</div><h2>Waiting for virtual teams.</h2><p>${snap.playing||0} players are ready. Your Game Master will form balanced teams when the room is set.</p></section>`);
  const members=(t?.members||[]).map(m=>`<span class="mini">${esc(m.name)}</span>`).join("");
- return mast(`<section class="panel hero"><div class="tiny">TEAM ASSIGNMENT</div><h1 style="color:${t?.color||"var(--purple)"}">${esc(t?.name||"YOUR TEAM")}</h1><p>You were grouped automatically. Find these people in the room and sit/turn toward each other.</p></section><section class="panel"><div class="label">YOUR TEAM</div><div class="actions">${members}</div><div class="success"><b>Your first role:</b> ${esc(role())}<br><span style="font-weight:700">${esc(ROLE_HELP[role()]||"")}</span></div><p>The role rotates every round. It gives you a lens—not exclusive control. Everyone still gets to contribute and vote.</p></section>`);
+ const used=new Set((snap.teams||[]).filter(x=>x.id!==t.id&&x.charm).map(x=>x.charm));
+ const charms=(snap.charms||["🚀","🤖","💡","🧭","🎮","🔍","⚡","🧠","🛸","🎲","🧩","🦾"]).map(ch=>{
+   const taken=used.has(ch),selected=(local.teamDraftCharm||t.charm)===ch;
+   return `<button class="charmpick ${selected?"selected":""}" ${taken?"disabled":""} onclick="chooseCharm('${ch}')"><span>${ch}</span><small>${taken?"TAKEN":selected?"SELECTED":"CHOOSE"}</small></button>`;
+ }).join("");
+ return mast(`<section class="panel hero teamsetupHero"><div class="tiny">TEAM SETUP</div><div class="charmHero">${esc(t?.charm||local.teamDraftCharm||"🎲")}</div><h1 style="color:${t?.color||"var(--purple)"}">${esc(t?.name||"YOUR TEAM")}</h1><p>Find your teammates, then decide together: <b>What are you called, and what charm represents you on the board?</b></p></section>
+ <section class="panel"><div class="label">YOUR TEAMMATES</div><div class="actions">${members}</div>
+ <div class="setupgrid"><div><div class="label">1 · CHOOSE YOUR TEAM NAME</div><input id="teamNameChoice" class="field" maxlength="32" value="${esc(local.teamDraftName||t?.name||"")}" placeholder="Name your team"><p class="tiny">Any teammate can save the choice. Talk first—changes sync to everyone.</p></div>
+ <div><div class="label">2 · CHOOSE A CHARM</div><div class="charmgrid">${charms}</div></div></div>
+ <div class="actions"><button class="btn purple" onclick="saveTeamIdentity()">SAVE TEAM NAME + CHARM →</button></div>
+ ${t?.customized?`<div class="success"><b>${esc(t.charm)} ${esc(t.name)} is ready for the board.</b> Your Game Master will start the tutorial when all teams are set.</div>`:""}
+ </section><section class="panel"><div class="label">YOUR FIRST ROLE</div><div class="success"><b>${esc(role())}</b><br><span style="font-weight:700">${esc(ROLE_HELP[role()]||"")}</span></div><p>The role rotates every round. It gives you a lens—not exclusive control.</p></section>`);
+}
+function chooseCharm(ch){local.teamDraftCharm=ch;const name=$("#teamNameChoice");if(name)local.teamDraftName=name.value;save();teamLobby()}
+async function saveTeamIdentity(){
+ const name=$("#teamNameChoice")?.value.trim(),charm=local.teamDraftCharm||team()?.charm;
+ if(!name)return toast("Choose a team name.");
+ if(!charm)return toast("Choose a charm.");
+ try{await req("/team-customize",{method:"POST",body:JSON.stringify({playerId:local.playerId,name,charm})});local.teamDraftName="";local.teamDraftCharm="";save();toast("Team identity saved!");await refresh(true)}catch(e){toast(e.message)}
 }
 function spectator(){
  const st=snap.state.stage,t=[...(snap.teams||[])].sort((a,b)=>(b.position||0)-(a.position||0));const phase=D.stages[st]||st;
