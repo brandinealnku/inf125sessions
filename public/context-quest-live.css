@@ -81,3 +81,12 @@
 .bonusAward{border:3px solid var(--ink);border-radius:16px;background:#fff4c5;padding:12px;font-weight:900}
 
 .testModeBanner{margin:14px 0;border:4px solid var(--red);border-radius:16px;background:#ffe0da;color:#7d201b;padding:12px 16px;text-align:center;font-weight:1000;letter-spacing:.04em;box-shadow:0 5px 0 #7d201b}
+
+.facilitator{border-color:var(--teal);background:linear-gradient(180deg,#fbfffe,#f2fbf8)}
+.facilitatorHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.facilitatorHead .bigq{margin-bottom:4px}
+.facilGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.facilGrid>div{border:3px solid var(--ink);border-radius:16px;background:white;padding:14px;box-shadow:0 4px 0 #0002}
+.facilGrid b{font-size:11px;letter-spacing:.1em;color:var(--purple)}
+.facilGrid p{margin:7px 0 0;line-height:1.45}
+@media(max-width:820px){.facilGrid{grid-template-columns:1fr}}
