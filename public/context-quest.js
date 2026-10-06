@@ -1,4 +1,4 @@
-const API="/api/session/context-quest-live/cq",D=window.CQ_DATA,$=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const SESSION_KEY=new URLSearchParams(location.search).get("session")||"context-quest-live";const API="/api/session/"+encodeURIComponent(SESSION_KEY)+"/cq",D=window.CQ_DATA,$=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const TEST_PLAYER_ID=new URLSearchParams(location.search).get("testPlayer");
 const PLAYER_STORE=TEST_PLAYER_ID?sessionStorage:localStorage;
 const PLAYER_STORE_KEY=TEST_PLAYER_ID?"cq-test-player-"+TEST_PLAYER_ID:"cq-player-v2";
