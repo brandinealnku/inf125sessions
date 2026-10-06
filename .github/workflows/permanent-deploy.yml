@@ -134,5 +134,5 @@ jobs:
           echo "$INST_DOM" | grep -q "SIMULATE CURRENT PHASE"
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
-          echo "$BOARD_DOM" | grep -q "EVERYONE JOIN"
+          echo "$BOARD_DOM" | grep -q "PLAYING"
           echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
