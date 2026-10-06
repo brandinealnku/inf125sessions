@@ -29,6 +29,7 @@ jobs:
           node --check public/context-quest.js
           node --check public/context-quest-instructor.js
           node --check public/context-quest-board.js
+          node --check public/context-quest-test.js
           node --check public/context-quest-data.js
       - name: Deploy Worker to Cloudflare account
         env:
@@ -42,7 +43,7 @@ jobs:
             echo "Checking https://classroom.itsbadlabs.com/$path"
             curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
-          for path in context-quest context-quest/instructor context-quest/board; do
+          for path in context-quest context-quest/instructor context-quest/board context-quest/test; do
             echo "Checking https://classroom.itsbadlabs.com/$path"
             curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
@@ -67,7 +68,17 @@ jobs:
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           echo "$INST_JS" | grep -q 'TEST MODE IS ON'
           echo "$INST_JS" | grep -q 'TURN TEST MODE ON'
-          echo "Context Quest multiplayer routes, API, and runtimes are reachable."
+          echo "Checking instructor facilitation runtime"
+          INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
+          echo "$INST_JS" | grep -q 'FACILITATION GUIDE'
+          echo "$INST_JS" | grep -q 'OPEN TEST SANDBOX'
+          echo "$INST_JS" | grep -q 'ADVANCE WHEN'
+          echo "Checking isolated test sandbox runtime"
+          TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
+          echo "$TEST_JS" | grep -q 'context-quest-sandbox'
+          echo "$TEST_JS" | grep -q 'SAFE REHEARSAL ENVIRONMENT'
+          echo "$TEST_JS" | grep -q 'SIMULATE CURRENT PHASE'
+          echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
       - name: Verify Context Quest individual-player game flow
         run: |
           set -e
@@ -144,6 +155,17 @@ jobs:
           curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"position":3'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
           echo "Context Quest individual join → virtual teams → proposal → repair → ballots → movement flow passed."
+      - name: Verify Context Quest isolated test sandbox
+        run: |
+          set -e
+          SANDBOX="https://classroom.itsbadlabs.com/api/session/context-quest-sandbox/cq"
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$SANDBOX/reset" > /dev/null
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"enabled":true}' "$SANDBOX/test-mode" | grep -q '"testMode":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"count":10,"watchers":2}' "$SANDBOX/test-players" | grep -q '"created":10'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$SANDBOX/form-teams" | grep -q '"teamsFormed":true'
+          curl --fail --silent --show-error "$SANDBOX/snapshot" | grep -q '"playing":10'
+          curl --fail --silent --show-error "$SANDBOX/snapshot" | grep -q '"testMode":true'
+          echo "Context Quest sandbox uses its own session and can create a rehearsal room."
       - name: Verify Context Quest renders in a browser
         run: |
           set -e
