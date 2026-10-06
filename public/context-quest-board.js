@@ -10,7 +10,7 @@ async function req(){const r=await fetch(API+"/snapshot");return r.json()}
 function mast(body){return `<header class="mast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">LIVE CLASSROOM BOARD</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="pill">🎮 ${snap?.playing||0} PLAYING</div><div class="pill">👀 ${snap?.watching||0} WATCHING</div></div></header>${body}`}
 function phaseData(){
  const s=snap.state.stage,r=D.rounds[snap.state.round];let title=D.stages[s]||s,sub="";
- if(["build","test","twist","check","reveal"].includes(s)){title=`MOMENT ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?r.title:s==="test"?"Teams are testing the answer they voted forward.":s==="twist"?r.twist:s==="check"?"Audience · goal · constraints · evidence":s==="reveal"?"MOVEMENT REVEAL!":""}
+ if(["build","test","twist","check","reveal"].includes(s)){title=`MOMENT ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?"Teams are working at their own pace. When ready, they wait for the shared Plot Twist.":s==="test"?"Teams are testing the answer they voted forward.":s==="twist"?"PLOT TWIST: "+r.twist:s==="check"?"Audience · goal · constraints · evidence":s==="reveal"?"MOVEMENT REVEAL!":""}
  if(s==="lobby"){title=snap.state.teamsFormed?"CUSTOMIZE YOUR TEAM":"EVERYONE JOIN";sub=snap.state.teamsFormed?"Choose your team name + charm on your device.":"classroom.itsbadlabs.com/context-quest · choose PLAY or WATCH"}
  if(s==="tutorial"){title="TUTORIAL";sub="Learn the game by playing it."}
  if(s==="final-build"){title="👾 FINAL CHALLENGE";sub="Build the whole interaction."}
@@ -23,7 +23,7 @@ function phaseData(){
 }
 function centerPanel(){
  const {title,sub}=phaseData(),teams=[...(snap.teams||[])].sort((a,b)=>(b.position||0)-(a.position||0));
- const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>${t.position||0} spaces${(t.awards||[]).length?` · 🏅 ${t.awards.length}`:""}</small></span></div>`).join("");
+ const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>${t.position||0} spaces · ${esc((t.progressPhase||"waiting").replaceAll("-"," ").toUpperCase())}${(t.awards||[]).length?` · 🏅 ${t.awards.length}`:""}</small></span></div>`).join("");
  return `<div class="boardCenter"><div class="tiny">CONTEXT QUEST</div><div class="boardCenterTitle">${esc(title)}</div><p>${esc(sub)}</p><div class="boardCenterTeams">${chips||'<span class="mini">Waiting for teams…</span>'}</div></div>`
 }
 function boardSpace(i){
