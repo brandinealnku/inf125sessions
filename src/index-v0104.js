@@ -229,6 +229,10 @@ export class ClassroomSession extends BaseClassroomSession {
       const b=await request.json().catch(()=>({})),current=await cqState(),teams=await cqTeams(),players=await cqPlayers();let next={...current,updatedAt:Date.now()};
       const allowed=['lobby','tutorial','build','test','twist','check','reveal','final-build','final-test','final-twist','final-check','final-reveal','complete'];
       const oldStage=current.stage;if(allowed.includes(b.stage))next.stage=b.stage;if(Number.isFinite(b.round))next.round=Math.max(0,Math.min(4,Number(b.round)));if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
+      if(oldStage==='lobby'&&next.stage==='tutorial'){
+        const unfinished=Object.values(teams).filter(t=>!t.customized);
+        if(unfinished.length)return json({error:`Waiting for ${unfinished.map(t=>t.name).join(', ')} to choose a team name and charm.`},409);
+      }
       const oldFinal=String(oldStage).startsWith('final'),oldKey=cqRoundKey(current.round,oldFinal);
       if((oldStage==='build'&&next.stage==='test')||(oldStage==='final-build'&&next.stage==='final-test')){
         for(const t of Object.values(teams)){
