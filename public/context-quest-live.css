@@ -79,3 +79,5 @@
 .weirdPrompt{border:4px solid var(--ink);border-radius:20px;background:linear-gradient(135deg,#fff2aa,#ffd8ef);padding:22px;margin:14px 0;font-size:clamp(26px,4vw,46px);font-weight:1000;line-height:1.05;letter-spacing:-.035em;box-shadow:0 6px 0 var(--ink);transform:rotate(-.4deg)}
 .momentBadge{display:inline-flex;align-items:center;gap:8px;border:3px solid var(--ink);border-radius:999px;background:var(--yellow);padding:8px 12px;font-weight:1000}
 .bonusAward{border:3px solid var(--ink);border-radius:16px;background:#fff4c5;padding:12px;font-weight:900}
+
+.testModeBanner{margin:14px 0;border:4px solid var(--red);border-radius:16px;background:#ffe0da;color:#7d201b;padding:12px 16px;text-align:center;font-weight:1000;letter-spacing:.04em;box-shadow:0 5px 0 #7d201b}
