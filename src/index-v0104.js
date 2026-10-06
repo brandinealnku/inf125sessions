@@ -209,12 +209,20 @@ export class ClassroomSession extends BaseClassroomSession {
       if(b.action==='tutorialDone'){player.tutorialDone=true;}
       if(b.action==='note'){r.notes=r.notes||{};r.notes[id]={playerId:id,name:player.name,text:short(b.text,800),at:now};}
       if(b.action==='proposeBuild'){
-        r.buildProposals=r.buildProposals||{};const pid=id+'-'+now;r.buildProposals[pid]={id:pid,playerId:id,name:player.name,text:short(b.text,5000),at:now};r.status='building';
+        r.buildProposals=r.buildProposals||{};
+        const pid=id+'-build',prev=r.buildProposals[pid],text=short(b.text,5000);
+        r.buildProposals[pid]={id:pid,playerId:id,name:player.name,text,at:prev?.at||now,updatedAt:now};
+        r.buildApproved=false;r.buildApprovedId=null;r.buildApprovedAt=null;r.status='building';
+        cqUpdateCandidate(team,key,'build');
       }
       if(b.action==='voteBuild'){r.buildVotes=r.buildVotes||{};const pid=short(b.proposalId,150);if(r.buildVotes[id]===pid||!pid)delete r.buildVotes[id];else r.buildVotes[id]=pid;cqUpdateCandidate(team,key,'build');}
       if(b.action==='tested'){r.tested=r.tested||{};r.tested[id]=now;r.status='tested';}
       if(b.action==='proposeRepair'){
-        r.repairProposals=r.repairProposals||{};const pid=id+'-'+now;r.repairProposals[pid]={id:pid,playerId:id,name:player.name,text:short(b.text,5000),at:now};r.status='repairing';
+        r.repairProposals=r.repairProposals||{};
+        const pid=id+'-repair',prev=r.repairProposals[pid],text=short(b.text,5000);
+        r.repairProposals[pid]={id:pid,playerId:id,name:player.name,text,at:prev?.at||now,updatedAt:now};
+        r.repairApproved=false;r.repairApprovedId=null;r.repairApprovedAt=null;r.status='repairing';
+        cqUpdateCandidate(team,key,'repair');
       }
       if(b.action==='voteRepair'){r.repairVotes=r.repairVotes||{};const pid=short(b.proposalId,150);if(r.repairVotes[id]===pid||!pid)delete r.repairVotes[id];else r.repairVotes[id]=pid;cqUpdateCandidate(team,key,'repair');}
       if(b.action==='checks'){const checks=Array.isArray(b.checks)?b.checks.slice(0,4).map(Boolean):[];r.checkBallots=r.checkBallots||{};r.checkBallots[id]={playerId:id,name:player.name,checks,at:now};r.status='checking';}
