@@ -61,6 +61,9 @@ jobs:
           echo "$CQ_JS" | grep -q 'SPOT THE PROBLEMS'
           echo "$CQ_JS" | grep -q 'CHOOSE A CHARM'
           echo "$CQ_JS" | grep -q 'SAVE TEAM NAME + CHARM'
+          echo "$CQ_JS" | grep -q 'CONTEXT MATCH'
+          echo "$CQ_JS" | grep -q 'MOMENT'
+          echo "$CQ_JS" | grep -q 'FINAL BOSS'
           echo "Context Quest multiplayer routes, API, and runtimes are reachable."
       - name: Verify Context Quest individual-player game flow
         run: |
