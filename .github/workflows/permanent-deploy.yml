@@ -65,6 +65,8 @@ jobs:
           echo "$CQ_JS" | grep -q 'CONTEXT MATCH'
           echo "$CQ_JS" | grep -q 'MOMENT'
           echo "$CQ_JS" | grep -q 'FINAL BOSS'
+          echo "$CQ_JS" | grep -q 'HOW TO PLAY'
+          echo "$CQ_JS" | grep -q 'one active answer'
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           echo "$INST_JS" | grep -q 'TEST MODE IS ON'
           echo "$INST_JS" | grep -q 'TURN TEST MODE ON'
@@ -73,6 +75,8 @@ jobs:
           echo "$INST_JS" | grep -q 'FACILITATION GUIDE'
           echo "$INST_JS" | grep -q 'OPEN TEST SANDBOX'
           echo "$INST_JS" | grep -q 'ADVANCE WHEN'
+          echo "$INST_JS" | grep -q 'FACULTY QUICK START'
+          echo "$INST_JS" | grep -q 'highest-voted team answer'
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
@@ -112,7 +116,9 @@ jobs:
           curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"watching":1'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
           P1_BUILD="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeBuild","text":"Explain AI clearly to a first-year student."}' "$BASE/player-action")"
-          P1_ID="$(printf '%s' "$P1_BUILD" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.buildProposals).find(p=>p.playerId==="p1");process.stdout.write(x.id)})')"
+          P1_BUILD_UPDATED="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeBuild","text":"UPDATED: Explain AI clearly to a first-year student with one school example."}' "$BASE/player-action")"
+          printf '%s' "$P1_BUILD_UPDATED" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],rows=Object.values(r.buildProposals).filter(p=>p.playerId==="p1");if(rows.length!==1)process.exit(1);if(!rows[0].text.startsWith("UPDATED:"))process.exit(2)})'
+          P1_ID="$(printf '%s' "$P1_BUILD_UPDATED" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.buildProposals).find(p=>p.playerId==="p1");process.stdout.write(x.id)})')"
           P2_BUILD="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","action":"proposeBuild","text":"Explain AI simply with one school example."}' "$BASE/player-action")"
           P2_ID="$(printf '%s' "$P2_BUILD" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.buildProposals).find(p=>p.playerId==="p2");process.stdout.write(x.id)})')"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p1\",\"action\":\"voteBuild\",\"proposalId\":\"$P1_ID\"}" "$BASE/player-action" > /dev/null
