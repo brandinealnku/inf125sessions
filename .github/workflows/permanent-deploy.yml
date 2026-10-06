@@ -170,9 +170,14 @@ jobs:
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "INSTRUCTOR DOM bytes: ${#INST_DOM}"
           echo "$INST_DOM" | grep -q "GAME MASTER" || { echo "Instructor surface missing Game Master render"; exit 1; }
-          echo "$INST_DOM" | grep -q "INSTRUCTOR TEST LAB" || { echo "Instructor Test Lab did not render"; exit 1; }
+          echo "$INST_DOM" | grep -q "FACILITATION GUIDE" || { echo "Instructor facilitation guide did not render"; exit 1; }
+          echo "$INST_DOM" | grep -q "OPEN TEST SANDBOX" || { echo "Instructor test sandbox link did not render"; exit 1; }
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD" || { echo "Board header did not render"; exit 1; }
           echo "$BOARD_DOM" | grep -Eq "EVERYONE JOIN|CUSTOMIZE YOUR TEAM|CONTEXT QUEST|MOMENT|FINAL" || { echo "Board state did not render"; exit 1; }
-          echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
+          TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
+          echo "TEST DOM bytes: ${#TEST_DOM}"
+          echo "$TEST_DOM" | grep -q "TEST SANDBOX" || { echo "Test sandbox header did not render"; exit 1; }
+          echo "$TEST_DOM" | grep -q "SAFE REHEARSAL ENVIRONMENT" || { echo "Test sandbox controls did not render"; exit 1; }
+          echo "Context Quest team, instructor, projected board, and isolated test sandbox all executed successfully."
