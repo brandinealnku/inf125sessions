@@ -1,7 +1,12 @@
 const API="/api/session/context-quest-live/cq",D=window.CQ_DATA,$=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-let local=JSON.parse(localStorage.getItem("cq-player-v2")||"null")||{playerId:(crypto.randomUUID?crypto.randomUUID():"p-"+Date.now()+"-"+Math.random().toString(36).slice(2)),name:"",mode:"play",tutorial:0},snap=null,lastSig="",poller=null;
+const TEST_PLAYER_ID=new URLSearchParams(location.search).get("testPlayer");
+const PLAYER_STORE=TEST_PLAYER_ID?sessionStorage:localStorage;
+const PLAYER_STORE_KEY=TEST_PLAYER_ID?"cq-test-player-"+TEST_PLAYER_ID:"cq-player-v2";
+let local=JSON.parse(PLAYER_STORE.getItem(PLAYER_STORE_KEY)||"null")||{playerId:TEST_PLAYER_ID||(crypto.randomUUID?crypto.randomUUID():"p-"+Date.now()+"-"+Math.random().toString(36).slice(2)),name:"",mode:"play",tutorial:0};
+if(TEST_PLAYER_ID){local.playerId=TEST_PLAYER_ID;local.mode="play";local.testPersona=true}
+let snap=null,lastSig="",poller=null;
 const ROLE_HELP={"PROMPT BUILDER":"Push the team toward a clear, usable prompt.","CONTEXT DETECTIVE":"Hunt for missing context that changes what good looks like.","SKEPTIC":"Challenge unsupported claims, assumptions, and false confidence.","CHAOS CAPTAIN":"Plan how the team will adapt when the situation changes.","JUDGE":"Keep the team honest about whether the AI response actually works."};
-function save(){localStorage.setItem("cq-player-v2",JSON.stringify(local))}
+function save(){PLAYER_STORE.setItem(PLAYER_STORE_KEY,JSON.stringify(local))}
 function toast(t){const e=$("#toast");if(!e)return;e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1700)}
 async function req(path,opts={}){const r=await fetch(API+path,{headers:{"content-type":"application/json"},...opts});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
 function me(){return snap?.players?.find(p=>p.id===local.playerId)||null}
@@ -93,4 +98,20 @@ async function refresh(force=false){
  }catch(e){console.error(e)}
 }
 async function heartbeat(){if(!local.name)return;try{await req("/heartbeat",{method:"POST",body:JSON.stringify({playerId:local.playerId})})}catch(_){}}
-save();if(local.name){req("/join",{method:"POST",body:JSON.stringify({playerId:local.playerId,name:local.name,mode:local.mode})}).then(()=>refresh(true));poller=setInterval(refresh,900);setInterval(heartbeat,15000)}else joinScreen();
+async function boot(){
+ if(TEST_PLAYER_ID){
+   try{
+     snap=await req("/snapshot");
+     const p=snap.players?.find(x=>x.id===TEST_PLAYER_ID&&x.isTest);
+     if(!p){$("#app").innerHTML=mast('<section class="panel wait"><div class="icon">🧪</div><h2>Test player not found.</h2><p>Create test players from the instructor Test Lab, then open a Play as Test Player link.</p></section>');return}
+     local.playerId=p.id;local.name=p.name;local.mode="play";local.testPersona=true;save();
+     await req("/join",{method:"POST",body:JSON.stringify({playerId:local.playerId,name:local.name,mode:"play"})});
+     await refresh(true);
+   }catch(e){console.error(e);joinScreen()}
+ }else if(local.name){
+   await req("/join",{method:"POST",body:JSON.stringify({playerId:local.playerId,name:local.name,mode:local.mode})});
+   await refresh(true);
+ }else joinScreen();
+ poller=setInterval(refresh,900);setInterval(heartbeat,15000);
+}
+boot();
