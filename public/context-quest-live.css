@@ -90,3 +90,11 @@
 .facilGrid b{font-size:11px;letter-spacing:.1em;color:var(--purple)}
 .facilGrid p{margin:7px 0 0;line-height:1.45}
 @media(max-width:820px){.facilGrid{grid-template-columns:1fr}}
+
+.playerGuide,.facultyQuick{border-color:var(--purple);background:#fbf9ff}
+.playerGuide summary,.facultyQuick summary{cursor:pointer;font-weight:900}
+.playerGuideGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.playerGuideGrid>div{border:3px solid var(--ink);border-radius:14px;background:white;padding:13px;box-shadow:0 4px 0 #0002}
+.playerGuideGrid b{font-size:11px;letter-spacing:.08em;color:var(--purple)}
+.playerGuideGrid p{margin:7px 0 0;line-height:1.45}
+@media(max-width:820px){.playerGuideGrid{grid-template-columns:1fr}}
