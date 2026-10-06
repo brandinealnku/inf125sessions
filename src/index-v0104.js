@@ -255,7 +255,12 @@ export class ClassroomSession extends BaseClassroomSession {
     }
     if(url.pathname.endsWith('/cq/bonus')&&method==='POST'){
       const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80),team=teams[id];if(!team)return json({error:'Team not found'},404);
-      const delta=Math.max(-1,Math.min(1,Number(b.delta)||0));team.position=Math.max(0,(Number(team.position)||0)+delta);team.totalPoints=Math.max(0,(Number(team.totalPoints)||0)+delta);team.bonus=(Number(team.bonus)||0)+delta;teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team});
+      const delta=Math.max(-1,Math.min(1,Number(b.delta)||0)),label=short(b.label||'',80),now=Date.now();
+      team.position=Math.max(0,(Number(team.position)||0)+delta);team.totalPoints=Math.max(0,(Number(team.totalPoints)||0)+delta);team.bonus=(Number(team.bonus)||0)+delta;
+      team.awards=Array.isArray(team.awards)?team.awards:[];
+      if(delta>0&&label)team.awards.push({label,at:now,round:(await cqState()).round});
+      if(delta<0&&team.awards.length)team.awards.pop();
+      teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team});
     }
     if(url.pathname.endsWith('/cq/reset')&&method==='POST'){
       await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');await this.state.storage.delete('cqPlayers');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
