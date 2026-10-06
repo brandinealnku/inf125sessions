@@ -59,6 +59,8 @@ jobs:
           echo "$CQ_JS" | grep -q 'PICK THE BEST PROMPT'
           echo "$CQ_JS" | grep -q 'ONLY YOU SEE THIS'
           echo "$CQ_JS" | grep -q 'SPOT THE PROBLEMS'
+          echo "$CQ_JS" | grep -q 'CHOOSE A CHARM'
+          echo "$CQ_JS" | grep -q 'SAVE TEAM NAME + CHARM'
           echo "Context Quest multiplayer routes, API, and runtimes are reachable."
       - name: Verify Context Quest individual-player game flow
         run: |
@@ -80,6 +82,8 @@ jobs:
           done
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"watcher","name":"Guest","mode":"watch"}' "$BASE/join" | grep -q '"mode":"watch"'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$BASE/form-teams" | grep -q '"teamsFormed":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","name":"Rocket Scholars","charm":"🚀"}' "$BASE/team-customize" | grep -q '"customized":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","name":"Robot Rebels","charm":"🤖"}' "$BASE/team-customize" | grep -q '"customized":true'
           curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"playing":4'
           curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"watching":1'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
@@ -134,5 +138,6 @@ jobs:
           echo "$INST_DOM" | grep -q "SIMULATE CURRENT PHASE"
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
-          echo "$BOARD_DOM" | grep -q "PLAYING"
+          echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
+          echo "$BOARD_DOM" | grep -q "CONTEXT QUEST"
           echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
