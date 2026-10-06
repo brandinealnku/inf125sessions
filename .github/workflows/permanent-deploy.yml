@@ -77,11 +77,13 @@ jobs:
           echo "$INST_JS" | grep -q 'ADVANCE WHEN'
           echo "$INST_JS" | grep -q 'FACULTY QUICK START'
           echo "$INST_JS" | grep -q 'highest-voted team answer'
+          echo "$INST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
           echo "$TEST_JS" | grep -q 'SAFE REHEARSAL ENVIRONMENT'
           echo "$TEST_JS" | grep -q 'SIMULATE CURRENT PHASE'
+          echo "$TEST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
       - name: Verify Context Quest individual-player game flow
         run: |
