@@ -55,6 +55,10 @@ jobs:
           echo "$CQ_JS" | grep -q 'YOUR DEVICE = YOUR CONTROLLER'
           echo "$CQ_JS" | grep -q 'function isEditing'
           echo "$CQ_JS" | grep -q 'REMOVE MY VOTE'
+          echo "$CQ_JS" | grep -q 'MAD LIBS PROMPT'
+          echo "$CQ_JS" | grep -q 'PICK THE BEST PROMPT'
+          echo "$CQ_JS" | grep -q 'ONLY YOU SEE THIS'
+          echo "$CQ_JS" | grep -q 'SPOT THE PROBLEMS'
           echo "Context Quest multiplayer routes, API, and runtimes are reachable."
       - name: Verify Context Quest individual-player game flow
         run: |
