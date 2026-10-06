@@ -31,3 +31,21 @@
   .panel{padding:18px 16px}
   .success{font-size:15px}
 }
+
+.choicegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.choicecard{display:flex;flex-direction:column;gap:7px;text-align:left;border:3px solid var(--ink);border-radius:16px;background:white;padding:15px;box-shadow:0 4px 0 var(--ink);cursor:pointer;color:var(--ink);min-height:110px}
+.choicecard:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--ink)}
+.choicecard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.choicecard b{font-size:18px}.choicecard span{line-height:1.35}
+.checkboxcard{flex-direction:row;align-items:flex-start}.checkboxcard input{width:22px;height:22px;flex:none;margin-top:2px}
+.madlib{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:3px solid var(--ink);border-radius:18px;background:#fff3c8;padding:16px;font-weight:900;font-size:18px}
+.madlib .field{width:auto;min-width:220px;flex:1}
+.madlib.stack{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+.madlib.stack label{display:grid;gap:6px;font-size:12px;letter-spacing:.08em}
+.madlib.stack .field{width:100%;min-width:0}
+.secretcard{border:4px dashed var(--purple);border-radius:18px;background:#efe9ff;padding:18px;margin:14px 0;box-shadow:0 5px 0 #2b234133}
+.secretcard .bigq{margin-bottom:8px}
+.aianswer{border:4px solid var(--ink);border-radius:18px;background:#eef3ff;padding:18px;margin:14px 0;box-shadow:0 5px 0 #0002}
+.aianswer p{font-size:20px;line-height:1.45;font-weight:800;margin:8px 0}
+.promptPreview{border:3px solid var(--ink);border-radius:16px;background:#e7f5ec;padding:16px;margin:14px 0;font-size:17px;line-height:1.5;font-weight:800;white-space:pre-wrap}
+@media(max-width:820px){.choicegrid{grid-template-columns:1fr}.madlib.stack{grid-template-columns:1fr}.madlib .field{min-width:100%;width:100%}}
