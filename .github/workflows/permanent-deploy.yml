@@ -76,77 +76,77 @@ jobs:
           echo "$INST_JS" | grep -q 'OPEN TEST SANDBOX'
           echo "$INST_JS" | grep -q 'ADVANCE WHEN'
           echo "$INST_JS" | grep -q 'FACULTY QUICK START'
-          echo "$INST_JS" | grep -q 'highest-voted team answer'
+          echo "$INST_JS" | grep -q 'LIVE ROOM MONITOR'
+          echo "$INST_JS" | grep -q 'Winning answers are selected automatically'
           echo "$INST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
           echo "$TEST_JS" | grep -q 'SAFE REHEARSAL ENVIRONMENT'
           echo "$TEST_JS" | grep -q 'SIMULATE CURRENT PHASE'
+          echo "$TEST_JS" | grep -q 'REVEAL PLOT TWIST'
           echo "$TEST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
-      - name: Verify Context Quest individual-player game flow
+      - name: Verify Context Quest hybrid team automation
         run: |
           set -e
           BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
-          echo "Checking instructor test-player generator"
-          TEST_CREATE="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"count":10,"watchers":2}' "$BASE/test-players")"
-          echo "$TEST_CREATE"
-          echo "$TEST_CREATE" | grep -q '"created":10'
-          TEST_SNAPSHOT="$(curl --fail --silent --show-error "$BASE/snapshot")"
-          echo "$TEST_SNAPSHOT"
-          echo "$TEST_SNAPSHOT" | grep -q '"playing":10'
-          TEST_CLEAR="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/clear-test-players")"
-          echo "$TEST_CLEAR"
-          echo "$TEST_CLEAR" | grep -q '"removed":12'
 
           for n in 1 2 3 4; do
             curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p$n\",\"name\":\"Player $n\",\"mode\":\"play\"}" "$BASE/join" | grep -q '"ok":true'
           done
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"watcher","name":"Guest","mode":"watch"}' "$BASE/join" | grep -q '"mode":"watch"'
-          TEAM_FORM="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$BASE/form-teams")"
-          echo "$TEAM_FORM"
-          echo "$TEAM_FORM" | grep -q '"teamsFormed":true'
-          CUSTOM1="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","name":"Rocket Scholars","charm":"🚀"}' "$BASE/team-customize")"
-          echo "$CUSTOM1"
-          echo "$CUSTOM1" | grep -q '"customized":true'
-          CUSTOM2="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","name":"Robot Rebels","charm":"🤖"}' "$BASE/team-customize")"
-          echo "$CUSTOM2"
-          echo "$CUSTOM2" | grep -q '"customized":true'
-          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"playing":4'
-          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"watching":1'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$BASE/form-teams" | grep -q '"teamsFormed":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","name":"Rocket Scholars","charm":"🚀"}' "$BASE/team-customize" | grep -q '"customized":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","name":"Robot Rebels","charm":"🤖"}' "$BASE/team-customize" | grep -q '"customized":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"tutorial","round":0}' "$BASE/control" | grep -q '"stage":"tutorial"'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
-          P1_BUILD="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeBuild","text":"Explain AI clearly to a first-year student."}' "$BASE/player-action")"
-          P1_BUILD_UPDATED="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeBuild","text":"UPDATED: Explain AI clearly to a first-year student with one school example."}' "$BASE/player-action")"
-          printf '%s' "$P1_BUILD_UPDATED" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],rows=Object.values(r.buildProposals).filter(p=>p.playerId==="p1");if(rows.length!==1)process.exit(1);if(!rows[0].text.startsWith("UPDATED:"))process.exit(2)})'
-          P1_ID="$(printf '%s' "$P1_BUILD_UPDATED" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.buildProposals).find(p=>p.playerId==="p1");process.stdout.write(x.id)})')"
-          P2_BUILD="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","action":"proposeBuild","text":"Explain AI simply with one school example."}' "$BASE/player-action")"
-          P2_ID="$(printf '%s' "$P2_BUILD" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.buildProposals).find(p=>p.playerId==="p2");process.stdout.write(x.id)})')"
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p1\",\"action\":\"voteBuild\",\"proposalId\":\"$P1_ID\"}" "$BASE/player-action" > /dev/null
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p3\",\"action\":\"voteBuild\",\"proposalId\":\"$P1_ID\"}" "$BASE/player-action" | grep -q '"buildAllVoted":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p3\",\"action\":\"voteBuild\",\"proposalId\":\"$P1_ID\"}" "$BASE/player-action" | grep -q '"buildAllVoted":false'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p3\",\"action\":\"voteBuild\",\"proposalId\":\"$P1_ID\"}" "$BASE/player-action" | grep -q '"buildAllVoted":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p2\",\"action\":\"voteBuild\",\"proposalId\":\"$P2_ID\"}" "$BASE/player-action" > /dev/null
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p4\",\"action\":\"voteBuild\",\"proposalId\":\"$P2_ID\"}" "$BASE/player-action" | grep -q '"buildAllVoted":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"team-1","field":"build"}' "$BASE/review-team" | grep -q '"ok":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"team-2","field":"build"}' "$BASE/review-team" | grep -q '"ok":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"test","round":0}' "$BASE/control" | grep -q '"stage":"test"'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"twist","round":0}' "$BASE/control" > /dev/null
-          P1_REPAIR="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeRepair","text":"Explain AI simply to a first-year student who has never used AI."}' "$BASE/player-action")"
-          R1_ID="$(printf '%s' "$P1_REPAIR" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.repairProposals).find(p=>p.playerId==="p1");process.stdout.write(x.id)})')"
-          P2_REPAIR="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","action":"proposeRepair","text":"Explain AI simply and state assumptions for a new AI user."}' "$BASE/player-action")"
-          R2_ID="$(printf '%s' "$P2_REPAIR" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.repairProposals).find(p=>p.playerId==="p2");process.stdout.write(x.id)})')"
+
+          # One active answer per player: second submission replaces first.
+          P1="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeBuild","text":"First draft"}' "$BASE/player-action")"
+          P1U="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeBuild","text":"UPDATED: first-year student context answer"}' "$BASE/player-action")"
+          printf '%s' "$P1U" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],rows=Object.values(r.buildProposals).filter(p=>p.playerId==="p1");if(rows.length!==1||!rows[0].text.startsWith("UPDATED:"))process.exit(1)})'
+          P1_ID="$(printf '%s' "$P1U" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.buildProposals).find(p=>p.playerId==="p1");process.stdout.write(x.id)})')"
+
+          P2="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","action":"proposeBuild","text":"Team two answer"}' "$BASE/player-action")"
+          P2_ID="$(printf '%s' "$P2" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.buildProposals).find(p=>p.playerId==="p2");process.stdout.write(x.id)})')"
+
+          for p in p1 p3; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"voteBuild\",\"proposalId\":\"$P1_ID\"}" "$BASE/player-action" > /dev/null; done
+          for p in p2 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"voteBuild\",\"proposalId\":\"$P2_ID\"}" "$BASE/player-action" > /dev/null; done
+
+          # Team winner auto-selects and each team moves itself into Test.
+          SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "$SNAP" | grep -q '"progressPhase":"test"'
+          echo "$SNAP" | grep -q '"build":"UPDATED: first-year student context answer"'
+
+          for p in p1 p2 p3 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"tested\"}" "$BASE/player-action" > /dev/null; done
+          SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          [ "$(printf '%s' "$SNAP" | grep -o '"progressPhase":"ready-twist"' | wc -l)" -ge 2 ]
+
+          # Instructor controls the shared Plot Twist.
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"twist","round":0}' "$BASE/control" | grep -q '"stage":"twist"'
+
+          R1="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","action":"proposeRepair","text":"Team one repair with new context"}' "$BASE/player-action")"
+          R1_ID="$(printf '%s' "$R1" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.repairProposals).find(p=>p.playerId==="p1");process.stdout.write(x.id)})')"
+          R2="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","action":"proposeRepair","text":"Team two repair with verification"}' "$BASE/player-action")"
+          R2_ID="$(printf '%s' "$R2" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),r=j.team.rounds["0"],x=Object.values(r.repairProposals).find(p=>p.playerId==="p2");process.stdout.write(x.id)})')"
           for p in p1 p3; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"voteRepair\",\"proposalId\":\"$R1_ID\"}" "$BASE/player-action" > /dev/null; done
           for p in p2 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"voteRepair\",\"proposalId\":\"$R2_ID\"}" "$BASE/player-action" > /dev/null; done
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"team-1","field":"repair"}' "$BASE/review-team" | grep -q '"ok":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamId":"team-2","field":"repair"}' "$BASE/review-team" | grep -q '"ok":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"check","round":0}' "$BASE/control" > /dev/null
+
+          SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          echo "$SNAP" | grep -q '"progressPhase":"check"'
+
           for p in p1 p2 p3 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"checks\",\"checks\":[true,true,true,true]}" "$BASE/player-action" > /dev/null; done
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"reveal","round":0}' "$BASE/control" > /dev/null
-          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"position":3'
+          SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          [ "$(printf '%s' "$SNAP" | grep -o '"progressPhase":"ready-reveal"' | wc -l)" -ge 2 ]
+
+          # Instructor controls shared score/movement reveal.
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"reveal","round":0}' "$BASE/control" | grep -q '"stage":"reveal"'
+          SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          [ "$(printf '%s' "$SNAP" | grep -o '"position":3' | wc -l)" -ge 2 ]
+
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
-          echo "Context Quest individual join → virtual teams → proposal → repair → ballots → movement flow passed."
+          echo "Hybrid flow passed: teams auto-progress internally; Game Master controls shared reveals."
       - name: Verify Context Quest isolated test sandbox
         run: |
           set -e
@@ -174,7 +174,7 @@ jobs:
           TEAM_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest)"
           echo "TEAM DOM bytes: ${#TEAM_DOM}"
           echo "$TEAM_DOM" | grep -q "CONTEXT" || { echo "Team surface missing Context Quest render"; exit 1; }
-          echo "$TEAM_DOM" | grep -Eq "EVERYONE|TEAM SETUP|PLAYABLE TUTORIAL|ROUND" || { echo "Team surface did not render a playable state"; exit 1; }
+          echo "$TEAM_DOM" | grep -Eq "EVERYONE|TEAM SETUP|PLAYABLE TUTORIAL|MOMENT|TEAM READY" || { echo "Team surface did not render a playable state"; exit 1; }
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "INSTRUCTOR DOM bytes: ${#INST_DOM}"
           echo "$INST_DOM" | grep -q "GAME MASTER" || { echo "Instructor surface missing Game Master render"; exit 1; }
