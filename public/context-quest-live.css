@@ -108,3 +108,21 @@
 .facultySubmission.leading{background:#fff3b8;box-shadow:0 4px 0 #d2a61d}
 .facultySubmission p{white-space:pre-wrap;line-height:1.4;overflow-wrap:anywhere;margin:7px 0 0}
 @media(max-width:820px){.facultySubmissionGrid{grid-template-columns:1fr}}
+
+/* Hybrid Game Master progress console */
+.roomMonitor{border-color:var(--blue);background:linear-gradient(180deg,#f8fbff,#eef5ff)}
+.roomMonitorHead{display:grid;grid-template-columns:1fr minmax(220px,420px);gap:18px;align-items:center}
+.roomGauge{height:20px;border:3px solid var(--ink);border-radius:999px;background:white;overflow:hidden}.roomGauge span{display:block;height:100%;background:var(--green);transition:width .25s ease}
+.teamProgressGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.teamProgressMini{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;border:3px solid var(--ink);border-radius:14px;background:white;padding:10px}
+.teamProgressMini.ready{background:#e3f5e9}.teamProgressMini small{display:block;font-size:10px;font-weight:900;color:var(--muted);margin-top:2px}.teamProgressMini strong{font-size:22px}
+.needsAttention{border:3px solid var(--orange);border-radius:14px;background:#fff4dc;padding:12px}.needsList{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.sharedControl{border-color:var(--purple);background:#f7f2ff}.sharedControl .bigq{margin-bottom:8px}
+.progressTeam{transition:.2s}.progressTeam.teamReady{background:#f0fbf3;border-color:#39875a}
+.progressSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.progressStep{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:7px;border:2px solid #cfc8d5;border-radius:12px;background:#f7f3f9;padding:8px}
+.progressStep span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#ded8e3;font-weight:1000}.progressStep.active{border-color:var(--orange);background:#fff5df}.progressStep.active span{background:var(--yellow)}.progressStep.done{border-color:#4d9668;background:#e8f7ed}.progressStep.done span{background:var(--green)}
+.progressStep b{font-size:11px}.progressStep small{font-size:10px;font-weight:900}
+.needsInline{border:2px solid var(--orange);border-radius:12px;background:#fff7e5;padding:9px;font-size:12px}.compact{padding:9px;margin:8px 0}
+.teamDrill{margin-top:10px}.teamDrill>summary{cursor:pointer;font-weight:1000;border:2px solid var(--ink);border-radius:10px;background:white;padding:8px 10px;display:inline-block}
+@media(max-width:820px){.roomMonitorHead{grid-template-columns:1fr}.teamProgressGrid{grid-template-columns:1fr}.progressSteps{grid-template-columns:1fr}}
