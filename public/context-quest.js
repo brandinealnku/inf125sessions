@@ -54,7 +54,7 @@ function tutorial(){
  if(n===1)body=`<div class="label">2 · SEE WHAT CONTEXT DID</div><div class="success"><b>Your choices became a usable prompt.</b></div><div class="promptPreview">${esc(tutorialPrompt())}</div><p>You did not need “magic words.” You gave the AI an audience and a goal.</p><div class="actions"><button class="btn purple" onclick="tutorialNextSimple()">TEST IT →</button></div>`;
  if(n===2)body=`<div class="label">3 · TEST IT</div><div class="success"><b>COPY → OPEN CHATGPT → PASTE → READ</b></div><textarea id="tDraft" class="prompt" readonly>${esc(tutorialPrompt())}</textarea><div class="actions"><button class="btn purple" onclick="copyText('#tDraft')">COPY</button><button class="btn teal" onclick="tutorialNextSimple()">I READ IT →</button></div>`;
  if(n===3)body=`<div class="label">4 · PLOT TWIST</div><div class="chaos"><h3>💥 NEW INFORMATION</h3><b>The student has never used AI before.</b></div><p>What should change?</p><div class="choicegrid"><button class="choicecard" onclick="tutorialTwist('Explain unfamiliar AI terms and do not assume prior experience.')"><b>🧠 Add beginner context</b><span>Explain unfamiliar terms and assume no prior experience.</span></button><button class="choicecard" onclick="tutorialTwist('Use more advanced technical vocabulary.')"><b>🤓 Make it more technical</b><span>Add advanced vocabulary.</span></button><button class="choicecard" onclick="tutorialTwist('Nothing needs to change.')"><b>🤷 Change nothing</b><span>Keep the original prompt.</span></button></div>${local.tTwist?`<div class="promptPreview">${esc(tutorialPrompt()+" "+local.tTwist)}</div><div class="actions"><button class="btn purple" onclick="tutorialNextSimple()">LOCK MY REPAIR →</button></div>`:""}`;
- if(n>=4)body=`<div class="label">5 · YOU KNOW THE LOOP</div><div class="bigq">The wording was not the main problem. The context changed.</div><p>Now the rounds will use different game styles: cards, voting, secret information, error hunting, and finally a full prompt build.</p><div class="actions"><button class="btn green" onclick="finishTutorial()">READY ✓</button></div>`;
+ if(n>=4)body=`<div class="label">5 · YOU KNOW THE LOOP</div><div class="bigq">The wording was not the main problem. The context changed.</div><p>Next come three big game moments: <b>Context Match → Build + Test → Chaos + Repair.</b> Then your team faces the Final Boss.</p><div class="actions"><button class="btn green" onclick="finishTutorial()">READY ✓</button></div>`;
  $("#app").innerHTML=mast(`<section class="panel"><div class="tiny">PLAYABLE TUTORIAL · ${Math.min(n+1,5)} OF 5</div>${body}</section>`);
 }
 function tutorialBuild(){local.tWho=$("#tWho").value;local.tGoal=$("#tGoal").value;local.tutorial=1;save();tutorial()}
@@ -76,6 +76,7 @@ function mySecret(r){
  return r.secrets?.[idx%(r.secrets?.length||1)]||r.secrets?.[0];
 }
 function roundBuildUI(r){
+ if(r.style==="match")return `<div class="label">CONTEXT MATCH</div><div class="weirdPrompt">🎭 “${esc(r.bad)}”</div><p>Which context makes this weird prompt make sense?</p><div class="choicegrid">${r.choices.map((x,i)=>`<button class="choicecard" onclick="selectMatchChoice(${i})"><b>${esc(x.label)}</b><span>${esc(x.text)}</span></button>`).join("")}</div><div id="roundPreview"></div>`;
  if(r.style==="cards")return `<div class="label">PICK AN AUDIENCE CARD</div><div class="choicegrid">${r.choices.map((x,i)=>`<button class="choicecard" onclick="selectRoundChoice(${i})"><b>${esc(x.label)}</b><span>${esc(x.value)}</span></button>`).join("")}</div><div id="roundPreview"></div>`;
  if(r.style==="pickbest")return `<div class="label">PICK THE BEST PROMPT</div><p>Which option gives the AI a real goal—not just a topic?</p><div class="choicegrid">${r.choices.map((x,i)=>`<button class="choicecard" onclick="selectBestChoice(${i})"><b>${esc(x.label)}</b><span>${esc(x.text)}</span></button>`).join("")}</div><div id="roundPreview"></div>`;
  if(r.style==="secret"){
@@ -98,6 +99,7 @@ function previewAndSubmit(text,feedback=""){
  e.innerHTML=`<div class="promptPreview"><div class="tiny">YOUR PROPOSED TEAM ANSWER</div>${esc(text)}</div>${feedback?`<div class="success">${esc(feedback)}</div>`:""}<div class="actions"><button class="btn purple" onclick="submitGeneratedBuild()">SUBMIT THIS TO MY TEAM →</button></div>`;
  local.generatedBuild=text;save();
 }
+function selectMatchChoice(i){const r=D.rounds[snap.state.round],x=r.choices[i],good=i===r.best;previewAndSubmit(x.prompt,(good?"🎯 MATCH! ":"🌀 Funny, but not the best fit. ")+x.why)}
 function selectRoundChoice(i){const r=D.rounds[snap.state.round],x=r.choices[i];previewAndSubmit(x.prompt,`Notice what changed: the audience gave the answer a target.`)}
 function selectBestChoice(i){const r=D.rounds[snap.state.round],x=r.choices[i],good=i===r.best;previewAndSubmit(x.text,(good?"Strong choice. ":"Look again. ")+x.why)}
 function assembleSecretPrompt(){
