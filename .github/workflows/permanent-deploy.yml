@@ -64,6 +64,9 @@ jobs:
           echo "$CQ_JS" | grep -q 'CONTEXT MATCH'
           echo "$CQ_JS" | grep -q 'MOMENT'
           echo "$CQ_JS" | grep -q 'FINAL BOSS'
+          INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
+          echo "$INST_JS" | grep -q 'TEST MODE IS ON'
+          echo "$INST_JS" | grep -q 'TURN TEST MODE ON'
           echo "Context Quest multiplayer routes, API, and runtimes are reachable."
       - name: Verify Context Quest individual-player game flow
         run: |
@@ -80,6 +83,23 @@ jobs:
           TEST_CLEAR="$(curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/clear-test-players")"
           echo "$TEST_CLEAR"
           echo "$TEST_CLEAR" | grep -q '"removed":12'
+
+          echo "Checking instructor Test Mode without student submissions"
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
+          for n in 1 2 3 4; do
+            curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"tm$n\",\"name\":\"Test $n\",\"mode\":\"play\"}" "$BASE/join" > /dev/null
+          done
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$BASE/form-teams" | grep -q '"teamsFormed":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"enabled":true}' "$BASE/test-mode" | grep -q '"testMode":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"tutorial","round":0}' "$BASE/control" | grep -q '"stage":"tutorial"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"test","round":0}' "$BASE/control" | grep -q '"stage":"test"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"twist","round":0}' "$BASE/control" | grep -q '"stage":"twist"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"check","round":0}' "$BASE/control" | grep -q '"stage":"check"'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"reveal","round":0}' "$BASE/control" | grep -q '"stage":"reveal"'
+          curl --fail --silent --show-error "$BASE/snapshot" | grep -q '"position":3'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
+
           for n in 1 2 3 4; do
             curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p$n\",\"name\":\"Player $n\",\"mode\":\"play\"}" "$BASE/join" | grep -q '"ok":true'
           done
