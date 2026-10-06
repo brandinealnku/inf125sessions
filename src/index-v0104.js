@@ -7,7 +7,7 @@ export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
     // Context Quest live classroom game — individual join + virtual teams
-    const cqInitial=()=>({stage:'lobby',round:0,resultsVisible:false,teamsFormed:false,updatedAt:Date.now()});
+    const cqInitial=()=>({stage:'lobby',round:0,resultsVisible:false,teamsFormed:false,testMode:false,updatedAt:Date.now()});
     const cqState=async()=>(await this.state.storage.get('cqState'))||cqInitial();
     const cqTeams=async()=>(await this.state.storage.get('cqTeams'))||{};
     const cqPlayers=async()=>(await this.state.storage.get('cqPlayers'))||{};
@@ -190,6 +190,12 @@ export class ClassroomSession extends BaseClassroomSession {
       teams[team.id]=team;await this.state.storage.put('cqTeams',teams);
       return json({ok:true,team:cqHydrate(team,players,await cqState()),charms:cqCharms});
     }
+    if(url.pathname.endsWith('/cq/test-mode')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),state=await cqState();
+      state.testMode=!!b.enabled;state.updatedAt=Date.now();
+      await this.state.storage.put('cqState',state);
+      return json({ok:true,state});
+    }
     if(url.pathname.endsWith('/cq/heartbeat')&&method==='POST'){
       const b=await request.json().catch(()=>({})),players=await cqPlayers(),id=short(b.playerId,100);
       if(players[id]){players[id].lastSeen=Date.now();await this.state.storage.put('cqPlayers',players)}return json({ok:true});
@@ -225,17 +231,45 @@ export class ClassroomSession extends BaseClassroomSession {
       team.rounds[key]=r;teams[team.id]=team;await this.state.storage.put('cqTeams',teams);
       return json({ok:true,teamId:team.id,field,candidate});
     }
+    const cqTestFillChoice=(team,key,field)=>{
+      team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key],now=Date.now();
+      const propKey=field+'Proposals',voteKey=field+'Votes';
+      r[propKey]=r[propKey]||{};r[voteKey]=r[voteKey]||{};
+      let rows=Object.values(r[propKey]);
+      if(!rows.length){
+        const id='test-auto-'+field+'-'+team.id+'-'+now;
+        const text=field==='build'?'[TEST MODE] Sample team answer for flow testing.':'[TEST MODE] Sample repaired answer for flow testing.';
+        r[propKey][id]={id,playerId:'test-mode',name:'Test Mode',text,at:now};rows=[r[propKey][id]];
+      }
+      const counts={};for(const v of Object.values(r[voteKey]))counts[v]=(counts[v]||0)+1;
+      rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||(a.at||0)-(b.at||0));
+      const winner=rows[0];
+      for(const memberId of team.members||[])if(!r[voteKey][memberId])r[voteKey][memberId]=winner.id;
+      cqUpdateCandidate(team,key,field);
+      r[field+'Approved']=true;r[field+'ApprovedId']=r[field+'Candidate']?.id||winner.id;r[field+'ApprovedAt']=now;
+      return r;
+    };
+    const cqTestFillChecks=(team,key)=>{
+      team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key],now=Date.now();
+      r.checkBallots=r.checkBallots||{};
+      for(const memberId of team.members||[])if(!r.checkBallots[memberId])r.checkBallots[memberId]={playerId:memberId,name:'Test Mode',checks:[true,true,true,true],at:now};
+      return r;
+    };
     if(url.pathname.endsWith('/cq/control')&&method==='POST'){
       const b=await request.json().catch(()=>({})),current=await cqState(),teams=await cqTeams(),players=await cqPlayers();let next={...current,updatedAt:Date.now()};
       const allowed=['lobby','tutorial','build','test','twist','check','reveal','final-build','final-test','final-twist','final-check','final-reveal','complete'];
       const oldStage=current.stage;if(allowed.includes(b.stage))next.stage=b.stage;if(Number.isFinite(b.round))next.round=Math.max(0,Math.min(4,Number(b.round)));if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
       if(oldStage==='lobby'&&next.stage==='tutorial'){
         const unfinished=Object.values(teams).filter(t=>!t.customized);
-        if(unfinished.length)return json({error:`Waiting for ${unfinished.map(t=>t.name).join(', ')} to choose a team name and charm.`},409);
+        if(unfinished.length&&current.testMode){
+          const used=new Set(Object.values(teams).map(t=>t.charm).filter(Boolean));
+          for(const t of unfinished){t.charm=t.charm||cqCharms.find(ch=>!used.has(ch))||'🎲';used.add(t.charm);t.customized=true;t.customizedAt=Date.now();t.customizedBy='test-mode';}
+        }else if(unfinished.length)return json({error:`Waiting for ${unfinished.map(t=>t.name).join(', ')} to choose a team name and charm.`},409);
       }
       const oldFinal=String(oldStage).startsWith('final'),oldKey=cqRoundKey(current.round,oldFinal);
       if((oldStage==='build'&&next.stage==='test')||(oldStage==='final-build'&&next.stage==='final-test')){
         for(const t of Object.values(teams)){
+          if(current.testMode)cqTestFillChoice(t,oldKey,'build');
           const candidate=cqUpdateCandidate(t,oldKey,'build'),r=t.rounds?.[oldKey]||{};
           if(!candidate)return json({error:r.buildTie?`${t.name} has a tied vote. The team must resolve it.`:`${t.name} is still waiting for every member to vote.`},409);
           if(!r.buildApproved||r.buildApprovedId!==candidate.id)return json({error:`${t.name}'s winning answer still needs instructor review.`},409);
@@ -244,13 +278,14 @@ export class ClassroomSession extends BaseClassroomSession {
       }
       if((oldStage==='twist'&&next.stage==='check')||(oldStage==='final-twist'&&next.stage==='final-check')){
         for(const t of Object.values(teams)){
+          if(current.testMode)cqTestFillChoice(t,oldKey,'repair');
           const candidate=cqUpdateCandidate(t,oldKey,'repair'),r=t.rounds?.[oldKey]||{};
           if(!candidate)return json({error:r.repairTie?`${t.name} has a tied repair vote. The team must resolve it.`:`${t.name} is still waiting for every member to vote on a repair.`},409);
           if(!r.repairApproved||r.repairApprovedId!==candidate.id)return json({error:`${t.name}'s winning repair still needs instructor review.`},409);
           cqFinalizeChoice(t,oldKey,'repair');
         }
       }
-      if((oldStage==='check'&&next.stage==='reveal')||(oldStage==='final-check'&&next.stage==='final-reveal'))for(const t of Object.values(teams))cqFinalizeChecks(t,oldKey);
+      if((oldStage==='check'&&next.stage==='reveal')||(oldStage==='final-check'&&next.stage==='final-reveal'))for(const t of Object.values(teams)){if(current.testMode)cqTestFillChecks(t,oldKey);cqFinalizeChecks(t,oldKey);}
       await this.state.storage.put('cqTeams',teams);await this.state.storage.put('cqState',next);return json(next);
     }
     if(url.pathname.endsWith('/cq/bonus')&&method==='POST'){
