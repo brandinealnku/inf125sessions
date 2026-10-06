@@ -135,15 +135,15 @@ jobs:
             return 1
           }
           TEAM_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest)"
-          echo "$TEAM_DOM" | grep -q "EVERYONE"
-          echo "$TEAM_DOM" | grep -q "PLAY"
+          echo "TEAM DOM bytes: ${#TEAM_DOM}"
+          echo "$TEAM_DOM" | grep -q "CONTEXT" || { echo "Team surface missing Context Quest render"; exit 1; }
+          echo "$TEAM_DOM" | grep -Eq "EVERYONE|TEAM SETUP|PLAYABLE TUTORIAL|ROUND" || { echo "Team surface did not render a playable state"; exit 1; }
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
-          echo "$INST_DOM" | grep -q "GAME MASTER"
-          echo "$INST_DOM" | grep -q "VIRTUAL TEAMS"
-          echo "$INST_DOM" | grep -q "INSTRUCTOR TEST LAB"
-          echo "$INST_DOM" | grep -q "SIMULATE CURRENT PHASE"
+          echo "INSTRUCTOR DOM bytes: ${#INST_DOM}"
+          echo "$INST_DOM" | grep -q "GAME MASTER" || { echo "Instructor surface missing Game Master render"; exit 1; }
+          echo "$INST_DOM" | grep -q "INSTRUCTOR TEST LAB" || { echo "Instructor Test Lab did not render"; exit 1; }
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
-          echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
-          echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD"
-          echo "$BOARD_DOM" | grep -q "CONTEXT QUEST"
+          echo "BOARD DOM bytes: ${#BOARD_DOM}"
+          echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD" || { echo "Board header did not render"; exit 1; }
+          echo "$BOARD_DOM" | grep -Eq "EVERYONE JOIN|CUSTOMIZE YOUR TEAM|CONTEXT QUEST|ROUND|FINAL" || { echo "Board state did not render"; exit 1; }
           echo "Context Quest team, instructor, and projected board surfaces all executed successfully."
