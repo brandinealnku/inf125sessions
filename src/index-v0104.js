@@ -15,6 +15,7 @@ export class ClassroomSession extends BaseClassroomSession {
     const cqRoles=['PROMPT BUILDER','CONTEXT DETECTIVE','SKEPTIC','CHAOS CAPTAIN','JUDGE'];
     const cqTeamNames=['Context Crushers','Prompt Pirates','Chaos Crew','Evidence Squad','Constraint Club','Goal Getters','Human Override','Plot Twisters'];
     const cqPalette=['#7654d8','#ed5c8f','#f2a13b','#42b9b1','#4b83d1','#db5a50','#5bbd82','#9b6bd6'];
+    const cqCharms=['🚀','🤖','💡','🧭','🎮','🔍','⚡','🧠','🛸','🎲','🧩','🦾'];
     const cqRole=(team,playerId,round=0)=>{
       const members=Array.isArray(team?.members)?team.members:[];
       const i=Math.max(0,members.indexOf(playerId));
@@ -62,7 +63,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const state=await cqState(),teams=await cqTeams(),players=await cqPlayers();
       const rows=Object.values(teams).map(t=>cqHydrate(t,players,state)).sort((a,b)=>(b.position||0)-(a.position||0)||(b.totalPoints||0)-(a.totalPoints||0)||String(a.name).localeCompare(String(b.name)));
       const playerRows=Object.values(players).map(cqPublicPlayer);
-      return json({state,teams:rows,players:playerRows,joined:playerRows.length,playing:playerRows.filter(p=>p.mode==='play').length,watching:playerRows.filter(p=>p.mode==='watch').length,generatedAt:Date.now()});
+      return json({state,teams:rows,players:playerRows,charms:cqCharms,joined:playerRows.length,playing:playerRows.filter(p=>p.mode==='play').length,watching:playerRows.filter(p=>p.mode==='watch').length,generatedAt:Date.now()});
     }
     if(url.pathname.endsWith('/cq/join')&&method==='POST'){
       const b=await request.json().catch(()=>({}));if(!b.playerId)return json({error:'playerId is required'},400);
@@ -160,11 +161,34 @@ export class ClassroomSession extends BaseClassroomSession {
       const b=await request.json().catch(()=>({})),players=await cqPlayers(),play=Object.values(players).filter(p=>p.mode==='play');
       if(play.length<2)return json({error:'At least 2 players are needed to form teams'},400);
       const target=Math.max(2,Math.min(6,Number(b.teamSize)||5)),teamCount=Math.max(2,Math.ceil(play.length/target)),teams={};
-      for(let i=0;i<teamCount;i++){const id='team-'+(i+1);teams[id]={id,name:cqTeamNames[i%cqTeamNames.length],color:cqPalette[i%cqPalette.length],position:0,totalPoints:0,bonus:0,rounds:{},members:[],stakeholder:['STUDENT','ACADEMIC ADVISOR','PROFESSOR','UNIVERSITY','PARENT','ACCESSIBILITY OFFICE'][i%6]};}
+      for(let i=0;i<teamCount;i++){const id='team-'+(i+1);teams[id]={id,name:cqTeamNames[i%cqTeamNames.length],color:cqPalette[i%cqPalette.length],charm:null,customized:false,position:0,totalPoints:0,bonus:0,rounds:{},members:[],stakeholder:['STUDENT','ACADEMIC ADVISOR','PROFESSOR','UNIVERSITY','PARENT','ACCESSIBILITY OFFICE'][i%6]};}
       play.sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)).forEach((p,i)=>{const id='team-'+((i%teamCount)+1);teams[id].members.push(p.id);players[p.id].teamId=id;});
       await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
       const state={...(await cqState()),teamsFormed:true,updatedAt:Date.now()};await this.state.storage.put('cqState',state);
       return json({ok:true,state,teams:Object.values(teams).map(t=>cqHydrate(t,players,state))});
+    }
+    if(url.pathname.endsWith('/cq/team-customize')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),players=await cqPlayers(),teams=await cqTeams(),player=players[short(b.playerId,100)];
+      if(!player||player.mode!=='play'||!player.teamId)return json({error:'Player is not assigned to a team'},403);
+      const team=teams[player.teamId];if(!team)return json({error:'Team not found'},404);
+      if(typeof b.name==='string'){
+        const name=short(b.name.trim(),32);
+        if(name.length<2)return json({error:'Team name must be at least 2 characters'},400);
+        const taken=Object.values(teams).some(t=>t.id!==team.id&&String(t.name||'').toLowerCase()===name.toLowerCase());
+        if(taken)return json({error:'That team name is already taken'},409);
+        team.name=name;
+      }
+      if(typeof b.charm==='string'){
+        const charm=short(b.charm,8);
+        if(!cqCharms.includes(charm))return json({error:'Choose one of the available charms'},400);
+        const used=Object.values(teams).some(t=>t.id!==team.id&&t.charm===charm);
+        if(used)return json({error:'Another team already chose that charm'},409);
+        team.charm=charm;
+      }
+      team.customized=!!team.charm&&!!team.name;
+      team.customizedAt=Date.now();team.customizedBy=player.id;
+      teams[team.id]=team;await this.state.storage.put('cqTeams',teams);
+      return json({ok:true,team:cqHydrate(team,players,await cqState()),charms:cqCharms});
     }
     if(url.pathname.endsWith('/cq/heartbeat')&&method==='POST'){
       const b=await request.json().catch(()=>({})),players=await cqPlayers(),id=short(b.playerId,100);
