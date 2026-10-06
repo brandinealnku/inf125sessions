@@ -1,16 +1,16 @@
 const API="/api/session/context-quest-live/cq",D=window.CQ_DATA,$=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));let snap=null,last="";
 const BOARD_SPACES=[
- ["START","start"],["WHO","who"],["GOAL","goal"],["CONTEXT","context"],["TEST","test"],["CONTEXT BONUS","corner"],
- ["CONSTRAINT","constraint"],["CHECK","check"],["CHAOS","chaos"],["TEST","test"],["PLOT TWIST","corner"],
- ["WHO","who"],["GOAL","goal"],["VERIFY","check"],["TEST","test"],["FINAL BOSS","corner"],
- ["CONTEXT","context"],["JUDGMENT","check"],["REPAIR","chaos"],["REVEAL","reveal"]
+ ["START","start"],["CONTEXT MATCH","who"],["WEIRD PROMPT","goal"],["TALK IT OUT","context"],["TEST","test"],["CONTEXT MVP","corner"],
+ ["BUILD + TEST","constraint"],["SECRET CONTEXT","context"],["TEAM VOTE","check"],["TEST","test"],["PLOT TWIST","corner"],
+ ["CHAOS + REPAIR","chaos"],["VERIFY","check"],["EVIDENCE","check"],["REPAIR","chaos"],["FINAL BOSS","corner"],
+ ["BEST RECOVERY","reveal"],["JUDGMENT","check"],["BONUS","reveal"],["REVEAL","reveal"]
 ];
 const COORDS=[[6,6],[6,5],[6,4],[6,3],[6,2],[6,1],[5,1],[4,1],[3,1],[2,1],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[2,6],[3,6],[4,6],[5,6]];
 async function req(){const r=await fetch(API+"/snapshot");return r.json()}
 function mast(body){return `<header class="mast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">LIVE CLASSROOM BOARD</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="pill">🎮 ${snap?.playing||0} PLAYING</div><div class="pill">👀 ${snap?.watching||0} WATCHING</div></div></header>${body}`}
 function phaseData(){
  const s=snap.state.stage,r=D.rounds[snap.state.round];let title=D.stages[s]||s,sub="";
- if(["build","test","twist","check","reveal"].includes(s)){title=`ROUND ${snap.state.round+1} · ${r.icon} ${r.key}`;sub=s==="build"?r.title:s==="test"?"Teams are testing the answer they voted forward.":s==="twist"?r.twist:s==="check"?"Audience · goal · constraints · evidence":s==="reveal"?"MOVEMENT REVEAL!":""}
+ if(["build","test","twist","check","reveal"].includes(s)){title=`MOMENT ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?r.title:s==="test"?"Teams are testing the answer they voted forward.":s==="twist"?r.twist:s==="check"?"Audience · goal · constraints · evidence":s==="reveal"?"MOVEMENT REVEAL!":""}
  if(s==="lobby"){title=snap.state.teamsFormed?"CUSTOMIZE YOUR TEAM":"EVERYONE JOIN";sub=snap.state.teamsFormed?"Choose your team name + charm on your device.":"classroom.itsbadlabs.com/context-quest · choose PLAY or WATCH"}
  if(s==="tutorial"){title="TUTORIAL";sub="Learn the game by playing it."}
  if(s==="final-build"){title="👾 FINAL CHALLENGE";sub="Build the whole interaction."}
@@ -23,7 +23,7 @@ function phaseData(){
 }
 function centerPanel(){
  const {title,sub}=phaseData(),teams=[...(snap.teams||[])].sort((a,b)=>(b.position||0)-(a.position||0));
- const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>${t.position||0} spaces</small></span></div>`).join("");
+ const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>${t.position||0} spaces${(t.awards||[]).length?` · 🏅 ${t.awards.length}`:""}</small></span></div>`).join("");
  return `<div class="boardCenter"><div class="tiny">CONTEXT QUEST</div><div class="boardCenterTitle">${esc(title)}</div><p>${esc(sub)}</p><div class="boardCenterTeams">${chips||'<span class="mini">Waiting for teams…</span>'}</div></div>`
 }
 function boardSpace(i){
