@@ -13,9 +13,9 @@ export class ClassroomSession extends BaseClassroomSession {
     const cqPlayers=async()=>(await this.state.storage.get('cqPlayers'))||{};
     const cqRoundKey=(round,final=false)=>final?'final':String(Math.max(0,Math.min(3,Number(round)||0)));
     const cqRoles=['PROMPT BUILDER','CONTEXT DETECTIVE','SKEPTIC','CHAOS CAPTAIN','JUDGE'];
-    const cqTeamNames=['Context Crushers','Prompt Pirates','Chaos Crew','Evidence Squad','Constraint Club','Goal Getters','Human Override','Plot Twisters'];
+    const cqTeamNames=['Ghost Hunters','Prompt Phantoms','Context Coven','Evidence Exorcists','Constraint Crypt','Goal Ghouls','Human Override','Plot Twisters'];
     const cqPalette=['#7654d8','#ed5c8f','#f2a13b','#42b9b1','#4b83d1','#db5a50','#5bbd82','#9b6bd6'];
-    const cqCharms=['🚀','🤖','💡','🧭','🎮','🔍','⚡','🧠','🛸','🎲','🧩','🦾'];
+    const cqCharms=['🎃','👻','🧛','🧙','🦇','💀','🐈‍⬛','🕷️','🔮','🧟','🕯️','🧪'];
     const cqRole=(team,playerId,round=0)=>{
       const members=Array.isArray(team?.members)?team.members:[];
       const i=Math.max(0,members.indexOf(playerId));
