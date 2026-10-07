@@ -45,7 +45,7 @@ function studentGuide(){
  const p=me(),t=team();if(!p||p.mode!=="play")return "";
  return `<details class="panel playerGuide"><summary><b>🎮 HOW TO PLAY</b> · tap for instructions</summary><div class="playerGuideGrid">
  <div><b>1 · TALK</b><p>Share what you notice with your team. Your role gives you a lens, not control.</p></div>
- <div><b>2 · SUBMIT ONE ANSWER</b><p>You get <strong>one active answer</strong> in each Build/Repair phase. Submit again only to replace your own answer.</p></div>
+ <div><b>2 · CONTRIBUTE</b><p>Talk first. Anyone may submit <strong>one active answer</strong>; you do not need five duplicate answers. Submit again only to replace your own answer.</p></div>
  <div><b>3 · VOTE</b><p>Read every teammate option and vote for the strongest. You may change or remove your vote.</p></div>
  <div><b>4 · TEAM WINNER</b><p>Everyone must vote. The highest-voted answer is selected automatically. Ties must be resolved.</p></div>
  <div><b>5 · TEST + ADAPT</b><p>Your team automatically moves into Test. When finished, wait for the Game Master to reveal the Haunting to the whole room.</p></div>
@@ -104,10 +104,10 @@ function tutorialNextSimple(){local.tutorial=Math.min(4,(local.tutorial||0)+1);s
 function tutorialTwist(text){local.tTwist=text;save();tutorial()}
 async function finishTutorial(){await req("/player-action",{method:"POST",body:JSON.stringify({playerId:local.playerId,action:"tutorialDone"})});local.tutorial=4;save();toast("Ready!");await refresh(true)}
 function cards(rows){return `<div class="cards">${rows.map(([k,v])=>`<div class="gamecard"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join("")}</div>`}
-function roleCard(){const r=role();return `<div class="rolecard hauntedRole"><div class="label">🔦 YOUR INVESTIGATION ROLE</div><h3>${esc(r)}</h3><p>${esc(ROLE_HELP[r]||"Help your team make the best decision.")}</p><div class="roleRule">EVERYONE submits. EVERYONE votes. Your role is what you watch for.</div></div>`}
+function roleCard(){const r=role();return `<div class="rolecard hauntedRole"><div class="label">🔦 YOUR INVESTIGATION ROLE</div><h3>${esc(r)}</h3><p>${esc(ROLE_HELP[r]||"Help your team make the best decision.")}</p><div class="roleRule">EVERYONE contributes to the discussion. ANYONE may submit one answer. EVERY ACTIVE PLAYER votes. Your role is what you watch for.</div></div>`}
 function proposals(field){
  const r=rec(String(snap.state.stage).startsWith("final")),rows=Object.values(r[field+"Proposals"]||{}),votes=r[field+"Votes"]||{},mine=votes[local.playerId],counts={};Object.values(votes).forEach(v=>counts[v]=(counts[v]||0)+1);
- if(!rows.length)return '<div class="submission"><b>No answers yet.</b> Each teammate may submit one active answer.</div>';
+ if(!rows.length)return '<div class="submission"><b>No answers yet.</b> Anyone may submit one active answer. Everyone should contribute to the discussion.</div>';
  const total=team()?.members?.length||0,voted=Object.keys(votes).length;
  return `<div class="success"><b>${voted}/${total} team members have voted.</b> Everyone votes once. Highest vote total becomes your team evidence; ties must be resolved.</div><div class="proposalgrid">${rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)).map(p=>`<div class="proposal ${mine===p.id?"selected":""}"><div class="tiny">${esc(p.name)}${p.playerId===local.playerId?" · YOUR ANSWER":""} · ${counts[p.id]||0} vote${(counts[p.id]||0)===1?"":"s"}</div><p>${esc(p.text)}</p><div class="actions"><button class="btn ${mine===p.id?"green":"soft"}" onclick="voteProposal('${field}','${p.id}')">${mine===p.id?"✓ YOUR VOTE":"VOTE FOR THIS"}</button>${mine===p.id?`<button class="btn red" onclick="removeVote('${field}')">REMOVE MY VOTE</button>`:""}</div></div>`).join("")}</div>`;
 }
