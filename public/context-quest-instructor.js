@@ -6,39 +6,39 @@ function stat(label,value){return `<div class="stat"><span class="tiny">${label}
 function roundRec(t){const final=String(snap.state.stage).startsWith("final"),key=final?"final":String(snap.state.round||0);return t.rounds?.[key]||{}}
 function counts(){const teams=snap.teams||[],players=snap.players||[],playing=players.filter(p=>p.mode==="play"),r=t=>roundRec(t);return{joined:players.length,playing:playing.length,watching:players.filter(p=>p.mode==="watch").length,teams:teams.length,ready:playing.filter(p=>p.tutorialDone).length,proposals:teams.reduce((n,t)=>n+Object.keys(r(t).buildProposals||{}).length,0),tested:teams.reduce((n,t)=>n+Object.keys(r(t).tested||{}).length,0),repairs:teams.reduce((n,t)=>n+Object.keys(r(t).repairProposals||{}).length,0),ballots:teams.reduce((n,t)=>n+Object.keys(r(t).checkBallots||{}).length,0)}}
 function teamProgress(t){
- const r=roundRec(t),members=t.members||[],total=members.length,s=snap.state.stage,phase=t.progressPhase||"waiting";
+ const r=roundRec(t),members=t.members||[],excused=r.excused||{},required=members.filter(m=>!excused[m.id]),total=required.length,s=snap.state.stage,phase=t.progressPhase||"waiting";
  const names=(ids)=>ids.map(id=>members.find(m=>m.id===id)?.name||"Player");
- const missing=(obj)=>members.filter(m=>!obj?.[m.id]).map(m=>m.id);
+ const missing=(obj)=>required.filter(m=>!obj?.[m.id]).map(m=>m.id);
  let steps=[],needs=[],ready=false,status="WAITING",tone="neutral";
  if(s==="lobby"){ready=!!t.customized;status=ready?"TEAM SET":"SETUP";needs=ready?[]:["Choose team name + charm"];steps=[["Setup",ready?1:0,1]]}
- else if(s==="tutorial"){const n=members.filter(m=>m.tutorialDone).length;ready=total>0&&n===total;status=ready?"READY":"TUTORIAL";needs=names(members.filter(m=>!m.tutorialDone).map(m=>m.id)).map(n=>`${n}: finish tutorial`);steps=[["Tutorial",n,total]]}
+ else if(s==="tutorial"){const n=members.filter(m=>m.tutorialDone).length;ready=members.length>0&&n===members.length;status=ready?"READY":"INVESTIGATOR TRAINING";needs=names(members.filter(m=>!m.tutorialDone).map(m=>m.id)).map(n=>`${n}: finish training`);steps=[["Training",n,members.length]]}
  else if(s==="build"||s==="final-build"){
-   const answers=Object.keys(r.buildProposals||{}).length,votes=Object.keys(r.buildVotes||{}).length,tested=Object.keys(r.tested||{}).length;
-   ready=phase==="ready-twist";status=ready?"READY FOR THE HAUNTING":phase==="test"?"TESTING":r.buildTie?"TIE — RESOLVE":"SUBMIT ONE ANSWER / TEAM VOTE";
+   const answers=Object.values(r.buildProposals||{}).filter(p=>!excused[p.playerId]).length,votes=Object.keys(r.buildVotes||{}).filter(id=>!excused[id]).length,tested=Object.keys(r.tested||{}).filter(id=>!excused[id]).length;
+   ready=phase==="ready-twist";status=ready?(s==="final-build"?"READY FOR FINAL CURSE":"READY FOR THE HAUNTING"):phase==="test"?"TEST CHAMBER":r.buildTie?"TIE — RESOLVE":"SUBMIT ONE ANSWER / TEAM VOTE";
    if(r.buildTie)needs=["Team vote is tied — someone must change a vote"];
    else if(phase==="build"){
      const mv=missing(r.buildVotes);needs=mv.length?names(mv).map(n=>`${n}: vote`):answers?["Waiting for team selection"]:["Waiting for first answer"];
    }else if(phase==="test"){
-     const mt=missing(r.tested);needs=names(mt).map(n=>`${n}: test selected answer`);
+     const mt=missing(r.tested);needs=names(mt).map(n=>`${n}: test or review an AI response`);
    }
    steps=[["Answers",answers,total],["Votes",votes,total],["Tested",tested,total]];
  }
  else if(s==="twist"||s==="final-twist"){
-   const answers=Object.keys(r.repairProposals||{}).length,votes=Object.keys(r.repairVotes||{}).length,ballots=Object.keys(r.checkBallots||{}).length;
+   const answers=Object.values(r.repairProposals||{}).filter(p=>!excused[p.playerId]).length,votes=Object.keys(r.repairVotes||{}).filter(id=>!excused[id]).length,ballots=Object.keys(r.checkBallots||{}).filter(id=>!excused[id]).length;
    ready=phase==="ready-reveal";status=ready?"READY FOR EVIDENCE REVEAL":phase==="check"?"EVIDENCE CHECK":r.repairTie?"TIE — RESOLVE":"SUBMIT ONE REPAIR / TEAM VOTE";
    if(r.repairTie)needs=["Repair vote is tied — someone must change a vote"];
    else if(phase==="repair"){
      const mv=missing(r.repairVotes);needs=mv.length?names(mv).map(n=>`${n}: vote on repair`):answers?["Waiting for repair selection"]:["Waiting for first repair"];
    }else if(phase==="check"){
-     const mb=missing(r.checkBallots);needs=names(mb).map(n=>`${n}: submit judgment`);
+     const mb=missing(r.checkBallots);needs=names(mb).map(n=>`${n}: submit Evidence Check`);
    }
-   steps=[["Repairs",answers,total],["Votes",votes,total],["Judgments",ballots,total]];
+   steps=[["Repairs",answers,total],["Votes",votes,total],["Checks",ballots,total]];
  }
- else if(s==="reveal"||s==="final-reveal"){ready=true;status="EVIDENCE REVEAL";steps=[["Movement",1,1]]}
- else if(s==="complete"){ready=true;status="COMPLETE";steps=[["Complete",1,1]]}
+ else if(s==="reveal"||s==="final-reveal"){ready=true;status="EVIDENCE REVEAL";steps=[["Reveal",1,1]]}
+ else if(s==="complete"){ready=true;status="CASE CLOSED";steps=[["Complete",1,1]]}
  if(t.progressKey)status=D.progressLabels?.[t.progressKey]||String(t.progressKey).replaceAll("_"," ");
  tone=ready?"ready":needs.length?"working":"neutral";
- return {phase,ready,status,needs,steps};
+ return {phase,ready,status,needs,steps,excused,total};
 }
 function roomProgress(){
  const teams=snap.teams||[],rows=teams.map(t=>({team:t,progress:teamProgress(t)})),ready=rows.filter(x=>x.progress.ready).length;
@@ -77,7 +77,7 @@ function facultyQuickStart(){
  <div><b>YOU CONTROL</b><p>Start each case, reveal the Haunting, reveal evidence/movement, launch the next case, and launch the Final Boss.</p></div>
  <div><b>WATCH PROGRESS</b><p>Use the Room Monitor to see who is ready, which players still owe an action, and which teams have a tie.</p></div>
  <div><b>INSPECT, DON'T TRAFFIC-CONTROL</b><p>Open a team to see live submissions and vote counts. Winning answers are selected automatically; instructor approval is not required.</p></div>
- <div><b>OVERRIDE ONLY WHEN NEEDED</b><p>If a device dies, someone leaves, or a team cannot finish, use the override to move the whole room forward. Incomplete teams receive no automatic credit for unfinished judgment.</p></div>
+ <div><b>OVERRIDE ONLY WHEN NEEDED</b><p>If a device dies or someone leaves, excuse that individual player for the current case. Use whole-room override only as a last resort. Incomplete teams receive no automatic credit for unfinished judgment.</p></div>
  <div><b>KEEP THE THEATER</b><p>The room should experience Hauntings and evidence reveals together. Automate workflow; human-control the theater.</p></div>
  </div></details>`;
 }
@@ -104,8 +104,8 @@ function progressSteps(p){
  return `<div class="progressSteps">${p.steps.map(([label,n,total])=>{const done=total>0&&n>=total;return `<div class="progressStep ${done?"done":n>0?"active":""}"><span>${done?"✓":n}</span><b>${esc(label)}</b><small>${n}/${total}</small></div>`}).join("")}</div>`;
 }
 function teamRows(){
- return roomProgress().rows.map(({team:t,progress:p})=>{const r=roundRec(t),members=(t.members||[]).map(m=>`<span class="mini">${esc(m.name)} · ${esc(t.roles?.[m.id]||"")}${m.isTest?" · TEST":""}</span>`).join(""),open=openTeamVersions.has(t.id)?" open":"";
- return `<div class="teamrow progressTeam ${p.ready?"teamReady":""}"><div class="teamrowHead"><div style="display:flex;align-items:center;gap:9px"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${esc(p.status)}</div></div></div><div><b>${t.totalPoints||0} pts</b><div class="tiny">SPACE ${t.boardPosition||0}</div></div></div>${progressSteps(p)}${p.needs.length?`<div class="needsInline"><b>NEEDS:</b> ${p.needs.map(esc).join(" · ")}</div>`:`<div class="success compact">✓ Team is ready for the next shared moment.</div>`}<details class="teamDrill"><summary>VIEW TEAM DETAILS + SUBMISSIONS</summary><div class="actions">${members}</div>${liveSubmissions(t,r)}${r.build?`<div class="submission"><b>SELECTED BUILD</b><br>${esc(r.build)}${r.repair?`<br><br><b>SELECTED REPAIR</b><br>${esc(r.repair)}`:""}</div>`:""}<div class="actions"><button class="btn soft" onclick="bonus('${t.id}',1,'🔮 CONTEXT CLAIRVOYANT')">🔮 CONTEXT CLAIRVOYANT +1</button><button class="btn soft" onclick="bonus('${t.id}',1,'🧟 CURSE BREAKER')">🧟 CURSE BREAKER +1</button><button class="btn soft" onclick="bonus('${t.id}',1,'👻 GHOST HUNTER')">👻 GHOST HUNTER +1</button><button class="btn soft" onclick="bonus('${t.id}',-1,'UNDO')">UNDO 1</button></div></details></div>`}).join("");
+ return roomProgress().rows.map(({team:t,progress:p})=>{const r=roundRec(t),members=(t.members||[]).map(m=>{const x=!!p.excused[m.id];return `<span class="mini playerManage ${x?"excused":""}"><b>${esc(m.name)}</b> · ${esc(t.roles?.[m.id]||"")}${m.isTest?" · TEST":""} ${x?"· EXCUSED":""}<button class="miniAction" onclick="excusePlayer('${t.id}','${m.id}',${x?"false":"true"})">${x?"RE-ACTIVATE":"EXCUSE THIS CASE"}</button></span>`}).join(""),open=openTeamVersions.has(t.id)?" open":"";
+ return `<div class="teamrow progressTeam ${p.ready?"teamReady":""}"><div class="teamrowHead"><div style="display:flex;align-items:center;gap:9px"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${esc(p.status)}</div></div></div><div><b>${t.totalPoints||0} pts</b><div class="tiny">SPACE ${t.boardPosition||0}</div></div></div>${progressSteps(p)}${p.needs.length?`<div class="needsInline"><b>NEEDS:</b> ${p.needs.map(esc).join(" · ")}</div>`:`<div class="success compact">✓ Team is ready for the next shared moment.</div>`}<details class="teamDrill"><summary>VIEW TEAM DETAILS + SUBMISSIONS</summary><p class="tiny">If a student leaves or has a device/login failure, <b>Excuse This Case</b> removes only that student from this case's required vote/test/check denominator. You can re-activate them.</p><div class="actions">${members}</div>${liveSubmissions(t,r)}${r.build?`<div class="submission"><b>SELECTED BUILD</b><br>${esc(r.build)}${r.repair?`<br><br><b>SELECTED REPAIR</b><br>${esc(r.repair)}`:""}</div>`:""}<div class="actions"><button class="btn soft" onclick="bonus('${t.id}',1,'🔮 CONTEXT CLAIRVOYANT')">🔮 CONTEXT CLAIRVOYANT +1</button><button class="btn soft" onclick="bonus('${t.id}',1,'🧟 CURSE BREAKER')">🧟 CURSE BREAKER +1</button><button class="btn soft" onclick="bonus('${t.id}',1,'👻 GHOST HUNTER')">👻 GHOST HUNTER +1</button><button class="btn soft" onclick="bonus('${t.id}',-1,'UNDO')">UNDO 1</button></div></details></div>`}).join("");
 }
 function rememberTeamVersion(teamId,isOpen){if(isOpen)openTeamVersions.add(teamId);else openTeamVersions.delete(teamId)}
 function playerLobby(){if(snap.state.teamsFormed)return"";const players=snap.players||[];return `<section class="panel"><div class="label">LOBBY</div><div class="bigq">${snap.playing||0} ready to play · ${snap.watching||0} watching</div><div class="actions">${players.map(p=>`<span class="mini">${p.mode==="watch"?"👀":"🎮"} ${esc(p.name)}${p.isTest?" · TEST":""}</span>`).join("")||"<p>Waiting for people to join…</p>"}</div><div class="actions"><button class="btn purple" onclick="formTeams()">FORM BALANCED VIRTUAL TEAMS →</button></div><p>Default target is about five players per team. Late arrivals are automatically placed on the smallest team.</p></section>`}
@@ -149,6 +149,7 @@ function render(){
 async function formTeams(){try{await req("/form-teams",{method:"POST",body:JSON.stringify({teamSize:5})});toast("Teams formed.");await refresh(true)}catch(e){toast(e.message)}}
 async function advance(stage,round,force=false){try{if(force&&!confirm("Advance the whole room even though some teams are not ready?"))return;await req("/control",{method:"POST",body:JSON.stringify({stage,round,force})});toast(force?"Room advanced with override.":"Shared moment advanced.");await refresh(true)}catch(e){toast(e.message)}}
 async function bonus(teamId,delta,label=""){await req("/bonus",{method:"POST",body:JSON.stringify({teamId,delta,label})});toast(delta>0?`${label} awarded.`:"One bonus undone.");await refresh(true)}
+async function excusePlayer(teamId,playerId,excused){try{await req("/excuse-player",{method:"POST",body:JSON.stringify({teamId,playerId,excused})});toast(excused?"Player excused for this case.":"Player re-activated.");await refresh(true)}catch(e){toast(e.message)}}
 async function resetGame(){if(!confirm("Reset Context Quest and remove all players, teams, and scores?"))return;await req("/reset",{method:"POST",body:"{}"});toast("Game reset.");await refresh(true)}
 function stableSnapshot(x){if(!x)return "";const clone=JSON.parse(JSON.stringify(x));delete clone.generatedAt;for(const p of clone.players||[])delete p.lastSeen;for(const t of clone.teams||[])for(const m of t.members||[])delete m.lastSeen;return JSON.stringify(clone)}
 async function refresh(force=false){try{const n=await req("/snapshot"),sig=stableSnapshot(n);snap=n;if(force||sig!==last){last=sig;render()}}catch(e){console.error(e)}}refresh(true);setInterval(refresh,850);
