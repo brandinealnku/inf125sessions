@@ -62,11 +62,13 @@ jobs:
           echo "$CQ_JS" | grep -q 'SPOT THE PROBLEMS'
           echo "$CQ_JS" | grep -q 'CHOOSE YOUR HALLOWEEN CHARM'
           echo "$CQ_JS" | grep -q 'LOCK TEAM IDENTITY'
+          echo "$CQ_JS" | grep -q 'selectedCharmStatus'
           echo "$CQ_JS" | grep -q 'MYSTERY PROMPT'
           echo "$CQ_JS" | grep -q 'HAUNTED LAB'
           echo "$CQ_JS" | grep -q 'CURSE OF THE CONFIDENT AI'
           echo "$CQ_JS" | grep -q 'HOW TO PLAY'
           echo "$CQ_JS" | grep -q 'one active answer'
+          echo "$CQ_JS" | grep -q 'boardPosition' || true
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           echo "$INST_JS" | grep -q 'TEST MODE IS ON'
           echo "$INST_JS" | grep -q 'TURN TEST MODE ON'
@@ -120,12 +122,14 @@ jobs:
           echo "$SNAP"
           echo "$SNAP" | grep -q '"progressPhase":"test"'
           echo "$SNAP" | grep -q '"build":"UPDATED: first-year student context answer"'
+          [ "$(printf '%s' "$SNAP" | grep -o '"boardPosition":3' | wc -l)" -ge 2 ]
 
           for p in p1 p2 p3 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"tested\"}" "$BASE/player-action" > /dev/null; done
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
           echo "=== AFTER TESTING ==="
           echo "$SNAP"
           [ "$(printf '%s' "$SNAP" | grep -o '"progressPhase":"ready-twist"' | wc -l)" -ge 2 ]
+          [ "$(printf '%s' "$SNAP" | grep -o '"boardPosition":4' | wc -l)" -ge 2 ]
 
           # Instructor controls the shared Plot Twist.
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"twist","round":0}' "$BASE/control" | grep -q '"stage":"twist"'
@@ -141,6 +145,7 @@ jobs:
           echo "=== AFTER REPAIR VOTING ==="
           echo "$SNAP"
           echo "$SNAP" | grep -q '"progressPhase":"check"'
+          [ "$(printf '%s' "$SNAP" | grep -o '"boardPosition":5' | wc -l)" -ge 2 ]
 
           for p in p1 p2 p3 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"checks\",\"checks\":[true,true,true,true]}" "$BASE/player-action" > /dev/null; done
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
@@ -154,6 +159,7 @@ jobs:
           echo "=== AFTER SCORE REVEAL ==="
           echo "$SNAP"
           [ "$(printf '%s' "$SNAP" | grep -o '"position":3' | wc -l)" -ge 2 ]
+          [ "$(printf '%s' "$SNAP" | grep -o '"boardPosition":5' | wc -l)" -ge 2 ]
 
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
           echo "Hybrid flow passed: teams auto-progress internally; Game Master controls shared reveals."
