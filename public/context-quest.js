@@ -32,14 +32,15 @@ function teamLobby(){
  if(!snap.state.teamsFormed)return mast(`<section class="panel wait hauntedWait"><div class="icon">🕯️</div><div class="label">YOU'RE IN THE LAB</div><h2>Waiting for investigation teams.</h2><p>${snap.playing||0} investigators are ready. The Game Master will divide the room into teams when the lab is set.</p></section>`);
  const members=(t?.members||[]).map(m=>`<span class="mini">${esc(m.name)}</span>`).join("");
  const used=new Set((snap.teams||[]).filter(x=>x.id!==t.id&&x.charm).map(x=>x.charm));
+ const activeCharm=local.teamDraftCharm||t.charm||"";
  const charms=(snap.charms||["🎃","👻","🧛","🧙","🦇","💀","🐈‍⬛","🕷️","🔮","🧟","🕯️","🧪"]).map(ch=>{
-   const taken=used.has(ch),selected=(local.teamDraftCharm||t.charm)===ch;
-   return `<button class="charmpick ${selected?"selected":""}" ${taken?"disabled":""} onclick="chooseCharm('${ch}')"><span>${ch}</span><small>${taken?"TAKEN":selected?"SELECTED":"CHOOSE"}</small></button>`;
+   const taken=used.has(ch),selected=activeCharm===ch;
+   return `<button class="charmpick ${selected?"selected":""}" aria-pressed="${selected?"true":"false"}" ${taken?"disabled":""} onclick="chooseCharm('${ch}')"><span class="charmEmoji">${ch}</span>${selected?'<span class="charmCheck">✓</span>':""}<small>${taken?"TAKEN":selected?"SELECTED":"CHOOSE"}</small></button>`;
  }).join("");
  return mast(`<section class="panel hero teamsetupHero hauntedHero"><div class="tiny">🔮 INVESTIGATION TEAM SETUP</div><div class="charmHero">${esc(t?.charm||local.teamDraftCharm||"👻")}</div><h1 style="color:${t?.color||"var(--purple)"}">${esc(t?.name||"YOUR TEAM")}</h1><p>Find your investigators, then choose your <b>team name</b> and a Halloween <b>charm</b> to move around the Haunted Prompt Lab.</p></section>
  <section class="panel"><div class="label">YOUR INVESTIGATORS</div><div class="actions">${members}</div>
  <div class="setupgrid"><div><div class="label">1 · NAME YOUR INVESTIGATION TEAM</div><input id="teamNameChoice" class="field" maxlength="32" value="${esc(local.teamDraftName||t?.name||"")}" placeholder="e.g. Ghost Hunters"><p class="tiny">Any teammate can save it. Agree together first.</p></div>
- <div><div class="label">2 · CHOOSE YOUR HALLOWEEN CHARM</div><div class="charmgrid">${charms}</div></div></div>
+ <div><div class="label">2 · CHOOSE YOUR HALLOWEEN CHARM</div><div class="selectedCharmStatus">${activeCharm?`<span class="selectedCharmEmoji">${esc(activeCharm)}</span><span><small>YOUR SELECTION</small><b>${esc(activeCharm)} is selected</b></span>`:'<span class="selectedCharmEmoji">?</span><span><small>YOUR SELECTION</small><b>Choose one charm below</b></span>'}</div><div class="charmgrid">${charms}</div></div></div>
  <div class="actions"><button class="btn purple" onclick="saveTeamIdentity()">LOCK TEAM IDENTITY →</button></div>
  ${t?.customized?`<div class="success"><b>${esc(t.charm)} ${esc(t.name)} is cleared to enter the lab.</b> Wait for Investigator Training to begin.</div>`:""}
  </section><section class="panel"><div class="label">YOUR FIRST INVESTIGATION ROLE</div><div class="success"><b>${esc(role())}</b><br><span style="font-weight:700">${esc(ROLE_HELP[role()]||"")}</span></div><p>Your role rotates each case. It gives you a lens—not exclusive control.</p></section>`);
@@ -52,8 +53,8 @@ async function saveTeamIdentity(){
  try{await req("/team-customize",{method:"POST",body:JSON.stringify({playerId:local.playerId,name,charm})});local.teamDraftName="";local.teamDraftCharm="";save();toast("Team identity saved!");await refresh(true)}catch(e){toast(e.message)}
 }
 function spectator(){
- const st=snap.state.stage,t=[...(snap.teams||[])].sort((a,b)=>(b.position||0)-(a.position||0));const phase=D.stages[st]||st;
- return mast(`<section class="panel hero"><div class="tiny">SPECTATOR MODE</div><h1>YOU'RE<br>IN THE ROOM.</h1><p>Watch the live game without changing team scores. You can switch to PLAY before teams are formed by rejoining.</p></section><section class="panel"><div class="label">CURRENT MOMENT</div><div class="bigq">${esc(phase)}</div><div class="leaderboard">${t.map((x,i)=>`<div class="leader"><div class="rank">#${i+1}</div><div><b>${esc(x.name)}</b></div><div><b>${x.position||0}</b> spaces</div><div></div></div>`).join("")||"<p>Waiting for teams…</p>"}</div></section>`);
+ const st=snap.state.stage,t=[...(snap.teams||[])].sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));const phase=D.stages[st]||st;
+ return mast(`<section class="panel hero"><div class="tiny">SPECTATOR MODE</div><h1>YOU'RE<br>IN THE ROOM.</h1><p>Watch the live game without changing team scores. You can switch to PLAY before teams are formed by rejoining.</p></section><section class="panel"><div class="label">CURRENT MOMENT</div><div class="bigq">${esc(phase)}</div><div class="leaderboard">${t.map((x,i)=>`<div class="leader"><div class="rank">#${i+1}</div><div><b>${esc(x.name)}</b></div><div><b>${x.totalPoints||0}</b> pts · space ${x.boardPosition||0}</div><div></div></div>`).join("")||"<p>Waiting for teams…</p>"}</div></section>`);
 }
 function tutorialPrompt(){
  const who=local.tWho||"a first-year college student",goal=local.tGoal||"understand what AI is";
