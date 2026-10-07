@@ -1,5 +1,9 @@
 name: Permanent Cloudflare Deploy
 
+concurrency:
+  group: permanent-cloudflare-production
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   push:
