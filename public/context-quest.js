@@ -12,6 +12,7 @@ async function req(path,opts={}){const r=await fetch(API+path,{headers:{"content
 function me(){return snap?.players?.find(p=>p.id===local.playerId)||null}
 function team(){const p=me();return p?.teamId?snap?.teams?.find(t=>t.id===p.teamId)||null:null}
 function role(){const t=team();return t?.roles?.[local.playerId]||""}
+function progressLabel(){const t=team(),key=t?.progressKey;return key?(D.progressLabels?.[key]||String(key).replaceAll("_"," ")):""}
 function rec(final=false){const t=team();if(!t)return {};return t.rounds?.[final?"final":String(snap?.state?.round||0)]||{}}
 function studentGuide(){
  const p=me(),t=team();if(!p||p.mode!=="play")return "";
@@ -20,11 +21,11 @@ function studentGuide(){
  <div><b>2 · SUBMIT ONE ANSWER</b><p>You get <strong>one active answer</strong> in each Build/Repair phase. Submit again only to replace your own answer.</p></div>
  <div><b>3 · VOTE</b><p>Read every teammate option and vote for the strongest. You may change or remove your vote.</p></div>
  <div><b>4 · TEAM WINNER</b><p>Everyone must vote. The highest-voted answer is selected automatically. Ties must be resolved.</p></div>
- <div><b>5 · TEST + ADAPT</b><p>Your team automatically moves into Test. When finished, wait for the Game Master to reveal the Plot Twist to the whole room.</p></div>
+ <div><b>5 · TEST + ADAPT</b><p>Your team automatically moves into Test. When finished, wait for the Game Master to reveal the Haunting to the whole room.</p></div>
  <div><b>WIN THE RIGHT WAY</b><p>Points reward good context, recovery, and evidence—not fancy wording.</p></div>
  </div></details>`;
 }
-function mast(body){const t=team(),p=me();return `<header class="mast hauntedMast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">🎃 THE HAUNTED PROMPT LAB · YOUR DEVICE = YOUR CONTROLLER</div></div>${p?`<div style="display:flex;gap:7px;flex-wrap:wrap"><span class="teamchip">${esc(p.name)}</span>${t?`<span class="teamchip"><span class="dot" style="background:${t.color}"></span>${esc(t.charm||"👻")} ${esc(t.name)}</span>`:""}${role()?`<span class="teamchip">🔦 ${esc(role())}</span>`:""}</div>`:""}</header>${studentGuide()}${body}<div class="footer">FIND THE CONTEXT · SUBMIT ONE · VOTE · TEST · SURVIVE THE TWIST · VERIFY</div>`}
+function mast(body){const t=team(),p=me();return `<header class="mast hauntedMast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">🎃 THE HAUNTED PROMPT LAB · YOUR DEVICE = YOUR CONTROLLER</div></div>${p?`<div style="display:flex;gap:7px;flex-wrap:wrap"><span class="teamchip">${esc(p.name)}</span>${t?`<span class="teamchip"><span class="dot" style="background:${t.color}"></span>${esc(t.charm||"👻")} ${esc(t.name)}</span>`:""}${role()?`<span class="teamchip">🔦 ${esc(role())}</span>${progressLabel()?`<span class="teamchip">📍 ${esc(progressLabel())}</span>`:""}`:""}</div>`:""}</header>${studentGuide()}${body}<div class="footer">FIND THE CONTEXT · SUBMIT ONE · VOTE · TEST · SURVIVE THE TWIST · VERIFY</div>`}
 function joinScreen(){$("#app").innerHTML=mast(`<section class="panel hero hauntedHero"><div class="tiny">👻 LIVE CLASSROOM AI MYSTERY</div><h1>THE PROMPTS<br>ARE HAUNTED.</h1><p>Something is wrong in the AI Lab. Strange prompts are producing confident answers—and the missing ingredient is <b>context</b>. Join an investigation team, find the clues, test the AI, and stop bad answers before they cause chaos.</p><div class="caseTag">FIRST-YEAR AI INTRO · HALLOWEEN EDITION</div></section><section class="panel"><div class="label">INVESTIGATOR NAME OR NICKNAME</div><input id="playerName" class="field" maxlength="50" placeholder="e.g. Brandi" value="${esc(local.name)}"><div class="label" style="margin-top:16px">ENTER THE LAB</div><div class="actions"><button class="btn purple" onclick="joinGame('play')">🔦 INVESTIGATE</button><button class="btn soft" onclick="joinGame('watch')">👀 OBSERVE</button></div><p><b>INVESTIGATE</b> puts you on a team. <b>OBSERVE</b> lets faculty, staff, and visitors watch without affecting the competition.</p></section>`)}
 async function joinGame(mode){const name=$("#playerName").value.trim();if(!name)return toast("Add your name or nickname.");local.name=name;local.mode=mode;save();await req("/join",{method:"POST",body:JSON.stringify({playerId:local.playerId,name,mode})});await refresh(true)}
 function teamLobby(){
@@ -148,7 +149,7 @@ function render(){
  if(!local.name)return joinScreen();if(!snap)return;const p=me();if(!p)return joinScreen();if(p.mode==="watch")return spectator();
  const s=snap.state.stage,t=team(),phase=t?.progressPhase||"";
  if(s==="lobby"){$("#app").innerHTML=teamLobby();return}
- if(s==="tutorial"){if(p.tutorialDone){$("#app").innerHTML=mast(`<section class="panel wait"><div class="icon">✅</div><h2>You're ready.</h2><p>Meet your team and look up. The Game Master will launch Moment 1.</p></section>`)}else tutorial();return}
+ if(s==="tutorial"){if(p.tutorialDone){$("#app").innerHTML=mast(`<section class="panel wait"><div class="icon">✅</div><h2>You're ready.</h2><p>Meet your team and look up. The Game Master will launch Case 1.</p></section>`)}else tutorial();return}
 
  if(s==="build"){
    if(phase==="test")return testScreen(false);
