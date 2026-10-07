@@ -1,7 +1,7 @@
 const SESSION_KEY=new URLSearchParams(location.search).get("session")||"context-quest-live";const API="/api/session/"+encodeURIComponent(SESSION_KEY)+"/cq",D=window.CQ_DATA,$=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));let snap=null,last="",shownPositions={},moveTimer=null,moveCursor=0;
 const BOARD_SPACES=[
  ["ENTER LAB","start"],["MYSTERY PROMPT","who"],["STRANGE REQUEST","goal"],["FIND THE CLUE","context"],["TEST CHAMBER","test"],["CONTEXT CLAIRVOYANT","corner"],
- ["MISSING CLUES","constraint"],["SECRET EVIDENCE","context"],["TEAM VOTE","check"],["AI SÉANCE","test"],["THE HAUNTING","corner"],
+ ["MISSING CLUES","constraint"],["SECRET EVIDENCE","context"],["TEAM VOTE","check"],["TEST CHAMBER","test"],["THE HAUNTING","corner"],
  ["HAUNTED ANSWER","chaos"],["GHOST HUNT","check"],["VERIFY","check"],["BREAK THE CURSE","chaos"],["FINAL BOSS","corner"],
  ["CURSE BREAKER","reveal"],["EVIDENCE CHECK","check"],["GHOST HUNTER","reveal"],["CASE CLOSED","reveal"]
 ];
