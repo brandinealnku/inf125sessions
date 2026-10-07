@@ -14,7 +14,7 @@ function teamProgress(t){
  else if(s==="tutorial"){const n=members.filter(m=>m.tutorialDone).length;ready=total>0&&n===total;status=ready?"READY":"TUTORIAL";needs=names(members.filter(m=>!m.tutorialDone).map(m=>m.id)).map(n=>`${n}: finish tutorial`);steps=[["Tutorial",n,total]]}
  else if(s==="build"||s==="final-build"){
    const answers=Object.keys(r.buildProposals||{}).length,votes=Object.keys(r.buildVotes||{}).length,tested=Object.keys(r.tested||{}).length;
-   ready=phase==="ready-twist";status=ready?"READY FOR PLOT TWIST":phase==="test"?"TESTING":r.buildTie?"TIE — RESOLVE":"BUILD + VOTE";
+   ready=phase==="ready-twist";status=ready?"READY FOR THE HAUNTING":phase==="test"?"TESTING":r.buildTie?"TIE — RESOLVE":"SUBMIT ONE ANSWER / TEAM VOTE";
    if(r.buildTie)needs=["Team vote is tied — someone must change a vote"];
    else if(phase==="build"){
      const mv=missing(r.buildVotes);needs=mv.length?names(mv).map(n=>`${n}: vote`):answers?["Waiting for team selection"]:["Waiting for first answer"];
@@ -25,7 +25,7 @@ function teamProgress(t){
  }
  else if(s==="twist"||s==="final-twist"){
    const answers=Object.keys(r.repairProposals||{}).length,votes=Object.keys(r.repairVotes||{}).length,ballots=Object.keys(r.checkBallots||{}).length;
-   ready=phase==="ready-reveal";status=ready?"READY FOR SCORE REVEAL":phase==="check"?"JUDGING":r.repairTie?"TIE — RESOLVE":"REPAIR + VOTE";
+   ready=phase==="ready-reveal";status=ready?"READY FOR EVIDENCE REVEAL":phase==="check"?"EVIDENCE CHECK":r.repairTie?"TIE — RESOLVE":"SUBMIT ONE REPAIR / TEAM VOTE";
    if(r.repairTie)needs=["Repair vote is tied — someone must change a vote"];
    else if(phase==="repair"){
      const mv=missing(r.repairVotes);needs=mv.length?names(mv).map(n=>`${n}: vote on repair`):answers?["Waiting for repair selection"]:["Waiting for first repair"];
@@ -34,8 +34,9 @@ function teamProgress(t){
    }
    steps=[["Repairs",answers,total],["Votes",votes,total],["Judgments",ballots,total]];
  }
- else if(s==="reveal"||s==="final-reveal"){ready=true;status="REVEALED";steps=[["Movement",1,1]]}
+ else if(s==="reveal"||s==="final-reveal"){ready=true;status="EVIDENCE REVEAL";steps=[["Movement",1,1]]}
  else if(s==="complete"){ready=true;status="COMPLETE";steps=[["Complete",1,1]]}
+ if(t.progressKey)status=D.progressLabels?.[t.progressKey]||String(t.progressKey).replaceAll("_"," ");
  tone=ready?"ready":needs.length?"working":"neutral";
  return {phase,ready,status,needs,steps};
 }
@@ -144,7 +145,7 @@ function sharedControls(){
 function render(){
  if(!snap)return;
  const c=counts(),stage=D.stages[snap.state.stage]||snap.state.stage;
- $("#app").innerHTML=mast(`<section class="phasecard"><div class="label">LIVE STATE</div><div class="bigq" style="color:white">${esc(stage)}${snap.state.round<3&&["build","twist","reveal"].includes(snap.state.stage)?` · MOMENT ${snap.state.round+1} / 3`:""}</div><p>${esc(stageHelp())}</p></section>${facultyQuickStart()}${facilitationGuide()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${sharedControls()}<section class="panel"><div class="statusgrid">${stat("Joined",c.joined)}${stat("Playing",c.playing)}${stat("Watching",c.watching)}${stat("Teams",c.teams)}${stat("Tutorial ready",c.ready)}${stat("Answers",c.proposals)}${stat("Tested",c.tested)}${stat("Judgments",c.ballots)}</div></section><section class="panel"><div class="label">INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + evidence</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>`)}
+ $("#app").innerHTML=mast(`<section class="phasecard"><div class="label">LIVE STATE</div><div class="bigq" style="color:white">${esc(stage)}${snap.state.round<3&&["build","twist","reveal"].includes(snap.state.stage)?` · CASE ${snap.state.round+1} / 3`:""}</div><p>${esc(stageHelp())}</p></section>${facultyQuickStart()}${facilitationGuide()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${sharedControls()}<section class="panel"><div class="statusgrid">${stat("Joined",c.joined)}${stat("Playing",c.playing)}${stat("Watching",c.watching)}${stat("Teams",c.teams)}${stat("Tutorial ready",c.ready)}${stat("Answers",c.proposals)}${stat("Tested",c.tested)}${stat("Judgments",c.ballots)}</div></section><section class="panel"><div class="label">INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + evidence</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>`)}
 async function formTeams(){try{await req("/form-teams",{method:"POST",body:JSON.stringify({teamSize:5})});toast("Teams formed.");await refresh(true)}catch(e){toast(e.message)}}
 async function advance(stage,round,force=false){try{if(force&&!confirm("Advance the whole room even though some teams are not ready?"))return;await req("/control",{method:"POST",body:JSON.stringify({stage,round,force})});toast(force?"Room advanced with override.":"Shared moment advanced.");await refresh(true)}catch(e){toast(e.message)}}
 async function bonus(teamId,delta,label=""){await req("/bonus",{method:"POST",body:JSON.stringify({teamId,delta,label})});toast(delta>0?`${label} awarded.`:"One bonus undone.");await refresh(true)}
