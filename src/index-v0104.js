@@ -33,13 +33,13 @@ export class ClassroomSession extends BaseClassroomSession {
       if(s==='build'){
         if(all(r.tested))return 'READY_HAUNTING';
         if(r.build||r.buildCandidate)return 'TEST_CHAMBER';
-        if(Object.keys(r.buildVotes||{}).length)return 'TEAM_VOTE';
+        if(Object.keys(r.buildVotes||{}).length||Object.keys(r.buildProposals||{}).length)return 'TEAM_VOTE';
         return 'SUBMIT_ANSWER';
       }
       if(s==='twist'){
         if(all(r.checkBallots))return 'READY_REVEAL';
         if(r.repair||r.repairCandidate)return 'EVIDENCE_CHECK';
-        if(Object.keys(r.repairVotes||{}).length)return 'REPAIR_VOTE';
+        if(Object.keys(r.repairVotes||{}).length||Object.keys(r.repairProposals||{}).length)return 'REPAIR_VOTE';
         return 'SUBMIT_REPAIR';
       }
       if(s==='final-build'){
@@ -116,39 +116,33 @@ export class ClassroomSession extends BaseClassroomSession {
     const cqBoardPosition=(team,state)=>{
       const s=state.stage,rn=Math.max(0,Math.min(2,Number(state.round)||0));
       if(s==='lobby'||s==='tutorial')return 0;
-      if(s==='complete')return 19;
-      const final=String(s).startsWith('final');
-      const key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{};
+      if(s==='complete'||s==='final-reveal')return 19;
+      const final=String(s).startsWith('final'),key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{},members=team.members||[];
+      const all=(obj)=>members.length>0&&members.every(id=>!!obj?.[id]);
       if(final){
-        if(s==='final-reveal')return 19;
-        if(s==='final-twist'){
-          if((team.members||[]).length&&(team.members||[]).every(id=>!!r.checkBallots?.[id]))return 18;
-          if(r.repair||r.repairCandidate)return 18;
-          return 17;
-        }
         if(s==='final-build'){
-          if((team.members||[]).length&&(team.members||[]).every(id=>!!r.tested?.[id]))return 17;
-          if(r.build||r.buildCandidate)return 17;
-          if(Object.keys(r.buildProposals||{}).length)return 16;
-          return 15;
+          if(r.build||r.buildCandidate||all(r.tested))return 18;
+          if(Object.keys(r.buildVotes||{}).length||Object.keys(r.buildProposals||{}).length)return 17;
+          return 16;
         }
-        return 15;
+        if(s==='final-twist'){
+          if(r.repair||r.repairCandidate||all(r.checkBallots))return 19;
+          return 18;
+        }
+        return 16;
       }
       const base=1+(rn*5);
-      if(s==='reveal')return Math.min(19,base+4);
-      if(s==='twist'){
-        if((team.members||[]).length&&(team.members||[]).every(id=>!!r.checkBallots?.[id]))return Math.min(19,base+4);
-        if(r.repair||r.repairCandidate)return Math.min(19,base+4);
-        return Math.min(19,base+3);
-      }
       if(s==='build'){
-        if((team.members||[]).length&&(team.members||[]).every(id=>!!r.tested?.[id]))return Math.min(19,base+3);
-        if(r.build||r.buildCandidate)return Math.min(19,base+2);
-        if(Object.keys(r.buildVotes||{}).length)return Math.min(19,base+2);
-        if(Object.keys(r.buildProposals||{}).length)return Math.min(19,base+1);
+        if(r.build||r.buildCandidate||all(r.tested))return base+2;
+        if(Object.keys(r.buildVotes||{}).length||Object.keys(r.buildProposals||{}).length)return base+1;
         return base;
       }
-      return Math.min(19,base);
+      if(s==='twist'){
+        if(r.repair||r.repairCandidate||all(r.checkBallots))return base+4;
+        return base+3;
+      }
+      if(s==='reveal')return base+4;
+      return base;
     };
     const cqAutoSelect=(team,key,field)=>{
       const r=team.rounds?.[key]||{},candidate=cqUpdateCandidate(team,key,field);
