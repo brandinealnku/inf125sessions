@@ -73,11 +73,11 @@ jobs:
           grep -q 'one active answer' /tmp/context-quest.js
           grep -q 'Generative AI' /tmp/context-quest.js
           grep -q 'YOUR NEXT' /tmp/context-quest.js
-          grep -q 'CAN.T ACCESS CHATGPT' /tmp/context-quest.js
+          grep -q "CAN'T ACCESS CHATGPT" /tmp/context-quest.js
           grep -q 'I REVIEWED A TEAMMATE / SAMPLE RESPONSE' /tmp/context-quest.js
           grep -q 'Judge the RESPONSE, not the prompt' /tmp/context-quest.js
           grep -q '1 case point' /tmp/context-quest.js
-          grep -q 'PROPOSE IF USEFUL' /tmp/context-quest.js
+          grep -q '2 · CONTRIBUTE' /tmp/context-quest.js
           grep -q 'PROPOSE AN ANSWER' /tmp/context-quest.js
           grep -q 'EVERY ACTIVE PLAYER votes' /tmp/context-quest.js
           grep -q 'boardPosition' /tmp/context-quest.js || true
