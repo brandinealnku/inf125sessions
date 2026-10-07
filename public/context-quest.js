@@ -45,7 +45,7 @@ function teamLobby(){
  ${t?.customized?`<div class="success"><b>${esc(t.charm)} ${esc(t.name)} is cleared to enter the lab.</b> Wait for Investigator Training to begin.</div>`:""}
  </section><section class="panel"><div class="label">YOUR FIRST INVESTIGATION ROLE</div><div class="success"><b>${esc(role())}</b><br><span style="font-weight:700">${esc(ROLE_HELP[role()]||"")}</span></div><p>Your role rotates each case. It gives you a lens—not exclusive control.</p></section>`);
 }
-function chooseCharm(ch){local.teamDraftCharm=ch;const name=$("#teamNameChoice");if(name)local.teamDraftName=name.value;save();teamLobby()}
+function chooseCharm(ch){local.teamDraftCharm=ch;const name=$("#teamNameChoice");if(name)local.teamDraftName=name.value;save();$("#app").innerHTML=teamLobby()}
 async function saveTeamIdentity(){
  const name=$("#teamNameChoice")?.value.trim(),charm=local.teamDraftCharm||team()?.charm;
  if(!name)return toast("Choose a team name.");
