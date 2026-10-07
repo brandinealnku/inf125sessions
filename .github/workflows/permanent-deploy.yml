@@ -200,6 +200,7 @@ jobs:
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
           echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
+          ! echo "$BOARD_DOM" | grep -Eq ">PROFESSOR<|>UNIVERSITY<|>STUDENT<|>ACADEMIC ADVISOR<" || { echo "Obsolete stakeholder label rendered"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
           echo "TEST DOM bytes: ${#TEST_DOM}"
           echo "$TEST_DOM" | grep -q "TEST SANDBOX" || { echo "Test sandbox header did not render"; exit 1; }
