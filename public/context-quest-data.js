@@ -8,6 +8,7 @@ rounds:[
  context:[["CASE FILE 01","A strange prompt can be useful when the context explains why it exists."]],
  twist:"The student works late shifts, feels overwhelmed by daytime obligations, and remembers advice better when it is funny and themed.",
  nudge:"Investigate the prompt. Which context clue makes the strange request actually useful?",
+ sampleResponse:"A vampire survival guide for college could include: protect your sleep schedule, carry easy snacks for late shifts, find one reliable study routine, and ask for help before you feel overwhelmed. The playful framing can make practical advice easier to remember.",
  choices:[
   {label:"🦇 Clue A",text:"A first-year student works late shifts, is adjusting to college, and remembers advice better through funny themed analogies.",prompt:"Help a first-year college student who works late shifts adjust to college life. Frame the advice like a vampire survival guide, but keep the recommendations practical, reassuring, and easy to remember.",why:"The Halloween framing now serves the student's actual situation and memory needs."},
   {label:"📜 Clue B",text:"The registrar needs a formal summary of academic policy for an accreditation report.",prompt:"Summarize academic policy like a vampire survival guide.",why:"The theme conflicts with the audience and professional purpose."},
@@ -21,6 +22,7 @@ rounds:[
  context:[["CASE FILE 02","The prompt is haunted by missing information. Each investigator holds one clue."]],
  twist:"The student now says they have only 10 minutes, are using a phone, and cannot upload private course material.",
  nudge:"Reveal your clue aloud. Combine the team's evidence before anyone builds the prompt.",
+ sampleResponse:"Three possibilities: 1) Use the school's approved AI assistant if available because it may already meet privacy requirements. 2) Use a free general AI tool only with non-private material. 3) If you are unsure whether course material is private, ask the instructor or use a non-AI study method.",
  secrets:[
   ["WHO CLUE","A first-year college student"],
   ["GOAL CLUE","Choose an AI tool for studying"],
@@ -41,6 +43,7 @@ rounds:[
  context:[["HAUNTED AI RESPONSE","“87% of college students who use AI get better grades, so you should use it for every assignment. Your university allows ChatGPT in all classes.”"]],
  twist:"The student followed the answer—and discovered their professor prohibits AI-generated work on this assignment.",
  nudge:"Ghost-hunt the failures. Mark what does not deserve trust, then build a verification response.",
+ sampleResponse:"I should not claim that AI improves grades or that every course allows ChatGPT without evidence. Course policies vary by instructor and assignment. Before acting, check the syllabus or ask the instructor. Treat unsupported statistics and policy claims as uncertain until verified.",
  issues:[
   {label:"🕸️ Phantom statistic",text:"The 87% claim appears from nowhere and has no source.",repair:"Identify factual claims that are unsupported or uncertain. For each important claim, explain how I should verify it before relying on it."},
   {label:"🏚️ Ghost policy",text:"The AI claims to know university or course policy without an official source.",repair:"Do not assume university or course policy. Flag policy claims that require verification and direct me to the appropriate official source or instructor."},
@@ -52,17 +55,18 @@ rounds:[
 final:{
  style:"freeform",
  name:"THE CURSE OF THE CONFIDENT AI",
- bad:"Build an AI assistant that helps first-year students make course decisions.",
+ bad:"Write the instructions for an AI assistant that helps a first-year student make a course decision safely.",
  twist:"The assistant confidently gives a first-year student incorrect high-stakes course information—and the student is about to act on it.",
  cards:[
   ["WHO","A first-year college student"],
   ["WHAT","Course-decision help"],
   ["WHY","Help the student make an informed choice"],
-  ["CONTEXT","University policies + the student's actual situation"],
+  ["SITUATION","University policies + the student's actual situation"],
   ["CONSTRAINTS","Do not invent requirements; protect private data"],
   ["OUTPUT","Clear next steps + visible uncertainty"],
   ["CHECK","Verify high-stakes claims or escalate to a human"]
- ]
+ ],
+ sampleResponse:"I can help you think through a course decision, but I should not invent requirements or make the decision for you. Tell me your goal, the specific course choice, any official policy or degree information you already have, and constraints such as schedule or prerequisites. I will separate verified facts from assumptions, show what still needs confirmation, and direct you to an advisor or official source for high-stakes questions."
 },
 moments:["THE MYSTERY PROMPT","THE MISSING CLUES","THE HAUNTED ANSWER"],
 bonusTypes:[
@@ -70,7 +74,7 @@ bonusTypes:[
  {key:"recovery",label:"🧟 CURSE BREAKER",description:"Strongest adaptation after the Plot Twist."},
  {key:"evidence",label:"👻 GHOST HUNTER",description:"Best verification or uncertainty judgment."}
 ],
-framework:["WHO","WHAT","WHY","CONTEXT","CONSTRAINTS","OUTPUT","CHECK"],
+framework:["WHO","GOAL","SITUATION","CONSTRAINTS","OUTPUT","CHECK"],
 progressLabels:{
  "ENTER_LAB":"ENTER LAB",
  "INVESTIGATOR_TRAINING":"INVESTIGATOR TRAINING",
