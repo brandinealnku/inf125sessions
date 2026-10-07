@@ -126,3 +126,46 @@
 .needsInline{border:2px solid var(--orange);border-radius:12px;background:#fff7e5;padding:9px;font-size:12px}.compact{padding:9px;margin:8px 0}
 .teamDrill{margin-top:10px}.teamDrill>summary{cursor:pointer;font-weight:1000;border:2px solid var(--ink);border-radius:10px;background:white;padding:8px 10px;display:inline-block}
 @media(max-width:820px){.roomMonitorHead{grid-template-columns:1fr}.teamProgressGrid{grid-template-columns:1fr}.progressSteps{grid-template-columns:1fr}}
+
+/* Haunted Prompt Lab theme */
+body{background:#17131f;background-image:radial-gradient(#4b3b59 1px,transparent 1px),linear-gradient(180deg,#17131f 0,#24182d 35%,#2f2231 100%);background-size:20px 20px,100% 100%;background-attachment:fixed}
+.wrap{position:relative}
+.wrap:before,.wrap:after{position:fixed;pointer-events:none;z-index:0;opacity:.08;font-size:260px;filter:grayscale(1)}
+.wrap:before{content:"🕸️";left:-80px;top:20px}.wrap:after{content:"👻";right:-70px;bottom:-30px}
+.wrap>*{position:relative;z-index:1}
+.hauntedMast,.mast{background:linear-gradient(135deg,#1b1426,#3a2051);border:2px solid #6a4b7e}.logo span{color:#f49b3d}
+.panel{background:#fff9ec;box-shadow:7px 7px 0 #0d0912}
+.label{color:#6c3a92}.footer{color:#d8cce0}
+.hauntedHero{background:linear-gradient(135deg,#f19a39 0%,#ffc55c 42%,#a9df79 100%);color:#211526}
+.hauntedHero:after{content:"🎃";right:12px;top:-30px;font-size:190px;color:inherit;opacity:.16;filter:grayscale(.3)}
+.caseTag{display:inline-block;border:3px solid var(--ink);border-radius:999px;background:#2f183c;color:white;padding:8px 12px;font-size:11px;font-weight:1000;letter-spacing:.08em}
+.hauntedCase{background:linear-gradient(180deg,#fff9ec,#f6eddb);position:relative;overflow:hidden}
+.hauntedCase:after{content:"🕸️";position:absolute;right:-20px;top:-25px;font-size:110px;opacity:.09;pointer-events:none}
+.hauntedWait{background:linear-gradient(180deg,#f7f0ff,#ede1f4)}
+.hauntedPrompt{background:linear-gradient(135deg,#ffb04f,#ffe17c 48%,#c3ef85);position:relative}
+.hauntedPrompt:before{content:"🦇";position:absolute;right:16px;top:9px;font-size:34px}
+.hauntedChaos{background:linear-gradient(135deg,#321a42,#612d61);color:#fff;border-color:#f49b3d;box-shadow:0 6px 0 #1a0e20}
+.hauntedChaos h3{color:#ffd268}
+.hauntedRole{background:#efe3f6;border-color:#6d3d8e}
+.clueDesk{background:#fff8dc;border-style:dashed}
+.frameworkRibbon{border:3px solid var(--ink);border-radius:14px;background:#211526;color:#fff;padding:13px;margin:14px 0;font-weight:1000;text-align:center;letter-spacing:.04em;line-height:1.55}
+.hauntedJudge label{background:#fffaf0;border-color:#8d7a92}
+.secretcard{background:linear-gradient(135deg,#efe4ff,#e4f2c7);border-color:#6e3d8f;position:relative}
+.secretcard:after{content:"🔮";position:absolute;right:14px;top:10px;font-size:36px;opacity:.3}
+.aianswer{background:linear-gradient(135deg,#f1eef9,#eaf7ef);border-color:#311d43}
+.choicecard:hover{background:#fff4d0}
+.charmpick{background:#fff9ec}.charmpick.selected{background:#ffb04f}
+.tabletopWrap{background:#211425;border-color:#0d0912;box-shadow:0 10px 0 #0d0912,0 18px 35px #0007;background-image:linear-gradient(90deg,#ffffff08 1px,transparent 1px),linear-gradient(#ffffff08 1px,transparent 1px)}
+.tabletopBoard{background:#392742;border-color:#120b17}
+.boardSquare{background:#fff8e9}.boardSquare.type-who .spaceStripe{background:#7c3f98}.boardSquare.type-goal .spaceStripe{background:#ef7d38}.boardSquare.type-context .spaceStripe{background:#b7d95d}.boardSquare.type-test .spaceStripe{background:#74c7a3}.boardSquare.type-constraint .spaceStripe{background:#5a75b7}.boardSquare.type-check .spaceStripe{background:#86b857}.boardSquare.type-chaos .spaceStripe{background:#a74059}.boardSquare.type-reveal .spaceStripe{background:#f4c850}
+.boardSquare.type-corner{background:#e8dbcb}.boardSquare.type-start{background:#ffb553}
+.boardCenter{background:radial-gradient(circle at 50% 34%,#fff5d8 0,#ead7b5 58%,#ccb68f 100%)}
+.boardCenter:before{content:"👻";font-size:230px;opacity:.13;color:inherit}
+.phasecard{background:linear-gradient(135deg,#201228,#51305d);border-color:#100a14}
+.momentBadge{background:#ffb04f}
+.roomMonitor{border-color:#6e3d8f;background:linear-gradient(180deg,#fbf6ff,#efe5f6)}
+.sharedControl{background:#f5eafd}
+.facultyQuick{background:#fbf6ff}
+.success{background:#dceca2}
+.chaos{border-color:#a74059}
+.btn.purple{background:#6d3d8e}.btn.teal{background:#84cbb0}.btn.green{background:#9acb67}.btn.red{background:#a74059}
