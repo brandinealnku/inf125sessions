@@ -51,72 +51,75 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/api/session/context-quest-live/cq/snapshot" | grep -q '"stage"'
           echo "Checking team runtime"
           CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js?verify=$GITHUB_SHA")"
-          echo "$CQ_JS" | grep -q 'THE PROMPTS'
-          echo "$CQ_JS" | grep -q 'FORM BALANCED VIRTUAL TEAMS' || true
-          echo "$CQ_JS" | grep -q 'YOUR DEVICE = YOUR CONTROLLER'
-          echo "$CQ_JS" | grep -q 'function isEditing'
-          echo "$CQ_JS" | grep -q 'REMOVE MY VOTE'
-          echo "$CQ_JS" | grep -q 'INVESTIGATOR TRAINING'
-          echo "$CQ_JS" | grep -q 'PICK THE BEST PROMPT'
-          echo "$CQ_JS" | grep -q 'ONLY YOU SEE THIS'
-          echo "$CQ_JS" | grep -q 'SPOT THE PROBLEMS'
-          echo "$CQ_JS" | grep -q 'CHOOSE YOUR HALLOWEEN CHARM'
-          echo "$CQ_JS" | grep -q 'LOCK TEAM IDENTITY'
-          echo "$CQ_JS" | grep -q 'selectedCharmStatus'
-          echo "$CQ_JS" | grep -q 'MYSTERY PROMPT'
-          echo "$CQ_JS" | grep -q 'HAUNTED LAB'
-          echo "$CQ_JS" | grep -q 'CURSE OF THE CONFIDENT AI'
-          echo "$CQ_JS" | grep -q 'EVIDENCE CHECK'
-          ! echo "$CQ_JS" | grep -q 'GHOST HUNT · TEAM REPAIR SELECTED'
-          echo "$CQ_JS" | grep -q 'HOW TO PLAY'
-          echo "$CQ_JS" | grep -q 'one active answer'
-          echo "$CQ_JS" | grep -q 'Generative AI'
-          echo "$CQ_JS" | grep -q 'YOUR NEXT'
-          echo "$CQ_JS" | grep -q 'CAN.T ACCESS CHATGPT'
-          echo "$CQ_JS" | grep -q 'I REVIEWED A TEAMMATE / SAMPLE RESPONSE'
-          echo "$CQ_JS" | grep -q 'Judge the RESPONSE, not the prompt'
-          echo "$CQ_JS" | grep -q '1 case point'
-          echo "$CQ_JS" | grep -q 'PROPOSE IF USEFUL'
-          echo "$CQ_JS" | grep -q 'PROPOSE AN ANSWER'
-          echo "$CQ_JS" | grep -q 'EVERY ACTIVE PLAYER votes'
-          echo "$CQ_JS" | grep -q 'boardPosition' || true
+          printf '%s' "$CQ_JS" > /tmp/context-quest.js
+          grep -q 'THE PROMPTS' /tmp/context-quest.js
+          grep -q 'FORM BALANCED VIRTUAL TEAMS' || true /tmp/context-quest.js
+          grep -q 'YOUR DEVICE = YOUR CONTROLLER' /tmp/context-quest.js
+          grep -q 'function isEditing' /tmp/context-quest.js
+          grep -q 'REMOVE MY VOTE' /tmp/context-quest.js
+          grep -q 'INVESTIGATOR TRAINING' /tmp/context-quest.js
+          grep -q 'PICK THE BEST PROMPT' /tmp/context-quest.js
+          grep -q 'ONLY YOU SEE THIS' /tmp/context-quest.js
+          grep -q 'SPOT THE PROBLEMS' /tmp/context-quest.js
+          grep -q 'CHOOSE YOUR HALLOWEEN CHARM' /tmp/context-quest.js
+          grep -q 'LOCK TEAM IDENTITY' /tmp/context-quest.js
+          grep -q 'selectedCharmStatus' /tmp/context-quest.js
+          grep -q 'MYSTERY PROMPT' /tmp/context-quest.js
+          grep -q 'HAUNTED LAB' /tmp/context-quest.js
+          grep -q 'CURSE OF THE CONFIDENT AI' /tmp/context-quest.js
+          grep -q 'EVIDENCE CHECK' /tmp/context-quest.js
+          ! grep -q 'GHOST HUNT · TEAM REPAIR SELECTED' /tmp/context-quest.js
+          grep -q 'HOW TO PLAY' /tmp/context-quest.js
+          grep -q 'one active answer' /tmp/context-quest.js
+          grep -q 'Generative AI' /tmp/context-quest.js
+          grep -q 'YOUR NEXT' /tmp/context-quest.js
+          grep -q 'CAN.T ACCESS CHATGPT' /tmp/context-quest.js
+          grep -q 'I REVIEWED A TEAMMATE / SAMPLE RESPONSE' /tmp/context-quest.js
+          grep -q 'Judge the RESPONSE, not the prompt' /tmp/context-quest.js
+          grep -q '1 case point' /tmp/context-quest.js
+          grep -q 'PROPOSE IF USEFUL' /tmp/context-quest.js
+          grep -q 'PROPOSE AN ANSWER' /tmp/context-quest.js
+          grep -q 'EVERY ACTIVE PLAYER votes' /tmp/context-quest.js
+          grep -q 'boardPosition' || true /tmp/context-quest.js
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
-          echo "$INST_JS" | grep -q 'TEST MODE IS ON'
-          echo "$INST_JS" | grep -q 'TURN TEST MODE ON'
+          printf '%s' "$INST_JS" > /tmp/context-quest-instructor.js
+          grep -q 'TEST MODE IS ON' /tmp/context-quest-instructor.js
+          grep -q 'TURN TEST MODE ON' /tmp/context-quest-instructor.js
           echo "Checking instructor facilitation runtime"
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
-          echo "$INST_JS" | grep -q 'FACILITATION GUIDE'
-          echo "$INST_JS" | grep -q 'TEST SANDBOX'
-          echo "$INST_JS" | grep -q 'ADVANCE WHEN'
-          echo "$INST_JS" | grep -q 'FACULTY QUICK START'
-          echo "$INST_JS" | grep -q 'ROOM PROGRESS'
-          echo "$INST_JS" | grep -q 'Winning answers are selected automatically'
-          echo "$INST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
-          echo "$INST_JS" | grep -q 'D.progressLabels'
-          echo "$INST_JS" | grep -q 'EXCUSE THIS CASE'
-          echo "$INST_JS" | grep -q 'excusePlayer'
-          echo "$INST_JS" | grep -q 'RESET LIVE ROOM'
-          echo "$INST_JS" | grep -q 'YOUR NEXT SHARED ACTION'
-          echo "$INST_JS" | grep -q 'active students complete'
-          echo "$INST_JS" | grep -q 'HAVING A PROBLEM'
-          echo "$INST_JS" | grep -q 'FORCE ROOM FORWARD'
-          echo "$INST_JS" | grep -q 'OPTIONAL DEBRIEF BONUS'
-          echo "$INST_JS" | grep -q 'function stageStats'
-          echo "$INST_JS" | grep -q 'function gameMasterConsole'
-          echo "$INST_JS" | grep -q 'function rememberGmUi'
-          echo "$INST_JS" | grep -q 'Answers proposed'
-          echo "$INST_JS" | grep -q 'Responses reviewed'
-          echo "$INST_JS" | grep -q 'VIEW TEAM ↓'
-          echo "$INST_JS" | grep -q 'Waiting for any teammate to submit the first answer'
-          echo "$INST_JS" | grep -q 'REVEAL FINAL EVIDENCE + SCORE'
-          ! echo "$INST_JS" | grep -q 'REVEAL EVIDENCE + MOVEMENT'
+          grep -q 'FACILITATION GUIDE' /tmp/context-quest-instructor.js
+          grep -q 'TEST SANDBOX' /tmp/context-quest-instructor.js
+          grep -q 'ADVANCE WHEN' /tmp/context-quest-instructor.js
+          grep -q 'FACULTY QUICK START' /tmp/context-quest-instructor.js
+          grep -q 'ROOM PROGRESS' /tmp/context-quest-instructor.js
+          grep -q 'Winning answers are selected automatically' /tmp/context-quest-instructor.js
+          grep -q 'LIVE TEAM SUBMISSIONS' /tmp/context-quest-instructor.js
+          grep -q 'D.progressLabels' /tmp/context-quest-instructor.js
+          grep -q 'EXCUSE THIS CASE' /tmp/context-quest-instructor.js
+          grep -q 'excusePlayer' /tmp/context-quest-instructor.js
+          grep -q 'RESET LIVE ROOM' /tmp/context-quest-instructor.js
+          grep -q 'YOUR NEXT SHARED ACTION' /tmp/context-quest-instructor.js
+          grep -q 'active students complete' /tmp/context-quest-instructor.js
+          grep -q 'HAVING A PROBLEM' /tmp/context-quest-instructor.js
+          grep -q 'FORCE ROOM FORWARD' /tmp/context-quest-instructor.js
+          grep -q 'OPTIONAL DEBRIEF BONUS' /tmp/context-quest-instructor.js
+          grep -q 'function stageStats' /tmp/context-quest-instructor.js
+          grep -q 'function gameMasterConsole' /tmp/context-quest-instructor.js
+          grep -q 'function rememberGmUi' /tmp/context-quest-instructor.js
+          grep -q 'Answers proposed' /tmp/context-quest-instructor.js
+          grep -q 'Responses reviewed' /tmp/context-quest-instructor.js
+          grep -q 'VIEW TEAM ↓' /tmp/context-quest-instructor.js
+          grep -q 'Waiting for any teammate to submit the first answer' /tmp/context-quest-instructor.js
+          grep -q 'REVEAL FINAL EVIDENCE + SCORE' /tmp/context-quest-instructor.js
+          ! grep -q 'REVEAL EVIDENCE + MOVEMENT' /tmp/context-quest-instructor.js
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
-          echo "$TEST_JS" | grep -q 'context-quest-sandbox'
-          echo "$TEST_JS" | grep -q 'SAFE REHEARSAL ENVIRONMENT'
-          echo "$TEST_JS" | grep -q 'SIMULATE CURRENT PHASE'
-          echo "$TEST_JS" | grep -q 'REVEAL PLOT TWIST' || echo "$TEST_JS" | grep -q 'REVEAL THE HAUNTING'
-          echo "$TEST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
+          printf '%s' "$TEST_JS" > /tmp/context-quest-test.js
+          grep -q 'context-quest-sandbox' /tmp/context-quest-test.js
+          grep -q 'SAFE REHEARSAL ENVIRONMENT' /tmp/context-quest-test.js
+          grep -q 'SIMULATE CURRENT PHASE' /tmp/context-quest-test.js
+          grep -q 'REVEAL PLOT TWIST' /tmp/context-quest-test.js || grep -q 'REVEAL THE HAUNTING' /tmp/context-quest-test.js
+          grep -q 'LIVE TEAM SUBMISSIONS' /tmp/context-quest-test.js
           echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
       - name: Verify Context Quest hybrid team automation
         run: |
@@ -250,15 +253,16 @@ jobs:
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
           BOARD_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-board.js?verify=$GITHUB_SHA")"
-          echo "$BOARD_JS" | grep -q 'animateBoardPositions'
-          echo "$BOARD_JS" | grep -q 'shownPositions'
-          echo "$BOARD_JS" | grep -q 'SUBMIT ONE ANSWER'
-          echo "$BOARD_JS" | grep -q 'TEAM VOTE'
-          echo "$BOARD_JS" | grep -q 'TEST CHAMBER'
-          echo "$BOARD_JS" | grep -q 'THE HAUNTING'
-          echo "$BOARD_JS" | grep -q 'EVIDENCE CHECK'
-          ! echo "$BOARD_JS" | grep -q 'AI SÉANCE'
-          ! echo "$BOARD_JS" | grep -q 'GHOST HUNT'
+          printf '%s' "$BOARD_JS" > /tmp/context-quest-board.js
+          grep -q 'animateBoardPositions' /tmp/context-quest-board.js
+          grep -q 'shownPositions' /tmp/context-quest-board.js
+          grep -q 'SUBMIT ONE ANSWER' /tmp/context-quest-board.js
+          grep -q 'TEAM VOTE' /tmp/context-quest-board.js
+          grep -q 'TEST CHAMBER' /tmp/context-quest-board.js
+          grep -q 'THE HAUNTING' /tmp/context-quest-board.js
+          grep -q 'EVIDENCE CHECK' /tmp/context-quest-board.js
+          ! grep -q 'AI SÉANCE' /tmp/context-quest-board.js
+          ! grep -q 'GHOST HUNT' /tmp/context-quest-board.js
           echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
           ! echo "$BOARD_DOM" | grep -Eq ">PROFESSOR<|>UNIVERSITY<|>STUDENT<|>ACADEMIC ADVISOR<" || { echo "Obsolete stakeholder label rendered"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
