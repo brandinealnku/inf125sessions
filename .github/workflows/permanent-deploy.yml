@@ -192,7 +192,7 @@ jobs:
           echo "$INST_DOM" | grep -q "OPEN TEST SANDBOX" || { echo "Instructor test sandbox link did not render"; exit 1; }
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
-          echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD" || { echo "Board header did not render"; exit 1; }
+          echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
           echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
           echo "TEST DOM bytes: ${#TEST_DOM}"
