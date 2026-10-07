@@ -20,18 +20,18 @@ function personalActionLabel(){
  if(s==="build"||s==="final-build"){
    if(phase==="test")return r.tested?.[id]?"WAIT FOR TEAM":"TEST OR REVIEW AI RESPONSE";
    if(phase==="ready-twist")return final?"READY FOR FINAL CURSE":"READY FOR THE HAUNTING";
-   const mine=Object.values(r.buildProposals||{}).some(p=>p.playerId===id);
-   if(!mine)return final?"SUBMIT FINAL ANSWER":"SUBMIT ONE ANSWER";
+   const proposals=Object.values(r.buildProposals||{}),mine=proposals.some(p=>p.playerId===id);
+   if(!proposals.length)return final?"PROPOSE FINAL ANSWER":"PROPOSE AN ANSWER";
    if(!r.buildVotes?.[id])return "TEAM VOTE";
-   return "WAIT FOR TEAMMATES";
+   return mine?"WAIT FOR TEAMMATES":"VOTE CAST · HELP YOUR TEAM";
  }
  if(s==="twist"||s==="final-twist"){
    if(phase==="check")return r.checkBallots?.[id]?"WAIT FOR TEAM":"EVIDENCE CHECK";
    if(phase==="ready-reveal")return "READY FOR EVIDENCE REVEAL";
-   const mine=Object.values(r.repairProposals||{}).some(p=>p.playerId===id);
-   if(!mine)return "SUBMIT ONE REPAIR";
+   const proposals=Object.values(r.repairProposals||{}),mine=proposals.some(p=>p.playerId===id);
+   if(!proposals.length)return "PROPOSE A REPAIR";
    if(!r.repairVotes?.[id])return "TEAM VOTE · REPAIR";
-   return "WAIT FOR TEAMMATES";
+   return mine?"WAIT FOR TEAMMATES":"VOTE CAST · HELP YOUR TEAM";
  }
  if(s==="reveal"||s==="final-reveal")return "EVIDENCE REVEAL";
  if(s==="complete")return "CASE CLOSED";
