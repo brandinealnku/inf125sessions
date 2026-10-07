@@ -22,8 +22,12 @@ export class ClassroomSession extends BaseClassroomSession {
       return cqRoles[(i+(Number(round)||0))%cqRoles.length];
     };
     const cqPublicPlayer=p=>({id:p.id,name:p.name,mode:p.mode,teamId:p.teamId||null,tutorialDone:!!p.tutorialDone,isTest:!!p.isTest,lastSeen:p.lastSeen,joinedAt:p.joinedAt});
+    const cqRequiredMembers=(team,key)=>{
+      const r=team.rounds?.[key]||{},excused=r.excused||{};
+      return (team.members||[]).filter(id=>!excused[id]);
+    };
     const cqProgressKey=(team,state)=>{
-      const s=state.stage,final=String(s).startsWith('final'),key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{},members=team.members||[];
+      const s=state.stage,final=String(s).startsWith('final'),key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{},members=cqRequiredMembers(team,key);
       const all=(obj)=>members.length>0&&members.every(id=>!!obj?.[id]);
       if(s==='lobby')return 'ENTER_LAB';
       if(s==='tutorial')return 'INVESTIGATOR_TRAINING';
@@ -70,7 +74,7 @@ export class ClassroomSession extends BaseClassroomSession {
       for(const v of Object.values(votes))counts[v]=(counts[v]||0)+1;
       rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||(a.at||0)-(b.at||0));
       const top=rows[0],topCount=top?(counts[top.id]||0):0,second=rows[1]?(counts[rows[1].id]||0):0;
-      const allVoted=Object.keys(votes).length===(team.members||[]).length&&(team.members||[]).length>0;
+      const required=cqRequiredMembers(team,key),allVoted=required.length>0&&required.every(id=>!!votes[id]);
       const tie=!!top&&topCount===second&&topCount>0;
       r[field+'AllVoted']=allVoted;r[field+'Tie']=tie;r[field+'Candidate']=allVoted&&!tie&&top?{id:top.id,text:top.text,name:top.name,votes:topCount,totalVotes:Object.keys(votes).length}:null;
       if(!r[field+'Candidate']||r[field+'ApprovedId']!==r[field+'Candidate']?.id){r[field+'Approved']=false;r[field+'ApprovedId']=null;r[field+'ApprovedAt']=null;}
@@ -88,16 +92,15 @@ export class ClassroomSession extends BaseClassroomSession {
     const cqFinalizeChecks=(team,key)=>{
       team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
       if(r.completedAt)return;
-      const ballots=Object.values(r.checkBallots||{});if(!ballots.length)return;
+      const required=cqRequiredMembers(team,key),ballots=Object.values(r.checkBallots||{}).filter(b=>required.includes(b.playerId));if(!ballots.length)return;
       const totals=[0,0,0,0];for(const b of ballots)for(let i=0;i<4;i++)if(b.checks?.[i])totals[i]++;
       const threshold=Math.ceil(ballots.length/2),checks=totals.map(n=>n>=threshold),n=checks.filter(Boolean).length;
       r.teamChecks=checks;r.checkCount=n;r.ballotCount=ballots.length;r.checkedAt=Date.now();
-      if(n<3){r.status='needs-repair';r.hadLowCheck=true;r.move=0;return;}
-      const move=n===4?3:2;r.move=move;r.points=move;r.completedAt=Date.now();r.status='complete';
-      team.position=(Number(team.position)||0)+move;team.totalPoints=(Number(team.totalPoints)||0)+move;
+      r.move=1;r.points=1;r.completedAt=Date.now();r.status='complete';
+      team.position=(Number(team.position)||0)+1;team.totalPoints=(Number(team.totalPoints)||0)+1;
     };
     const cqTeamPhase=(team,key,state)=>{
-      const r=team.rounds?.[key]||{},members=team.members||[],all=(obj)=>members.length>0&&members.every(id=>!!obj?.[id]);
+      const r=team.rounds?.[key]||{},members=cqRequiredMembers(team,key),all=(obj)=>members.length>0&&members.every(id=>!!obj?.[id]);
       if(state.stage==='reveal'||state.stage==='final-reveal')return 'revealed';
       if(state.stage==='twist'||state.stage==='final-twist'){
         if(all(r.checkBallots))return 'ready-reveal';
@@ -117,7 +120,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const s=state.stage,rn=Math.max(0,Math.min(2,Number(state.round)||0));
       if(s==='lobby'||s==='tutorial')return 0;
       if(s==='complete'||s==='final-reveal')return 19;
-      const final=String(s).startsWith('final'),key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{},members=team.members||[];
+      const final=String(s).startsWith('final'),key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{},members=cqRequiredMembers(team,key);
       const all=(obj)=>members.length>0&&members.every(id=>!!obj?.[id]);
       if(final){
         if(s==='final-build'){
@@ -311,7 +314,7 @@ export class ClassroomSession extends BaseClassroomSession {
         cqUpdateCandidate(team,key,'build');
       }
       if(b.action==='voteBuild'){r.buildVotes=r.buildVotes||{};const pid=short(b.proposalId,150);if(r.buildVotes[id]===pid||!pid)delete r.buildVotes[id];else r.buildVotes[id]=pid;cqUpdateCandidate(team,key,'build');if(r.buildAllVoted&&!r.buildTie)cqAutoSelect(team,key,'build');}
-      if(b.action==='tested'){r.tested=r.tested||{};r.tested[id]=now;r.status='tested';if((team.members||[]).length&&(team.members||[]).every(mid=>!!r.tested[mid]))r.phase='ready-twist';}
+      if(b.action==='tested'){r.tested=r.tested||{};r.tested[id]=now;r.status='tested';if(cqRequiredMembers(team,key).length&&cqRequiredMembers(team,key).every(mid=>!!r.tested[mid]))r.phase='ready-twist';}
       if(b.action==='proposeRepair'){
         r.repairProposals=r.repairProposals||{};
         const pid=id+'-repair',prev=r.repairProposals[pid],text=short(b.text,5000);
@@ -320,9 +323,23 @@ export class ClassroomSession extends BaseClassroomSession {
         cqUpdateCandidate(team,key,'repair');
       }
       if(b.action==='voteRepair'){r.repairVotes=r.repairVotes||{};const pid=short(b.proposalId,150);if(r.repairVotes[id]===pid||!pid)delete r.repairVotes[id];else r.repairVotes[id]=pid;cqUpdateCandidate(team,key,'repair');if(r.repairAllVoted&&!r.repairTie)cqAutoSelect(team,key,'repair');}
-      if(b.action==='checks'){const checks=Array.isArray(b.checks)?b.checks.slice(0,4).map(Boolean):[];r.checkBallots=r.checkBallots||{};r.checkBallots[id]={playerId:id,name:player.name,checks,at:now};r.status='checking';if((team.members||[]).length&&(team.members||[]).every(mid=>!!r.checkBallots[mid]))r.phase='ready-reveal';}
+      if(b.action==='checks'){const checks=Array.isArray(b.checks)?b.checks.slice(0,4).map(Boolean):[];r.checkBallots=r.checkBallots||{};r.checkBallots[id]={playerId:id,name:player.name,checks,at:now};r.status='checking';if(cqRequiredMembers(team,key).length&&cqRequiredMembers(team,key).every(mid=>!!r.checkBallots[mid]))r.phase='ready-reveal';}
       player.lastSeen=now;players[id]=player;teams[team.id]=team;await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
       return json({ok:true,player:cqPublicPlayer(player),team:cqHydrate(team,players,state),state});
+    }
+    if(url.pathname.endsWith('/cq/excuse-player')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),state=await cqState(),teams=await cqTeams(),team=teams[short(b.teamId,80)],playerId=short(b.playerId,100);
+      if(!team)return json({error:'Team not found'},404);
+      if(!(team.members||[]).includes(playerId))return json({error:'Player is not on this team'},404);
+      const key=cqRoundKey(state.round,String(state.stage).startsWith('final'));
+      team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
+      r.excused=r.excused||{};
+      if(b.excused===false)delete r.excused[playerId];else r.excused[playerId]=true;
+      cqUpdateCandidate(team,key,'build');cqUpdateCandidate(team,key,'repair');
+      if(r.buildAllVoted&&!r.buildTie&&!r.build)cqAutoSelect(team,key,'build');
+      if(r.repairAllVoted&&!r.repairTie&&!r.repair)cqAutoSelect(team,key,'repair');
+      teams[team.id]=team;await this.state.storage.put('cqTeams',teams);
+      const players=await cqPlayers();return json({ok:true,team:cqHydrate(team,players,state),playerId,excused:!!r.excused[playerId]});
     }
     if(url.pathname.endsWith('/cq/review-team')&&method==='POST'){
       const b=await request.json().catch(()=>({})),state=await cqState(),teams=await cqTeams(),team=teams[short(b.teamId,80)];
@@ -347,7 +364,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const counts={};for(const v of Object.values(r[voteKey]))counts[v]=(counts[v]||0)+1;
       rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||(a.at||0)-(b.at||0));
       const winner=rows[0];
-      for(const memberId of team.members||[])if(!r[voteKey][memberId])r[voteKey][memberId]=winner.id;
+      for(const memberId of cqRequiredMembers(team,key))if(!r[voteKey][memberId])r[voteKey][memberId]=winner.id;
       cqUpdateCandidate(team,key,field);
       r[field+'Approved']=true;r[field+'ApprovedId']=r[field+'Candidate']?.id||winner.id;r[field+'ApprovedAt']=now;
       return r;
@@ -355,7 +372,7 @@ export class ClassroomSession extends BaseClassroomSession {
     const cqTestFillChecks=(team,key)=>{
       team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key],now=Date.now();
       r.checkBallots=r.checkBallots||{};
-      for(const memberId of team.members||[])if(!r.checkBallots[memberId])r.checkBallots[memberId]={playerId:memberId,name:'Test Mode',checks:[true,true,true,true],at:now};
+      for(const memberId of cqRequiredMembers(team,key))if(!r.checkBallots[memberId])r.checkBallots[memberId]={playerId:memberId,name:'Test Mode',checks:[true,true,true,true],at:now};
       return r;
     };
     if(url.pathname.endsWith('/cq/control')&&method==='POST'){
@@ -389,7 +406,7 @@ export class ClassroomSession extends BaseClassroomSession {
           if(current.testMode){
             cqTestFillChoice(t,oldKey,'build');
             cqAutoSelect(t,oldKey,'build');
-            r.tested=r.tested||{};for(const mid of t.members||[])r.tested[mid]=r.tested[mid]||Date.now();
+            r.tested=r.tested||{};for(const mid of cqRequiredMembers(t,oldKey))r.tested[mid]=r.tested[mid]||Date.now();
             r.phase='ready-twist';
           }
           if(cqTeamPhase(t,oldKey,current)!=='ready-twist')notReady.push(t.name);
