@@ -42,7 +42,7 @@ function teamSetup(){
 function leaders(){
  if(!snap.state.teamsFormed||snap.state.stage==="lobby")return"";
  const teams=[...(snap.teams||[])].sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
- return `<section class="panel"><div class="label">STANDINGS</div><div class="leaderboard">${teams.map((t,i)=>`<div class="leader"><div class="rank">#${i+1}</div><div style="display:flex;gap:10px;align-items:center"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${t.members?.length||0} PLAYERS</div></div></div><div><b>${t.totalPoints||0}</b> pts · space ${t.boardPosition||0}</div><div class="tiny">${t.stakeholder||""}</div></div>`).join("")}</div></section>`
+ return `<section class="panel"><div class="label">STANDINGS</div><div class="leaderboard">${teams.map((t,i)=>`<div class="leader"><div class="rank">#${i+1}</div><div style="display:flex;gap:10px;align-items:center"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${t.members?.length||0} PLAYERS</div></div></div><div><b>${t.totalPoints||0}</b> pts · space ${t.boardPosition||0}</div><div class="tiny">${esc((t.progressPhase||"waiting").replaceAll("-"," ").toUpperCase())}</div></div>`).join("")}</div></section>`
 }
 function stableSnapshot(x){if(!x)return"";const y=JSON.parse(JSON.stringify(x));delete y.generatedAt;for(const p of y.players||[])delete p.lastSeen;for(const t of y.teams||[])for(const m of t.members||[])delete m.lastSeen;return JSON.stringify(y)}
 function render(){if(!snap)return;$("#app").innerHTML=mast(board()+teamSetup()+leaders())}
