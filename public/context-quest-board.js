@@ -22,12 +22,12 @@ function phaseData(){
  return {title,sub}
 }
 function centerPanel(){
- const {title,sub}=phaseData(),teams=[...(snap.teams||[])].sort((a,b)=>(b.position||0)-(a.position||0));
- const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>${t.position||0} spaces · ${esc((t.progressPhase||"waiting").replaceAll("-"," ").toUpperCase())}${(t.awards||[]).length?` · 🏅 ${t.awards.length}`:""}</small></span></div>`).join("");
+ const {title,sub}=phaseData(),teams=[...(snap.teams||[])].sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
+ const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>SCORE ${t.totalPoints||0} · SPACE ${t.boardPosition||0} · ${esc((t.progressPhase||"waiting").replaceAll("-"," ").toUpperCase())}${(t.awards||[]).length?` · 🏅 ${t.awards.length}`:""}</small></span></div>`).join("");
  return `<div class="boardCenter"><div class="tiny">CONTEXT QUEST · THE HAUNTED PROMPT LAB</div><div class="boardCenterTitle">${esc(title)}</div><p>${esc(sub)}</p><div class="boardCenterTeams">${chips||'<span class="mini">Waiting for teams…</span>'}</div></div>`
 }
 function boardSpace(i){
- const [label,type]=BOARD_SPACES[i],coord=COORDS[i],teams=(snap.teams||[]).filter(t=>Math.min(19,Math.max(0,t.position||0))===i);
+ const [label,type]=BOARD_SPACES[i],coord=COORDS[i],teams=(snap.teams||[]).filter(t=>Math.min(19,Math.max(0,t.boardPosition||0))===i);
  const pieces=teams.map(t=>`<div class="boardPiece" title="${esc(t.name)}" style="--team:${t.color}"><span>${esc(t.charm||"❔")}</span><small>${esc(t.name)}</small></div>`).join("");
  return `<div class="boardSquare type-${type}" style="grid-row:${coord[0]};grid-column:${coord[1]}"><div class="spaceStripe"></div><div class="spaceLabel">${esc(label)}</div><div class="boardPieces">${pieces}</div></div>`
 }
@@ -41,8 +41,8 @@ function teamSetup(){
 }
 function leaders(){
  if(!snap.state.teamsFormed||snap.state.stage==="lobby")return"";
- const teams=[...(snap.teams||[])].sort((a,b)=>(b.position||0)-(a.position||0)||(b.totalPoints||0)-(a.totalPoints||0));
- return `<section class="panel"><div class="label">STANDINGS</div><div class="leaderboard">${teams.map((t,i)=>`<div class="leader"><div class="rank">#${i+1}</div><div style="display:flex;gap:10px;align-items:center"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${t.members?.length||0} PLAYERS</div></div></div><div><b>${t.position||0}</b> spaces</div><div class="tiny">${t.stakeholder||""}</div></div>`).join("")}</div></section>`
+ const teams=[...(snap.teams||[])].sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
+ return `<section class="panel"><div class="label">STANDINGS</div><div class="leaderboard">${teams.map((t,i)=>`<div class="leader"><div class="rank">#${i+1}</div><div style="display:flex;gap:10px;align-items:center"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${t.members?.length||0} PLAYERS</div></div></div><div><b>${t.totalPoints||0}</b> pts · space ${t.boardPosition||0}</div><div class="tiny">${t.stakeholder||""}</div></div>`).join("")}</div></section>`
 }
 function stableSnapshot(x){if(!x)return"";const y=JSON.parse(JSON.stringify(x));delete y.generatedAt;for(const p of y.players||[])delete p.lastSeen;for(const t of y.teams||[])for(const m of t.members||[])delete m.lastSeen;return JSON.stringify(y)}
 function render(){if(!snap)return;$("#app").innerHTML=mast(board()+teamSetup()+leaders())}
