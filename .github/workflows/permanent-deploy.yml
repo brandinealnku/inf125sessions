@@ -83,15 +83,23 @@ jobs:
           echo "Checking instructor facilitation runtime"
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           echo "$INST_JS" | grep -q 'FACILITATION GUIDE'
-          echo "$INST_JS" | grep -q 'OPEN TEST SANDBOX'
+          echo "$INST_JS" | grep -q 'TEST SANDBOX'
           echo "$INST_JS" | grep -q 'ADVANCE WHEN'
           echo "$INST_JS" | grep -q 'FACULTY QUICK START'
-          echo "$INST_JS" | grep -q 'HAUNTED LAB ROOM MONITOR'
+          echo "$INST_JS" | grep -q 'ROOM PROGRESS'
           echo "$INST_JS" | grep -q 'Winning answers are selected automatically'
           echo "$INST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "$INST_JS" | grep -q 'D.progressLabels'
           echo "$INST_JS" | grep -q 'EXCUSE THIS CASE'
           echo "$INST_JS" | grep -q 'excusePlayer'
+          echo "$INST_JS" | grep -q 'RESET LIVE ROOM'
+          echo "$INST_JS" | grep -q 'YOUR NEXT SHARED ACTION'
+          echo "$INST_JS" | grep -q 'active students complete'
+          echo "$INST_JS" | grep -q 'HAVING A PROBLEM'
+          echo "$INST_JS" | grep -q 'FORCE ROOM FORWARD'
+          echo "$INST_JS" | grep -q 'OPTIONAL DEBRIEF BONUS'
+          echo "$INST_JS" | grep -q 'function stageStats'
+          echo "$INST_JS" | grep -q 'function gameMasterConsole'
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
@@ -225,7 +233,8 @@ jobs:
           echo "INSTRUCTOR DOM bytes: ${#INST_DOM}"
           echo "$INST_DOM" | grep -q "GAME MASTER" || { echo "Instructor surface missing Game Master render"; exit 1; }
           echo "$INST_DOM" | grep -q "FACILITATION GUIDE" || { echo "Instructor facilitation guide did not render"; exit 1; }
-          echo "$INST_DOM" | grep -q "OPEN TEST SANDBOX" || { echo "Instructor test sandbox link did not render"; exit 1; }
+          echo "$INST_DOM" | grep -q "GAME CONTROLS" || { echo "Instructor game controls did not render"; exit 1; }
+          echo "$INST_DOM" | grep -q "YOUR NEXT SHARED ACTION" || { echo "Instructor next action did not render"; exit 1; }
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
