@@ -53,7 +53,7 @@ jobs:
           CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js?verify=$GITHUB_SHA")"
           printf '%s' "$CQ_JS" > /tmp/context-quest.js
           grep -q 'THE PROMPTS' /tmp/context-quest.js
-          grep -q 'FORM BALANCED VIRTUAL TEAMS' || true /tmp/context-quest.js
+          grep -q 'FORM BALANCED VIRTUAL TEAMS' /tmp/context-quest.js || true
           grep -q 'YOUR DEVICE = YOUR CONTROLLER' /tmp/context-quest.js
           grep -q 'function isEditing' /tmp/context-quest.js
           grep -q 'REMOVE MY VOTE' /tmp/context-quest.js
@@ -80,13 +80,12 @@ jobs:
           grep -q 'PROPOSE IF USEFUL' /tmp/context-quest.js
           grep -q 'PROPOSE AN ANSWER' /tmp/context-quest.js
           grep -q 'EVERY ACTIVE PLAYER votes' /tmp/context-quest.js
-          grep -q 'boardPosition' || true /tmp/context-quest.js
+          grep -q 'boardPosition' /tmp/context-quest.js || true
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           printf '%s' "$INST_JS" > /tmp/context-quest-instructor.js
           grep -q 'TEST MODE IS ON' /tmp/context-quest-instructor.js
           grep -q 'TURN TEST MODE ON' /tmp/context-quest-instructor.js
           echo "Checking instructor facilitation runtime"
-          INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           grep -q 'FACILITATION GUIDE' /tmp/context-quest-instructor.js
           grep -q 'TEST SANDBOX' /tmp/context-quest-instructor.js
           grep -q 'ADVANCE WHEN' /tmp/context-quest-instructor.js
