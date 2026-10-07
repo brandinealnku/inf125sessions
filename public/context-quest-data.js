@@ -71,5 +71,23 @@ bonusTypes:[
  {key:"evidence",label:"👻 GHOST HUNTER",description:"Best verification or uncertainty judgment."}
 ],
 framework:["WHO","WHAT","WHY","CONTEXT","CONSTRAINTS","OUTPUT","CHECK"],
+progressLabels:{
+ "ENTER_LAB":"ENTER LAB",
+ "INVESTIGATOR_TRAINING":"INVESTIGATOR TRAINING",
+ "SUBMIT_ANSWER":"SUBMIT ONE ANSWER",
+ "TEAM_VOTE":"TEAM VOTE",
+ "TEST_CHAMBER":"TEST CHAMBER",
+ "READY_HAUNTING":"READY FOR THE HAUNTING",
+ "THE_HAUNTING":"THE HAUNTING",
+ "SUBMIT_REPAIR":"SUBMIT ONE REPAIR",
+ "REPAIR_VOTE":"TEAM VOTE · REPAIR",
+ "EVIDENCE_CHECK":"EVIDENCE CHECK",
+ "READY_REVEAL":"READY FOR EVIDENCE REVEAL",
+ "EVIDENCE_REVEAL":"EVIDENCE REVEAL",
+ "FINAL_BOSS":"FINAL BOSS",
+ "READY_FINAL_CURSE":"READY FOR FINAL CURSE",
+ "FINAL_CURSE":"FINAL CURSE",
+ "CASE_CLOSED":"CASE CLOSED"
+},
 stages:{lobby:"The Lab Lobby",tutorial:"Investigator Training",build:"Case Investigation",twist:"The Haunting",reveal:"Evidence Reveal","final-build":"Final Boss","final-twist":"Final Curse","final-reveal":"Final Reveal",complete:"Case Closed"}
 };
