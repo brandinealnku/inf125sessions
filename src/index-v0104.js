@@ -22,11 +22,46 @@ export class ClassroomSession extends BaseClassroomSession {
       return cqRoles[(i+(Number(round)||0))%cqRoles.length];
     };
     const cqPublicPlayer=p=>({id:p.id,name:p.name,mode:p.mode,teamId:p.teamId||null,tutorialDone:!!p.tutorialDone,isTest:!!p.isTest,lastSeen:p.lastSeen,joinedAt:p.joinedAt});
+    const cqProgressKey=(team,state)=>{
+      const s=state.stage,final=String(s).startsWith('final'),key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{},members=team.members||[];
+      const all=(obj)=>members.length>0&&members.every(id=>!!obj?.[id]);
+      if(s==='lobby')return 'ENTER_LAB';
+      if(s==='tutorial')return 'INVESTIGATOR_TRAINING';
+      if(s==='complete')return 'CASE_CLOSED';
+      if(s==='reveal')return 'EVIDENCE_REVEAL';
+      if(s==='final-reveal')return 'CASE_CLOSED';
+      if(s==='build'){
+        if(all(r.tested))return 'READY_HAUNTING';
+        if(r.build||r.buildCandidate)return 'TEST_CHAMBER';
+        if(Object.keys(r.buildVotes||{}).length)return 'TEAM_VOTE';
+        return 'SUBMIT_ANSWER';
+      }
+      if(s==='twist'){
+        if(all(r.checkBallots))return 'READY_REVEAL';
+        if(r.repair||r.repairCandidate)return 'EVIDENCE_CHECK';
+        if(Object.keys(r.repairVotes||{}).length)return 'REPAIR_VOTE';
+        return 'SUBMIT_REPAIR';
+      }
+      if(s==='final-build'){
+        if(all(r.tested))return 'READY_FINAL_CURSE';
+        if(r.build||r.buildCandidate)return 'TEST_CHAMBER';
+        if(Object.keys(r.buildVotes||{}).length)return 'TEAM_VOTE';
+        return 'FINAL_BOSS';
+      }
+      if(s==='final-twist'){
+        if(all(r.checkBallots))return 'READY_REVEAL';
+        if(r.repair||r.repairCandidate)return 'EVIDENCE_CHECK';
+        if(Object.keys(r.repairVotes||{}).length)return 'REPAIR_VOTE';
+        return 'FINAL_CURSE';
+      }
+      return 'ENTER_LAB';
+    };
     const cqHydrate=(team,players,state)=>({
       ...team,
       members:(team.members||[]).map(id=>cqPublicPlayer(players[id]||{id,name:'Player',mode:'play'})),
       roles:Object.fromEntries((team.members||[]).map(id=>[id,cqRole(team,id,state.round)])),
       progressPhase:cqTeamPhase(team,cqRoundKey(state.round,String(state.stage).startsWith('final')),state),
+      progressKey:cqProgressKey(team,state),
       boardPosition:cqBoardPosition(team,state)
     });
     const cqUpdateCandidate=(team,key,field)=>{
