@@ -66,6 +66,8 @@ jobs:
           echo "$CQ_JS" | grep -q 'MYSTERY PROMPT'
           echo "$CQ_JS" | grep -q 'HAUNTED LAB'
           echo "$CQ_JS" | grep -q 'CURSE OF THE CONFIDENT AI'
+          echo "$CQ_JS" | grep -q 'EVIDENCE CHECK'
+          ! echo "$CQ_JS" | grep -q 'GHOST HUNT · TEAM REPAIR SELECTED'
           echo "$CQ_JS" | grep -q 'HOW TO PLAY'
           echo "$CQ_JS" | grep -q 'one active answer'
           echo "$CQ_JS" | grep -q 'boardPosition' || true
@@ -81,6 +83,7 @@ jobs:
           echo "$INST_JS" | grep -q 'HAUNTED LAB ROOM MONITOR'
           echo "$INST_JS" | grep -q 'Winning answers are selected automatically'
           echo "$INST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
+          echo "$INST_JS" | grep -q 'D.progressLabels'
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
@@ -129,7 +132,7 @@ jobs:
           echo "=== AFTER TESTING ==="
           echo "$SNAP"
           [ "$(printf '%s' "$SNAP" | grep -o '"progressPhase":"ready-twist"' | wc -l)" -ge 2 ]
-          [ "$(printf '%s' "$SNAP" | grep -o '"boardPosition":4' | wc -l)" -ge 2 ]
+          [ "$(printf '%s' "$SNAP" | grep -o '"boardPosition":3' | wc -l)" -ge 2 ]
 
           # Instructor controls the shared Plot Twist.
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"twist","round":0}' "$BASE/control" | grep -q '"stage":"twist"'
@@ -202,6 +205,13 @@ jobs:
           BOARD_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-board.js?verify=$GITHUB_SHA")"
           echo "$BOARD_JS" | grep -q 'animateBoardPositions'
           echo "$BOARD_JS" | grep -q 'shownPositions'
+          echo "$BOARD_JS" | grep -q 'SUBMIT ONE ANSWER'
+          echo "$BOARD_JS" | grep -q 'TEAM VOTE'
+          echo "$BOARD_JS" | grep -q 'TEST CHAMBER'
+          echo "$BOARD_JS" | grep -q 'THE HAUNTING'
+          echo "$BOARD_JS" | grep -q 'EVIDENCE CHECK'
+          ! echo "$BOARD_JS" | grep -q 'AI SÉANCE'
+          ! echo "$BOARD_JS" | grep -q 'GHOST HUNT'
           echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
           ! echo "$BOARD_DOM" | grep -Eq ">PROFESSOR<|>UNIVERSITY<|>STUDENT<|>ACADEMIC ADVISOR<" || { echo "Obsolete stakeholder label rendered"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
