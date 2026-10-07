@@ -63,10 +63,10 @@ function stageHelp(){
   tutorial:"Students complete Investigator Training. Launch Case 1 when the room is ready.",
   build:"Teams investigate independently: examine clues → submit → vote → selected answer → test. You do not advance individual teams.",
   twist:"The Haunting is live: new context has appeared. Teams automatically move through repair → vote → evidence check.",
-  reveal:"Evidence and movement are visible to the room. Debrief the context lesson briefly, award an optional bonus, then launch the next case.",
+  reveal:"Evidence and score are visible to the room; board charms show progress separately. Debrief the context lesson briefly, award an optional bonus, then launch the next case.",
   "final-build":"The Curse of the Confident AI is live. Teams build, vote, select, and test automatically.",
   "final-twist":"Final consequence is live. Teams repair, vote, and judge automatically.",
-  "final-reveal":"Final movement is revealed. Close on the learning, not only the winner.",
+  "final-reveal":"Final evidence and score are revealed. Close on the learning, not only the winner.",
   complete:"Game complete."
  }[s]||"";
  return room.total?`${base} ${room.ready}/${room.total} teams are ready for the next shared moment.`:base;
@@ -74,7 +74,7 @@ function stageHelp(){
 function facultyQuickStart(){
  return `<details class="panel facultyQuick"><summary><b>📋 FACULTY QUICK START</b> · hybrid Game Master model</summary><div class="playerGuideGrid">
  <div><b>AUTOMATED</b><p>Teams move themselves through submitting, voting, answer selection, testing, repair, and judgment.</p></div>
- <div><b>YOU CONTROL</b><p>Start each case, reveal the Haunting, reveal evidence/movement, launch the next case, and launch the Final Boss.</p></div>
+ <div><b>YOU CONTROL</b><p>Start each case, reveal the Haunting, reveal evidence + score, launch the next case, and launch the Final Boss.</p></div>
  <div><b>WATCH PROGRESS</b><p>Use the Room Monitor to see who is ready, which players still owe an action, and which teams have a tie.</p></div>
  <div><b>INSPECT, DON'T TRAFFIC-CONTROL</b><p>Open a team to see live submissions and vote counts. Winning answers are selected automatically; instructor approval is not required.</p></div>
  <div><b>OVERRIDE ONLY WHEN NEEDED</b><p>If a device dies or someone leaves, excuse that individual player for the current case. Use whole-room override only as a last resort. Incomplete teams receive no automatic credit for unfinished judgment.</p></div>
@@ -88,8 +88,8 @@ function facilitationGuide(){
  else if(s==="tutorial")g={time:"4–5 min",say:"“Your investigator training will teach the rules. Follow your screen; do not memorize anything.”",do:"Let the tutorial teach the loop.",watch:"Anyone stuck on the basic interaction.",advance:"The room monitor shows teams ready, then launch Moment 1."};
  else if(s==="build"||s==="final-build")g={time:s==="final-build"?"5–6 min":"~8 min",say:s==="final-build"?"“Use everything you learned. Your team will move itself into Test when voting resolves.”":"“Investigate the clues. Once everyone votes, your strongest answer is selected automatically and your team moves into the Test Chamber.”",do:"Circulate. Watch the Room Monitor rather than clicking teams forward.",watch:"Ties, missing votes, students who have not tested, or one person dominating.",advance:room.allReady?"All teams are ready — reveal the Haunting.":`${room.ready}/${room.total} teams ready. Wait or use Override only for a real exception.`};
  else if(s==="twist"||s==="final-twist")g={time:"5–6 min",say:"“The lab is haunted: new context just appeared. Adapt what changed; do not start over unless you need to.”",do:"Let teams repair, vote, and judge. Their internal steps advance automatically.",watch:"Tied votes, missing judgment ballots, or teams ignoring consequences.",advance:room.allReady?"All teams are ready — reveal evidence and movement.":`${room.ready}/${room.total} teams ready for reveal.`};
- else if(s==="reveal"||s==="final-reveal")g={time:"2–3 min",say:"“Look up. This movement reflects judgment, not fancy wording.”",do:"Debrief one insight and optionally award one AI-literacy bonus.",watch:"Over-rewarding humor or polish instead of context/evidence.",advance:s==="final-reveal"?"Finish with the learning model.":"Launch the next shared Moment when the room is reset."};
- else if(s==="complete")g={time:"5 min",say:"“What changed when the context changed?”",do:"Let students articulate WHO → WHAT → WHY → CONTEXT → CONSTRAINTS → OUTPUT → CHECK.",watch:"Turning the ending into a lecture.",advance:"Game over."};
+ else if(s==="reveal"||s==="final-reveal")g={time:"2–3 min",say:"“Look up. The score reflects completion and bonuses; the charm shows progress through the game.”",do:"Debrief one insight and optionally award one AI-literacy bonus.",watch:"Over-rewarding humor or polish instead of context/evidence.",advance:s==="final-reveal"?"Finish with the learning model.":"Launch the next shared case when the room is reset."};
+ else if(s==="complete")g={time:"5 min",say:"“What changed when the context changed?”",do:"Let students articulate WHO → GOAL → SITUATION → CONSTRAINTS → OUTPUT → CHECK.",watch:"Turning the ending into a lecture.",advance:"Game over."};
  else g={time:"2–4 min",say:"“Follow your screen and talk to your team.”",do:"Watch the room monitor.",watch:"Exceptions only.",advance:"Use the shared control when teams are ready."};
  return `<section class="panel facilitator"><div class="facilitatorHead"><div><div class="label">🎤 FACILITATION GUIDE · ${esc(g.time)}</div><div class="bigq">What you do right now</div></div><span class="momentBadge">${(s==="build"||s==="twist")&&m?`CASE ${r+1}/3 · ${esc(m.key)}`:esc(D.stages[s]||s)}</span></div><div class="facilGrid"><div><b>SAY</b><p>${esc(g.say)}</p></div><div><b>DO</b><p>${esc(g.do)}</p></div><div><b>WATCH FOR</b><p>${esc(g.watch)}</p></div><div><b>ADVANCE WHEN</b><p>${esc(g.advance)}</p></div></div></section>`;
 }
