@@ -76,6 +76,9 @@ jobs:
           echo "$CQ_JS" | grep -q 'I REVIEWED A TEAMMATE / SAMPLE RESPONSE'
           echo "$CQ_JS" | grep -q 'Judge the RESPONSE, not the prompt'
           echo "$CQ_JS" | grep -q '1 case point'
+          echo "$CQ_JS" | grep -q 'PROPOSE IF USEFUL'
+          echo "$CQ_JS" | grep -q 'PROPOSE AN ANSWER'
+          echo "$CQ_JS" | grep -q 'EVERY ACTIVE PLAYER votes'
           echo "$CQ_JS" | grep -q 'boardPosition' || true
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           echo "$INST_JS" | grep -q 'TEST MODE IS ON'
@@ -100,6 +103,13 @@ jobs:
           echo "$INST_JS" | grep -q 'OPTIONAL DEBRIEF BONUS'
           echo "$INST_JS" | grep -q 'function stageStats'
           echo "$INST_JS" | grep -q 'function gameMasterConsole'
+          echo "$INST_JS" | grep -q 'function rememberGmUi'
+          echo "$INST_JS" | grep -q 'Answers proposed'
+          echo "$INST_JS" | grep -q 'Responses reviewed'
+          echo "$INST_JS" | grep -q 'VIEW TEAM ↓'
+          echo "$INST_JS" | grep -q 'Waiting for any teammate to submit the first answer'
+          echo "$INST_JS" | grep -q 'REVEAL FINAL EVIDENCE + SCORE'
+          ! echo "$INST_JS" | grep -q 'REVEAL EVIDENCE + MOVEMENT'
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
@@ -235,6 +245,7 @@ jobs:
           echo "$INST_DOM" | grep -q "FACILITATION GUIDE" || { echo "Instructor facilitation guide did not render"; exit 1; }
           echo "$INST_DOM" | grep -q "GAME CONTROLS" || { echo "Instructor game controls did not render"; exit 1; }
           echo "$INST_DOM" | grep -q "YOUR NEXT SHARED ACTION" || { echo "Instructor next action did not render"; exit 1; }
+          echo "$INST_DOM" | grep -q "ROOM READINESS" || { echo "Instructor room readiness did not render"; exit 1; }
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
