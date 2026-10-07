@@ -199,6 +199,9 @@ jobs:
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
+          BOARD_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-board.js?verify=$GITHUB_SHA")"
+          echo "$BOARD_JS" | grep -q 'animateBoardPositions'
+          echo "$BOARD_JS" | grep -q 'shownPositions'
           echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
           ! echo "$BOARD_DOM" | grep -Eq ">PROFESSOR<|>UNIVERSITY<|>STUDENT<|>ACADEMIC ADVISOR<" || { echo "Obsolete stakeholder label rendered"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
