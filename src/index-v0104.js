@@ -26,7 +26,8 @@ export class ClassroomSession extends BaseClassroomSession {
       ...team,
       members:(team.members||[]).map(id=>cqPublicPlayer(players[id]||{id,name:'Player',mode:'play'})),
       roles:Object.fromEntries((team.members||[]).map(id=>[id,cqRole(team,id,state.round)])),
-      progressPhase:cqTeamPhase(team,cqRoundKey(state.round,String(state.stage).startsWith('final')),state)
+      progressPhase:cqTeamPhase(team,cqRoundKey(state.round,String(state.stage).startsWith('final')),state),
+      boardPosition:cqBoardPosition(team,state)
     });
     const cqUpdateCandidate=(team,key,field)=>{
       team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
@@ -76,6 +77,43 @@ export class ClassroomSession extends BaseClassroomSession {
         return 'build';
       }
       return r.phase||'waiting';
+    };
+    const cqBoardPosition=(team,state)=>{
+      const s=state.stage,rn=Math.max(0,Math.min(2,Number(state.round)||0));
+      if(s==='lobby'||s==='tutorial')return 0;
+      if(s==='complete')return 19;
+      const final=String(s).startsWith('final');
+      const key=cqRoundKey(state.round,final),r=team.rounds?.[key]||{};
+      if(final){
+        if(s==='final-reveal')return 19;
+        if(s==='final-twist'){
+          if((team.members||[]).length&&(team.members||[]).every(id=>!!r.checkBallots?.[id]))return 18;
+          if(r.repair||r.repairCandidate)return 18;
+          return 17;
+        }
+        if(s==='final-build'){
+          if((team.members||[]).length&&(team.members||[]).every(id=>!!r.tested?.[id]))return 17;
+          if(r.build||r.buildCandidate)return 17;
+          if(Object.keys(r.buildProposals||{}).length)return 16;
+          return 15;
+        }
+        return 15;
+      }
+      const base=1+(rn*5);
+      if(s==='reveal')return Math.min(19,base+4);
+      if(s==='twist'){
+        if((team.members||[]).length&&(team.members||[]).every(id=>!!r.checkBallots?.[id]))return Math.min(19,base+4);
+        if(r.repair||r.repairCandidate)return Math.min(19,base+4);
+        return Math.min(19,base+3);
+      }
+      if(s==='build'){
+        if((team.members||[]).length&&(team.members||[]).every(id=>!!r.tested?.[id]))return Math.min(19,base+3);
+        if(r.build||r.buildCandidate)return Math.min(19,base+2);
+        if(Object.keys(r.buildVotes||{}).length)return Math.min(19,base+2);
+        if(Object.keys(r.buildProposals||{}).length)return Math.min(19,base+1);
+        return base;
+      }
+      return Math.min(19,base);
     };
     const cqAutoSelect=(team,key,field)=>{
       const r=team.rounds?.[key]||{},candidate=cqUpdateCandidate(team,key,field);
