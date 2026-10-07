@@ -51,20 +51,20 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/api/session/context-quest-live/cq/snapshot" | grep -q '"stage"'
           echo "Checking team runtime"
           CQ_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest.js?verify=$GITHUB_SHA")"
-          echo "$CQ_JS" | grep -q 'LIVE CLASSROOM PARTY GAME'
+          echo "$CQ_JS" | grep -q 'THE PROMPTS'
           echo "$CQ_JS" | grep -q 'FORM BALANCED VIRTUAL TEAMS' || true
           echo "$CQ_JS" | grep -q 'YOUR DEVICE = YOUR CONTROLLER'
           echo "$CQ_JS" | grep -q 'function isEditing'
           echo "$CQ_JS" | grep -q 'REMOVE MY VOTE'
-          echo "$CQ_JS" | grep -q 'MAD LIBS PROMPT'
+          echo "$CQ_JS" | grep -q 'INVESTIGATOR TRAINING'
           echo "$CQ_JS" | grep -q 'PICK THE BEST PROMPT'
           echo "$CQ_JS" | grep -q 'ONLY YOU SEE THIS'
           echo "$CQ_JS" | grep -q 'SPOT THE PROBLEMS'
-          echo "$CQ_JS" | grep -q 'CHOOSE A CHARM'
-          echo "$CQ_JS" | grep -q 'SAVE TEAM NAME + CHARM'
-          echo "$CQ_JS" | grep -q 'CONTEXT MATCH'
-          echo "$CQ_JS" | grep -q 'MOMENT'
-          echo "$CQ_JS" | grep -q 'FINAL BOSS'
+          echo "$CQ_JS" | grep -q 'CHOOSE YOUR HALLOWEEN CHARM'
+          echo "$CQ_JS" | grep -q 'LOCK TEAM IDENTITY'
+          echo "$CQ_JS" | grep -q 'MYSTERY PROMPT'
+          echo "$CQ_JS" | grep -q 'HAUNTED LAB'
+          echo "$CQ_JS" | grep -q 'CURSE OF THE CONFIDENT AI'
           echo "$CQ_JS" | grep -q 'HOW TO PLAY'
           echo "$CQ_JS" | grep -q 'one active answer'
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
@@ -76,7 +76,7 @@ jobs:
           echo "$INST_JS" | grep -q 'OPEN TEST SANDBOX'
           echo "$INST_JS" | grep -q 'ADVANCE WHEN'
           echo "$INST_JS" | grep -q 'FACULTY QUICK START'
-          echo "$INST_JS" | grep -q 'LIVE ROOM MONITOR'
+          echo "$INST_JS" | grep -q 'HAUNTED LAB ROOM MONITOR'
           echo "$INST_JS" | grep -q 'Winning answers are selected automatically'
           echo "$INST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "Checking isolated test sandbox runtime"
@@ -84,7 +84,7 @@ jobs:
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
           echo "$TEST_JS" | grep -q 'SAFE REHEARSAL ENVIRONMENT'
           echo "$TEST_JS" | grep -q 'SIMULATE CURRENT PHASE'
-          echo "$TEST_JS" | grep -q 'REVEAL PLOT TWIST'
+          echo "$TEST_JS" | grep -q 'REVEAL PLOT TWIST' || echo "$TEST_JS" | grep -q 'REVEAL THE HAUNTING'
           echo "$TEST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
       - name: Verify Context Quest hybrid team automation
@@ -97,8 +97,8 @@ jobs:
             curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p$n\",\"name\":\"Player $n\",\"mode\":\"play\"}" "$BASE/join" | grep -q '"ok":true'
           done
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$BASE/form-teams" | grep -q '"teamsFormed":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","name":"Rocket Scholars","charm":"🚀"}' "$BASE/team-customize" | grep -q '"customized":true'
-          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","name":"Robot Rebels","charm":"🤖"}' "$BASE/team-customize" | grep -q '"customized":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","name":"Ghost Hunters","charm":"🎃"}' "$BASE/team-customize" | grep -q '"customized":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","name":"Prompt Phantoms","charm":"👻"}' "$BASE/team-customize" | grep -q '"customized":true'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"tutorial","round":0}' "$BASE/control" | grep -q '"stage":"tutorial"'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
 
@@ -184,7 +184,7 @@ jobs:
           TEAM_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest)"
           echo "TEAM DOM bytes: ${#TEAM_DOM}"
           echo "$TEAM_DOM" | grep -q "CONTEXT" || { echo "Team surface missing Context Quest render"; exit 1; }
-          echo "$TEAM_DOM" | grep -Eq "EVERYONE|TEAM SETUP|PLAYABLE TUTORIAL|MOMENT|TEAM READY" || { echo "Team surface did not render a playable state"; exit 1; }
+          echo "$TEAM_DOM" | grep -Eq "PROMPTS|INVESTIGATION TEAM SETUP|INVESTIGATOR TRAINING|CASE|TEAM READY|CASE PAUSED" || { echo "Team surface did not render a playable state"; exit 1; }
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "INSTRUCTOR DOM bytes: ${#INST_DOM}"
           echo "$INST_DOM" | grep -q "GAME MASTER" || { echo "Instructor surface missing Game Master render"; exit 1; }
@@ -193,7 +193,7 @@ jobs:
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "LIVE CLASSROOM BOARD" || { echo "Board header did not render"; exit 1; }
-          echo "$BOARD_DOM" | grep -Eq "EVERYONE JOIN|CUSTOMIZE YOUR TEAM|CONTEXT QUEST|MOMENT|FINAL" || { echo "Board state did not render"; exit 1; }
+          echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
           echo "TEST DOM bytes: ${#TEST_DOM}"
           echo "$TEST_DOM" | grep -q "TEST SANDBOX" || { echo "Test sandbox header did not render"; exit 1; }
