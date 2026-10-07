@@ -70,22 +70,22 @@ export class ClassroomSession extends BaseClassroomSession {
     });
     const cqUpdateCandidate=(team,key,field)=>{
       team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
-      const proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||{},rows=Object.values(proposals),counts={};
-      for(const v of Object.values(votes))counts[v]=(counts[v]||0)+1;
+      const proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||{},rows=Object.values(proposals),counts={},required=cqRequiredMembers(team,key);
+      for(const voterId of required){const v=votes[voterId];if(v)counts[v]=(counts[v]||0)+1;}
       rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||(a.at||0)-(b.at||0));
       const top=rows[0],topCount=top?(counts[top.id]||0):0,second=rows[1]?(counts[rows[1].id]||0):0;
-      const required=cqRequiredMembers(team,key),allVoted=required.length>0&&required.every(id=>!!votes[id]);
+      const allVoted=required.length>0&&required.every(id=>!!votes[id]);
       const tie=!!top&&topCount===second&&topCount>0;
-      r[field+'AllVoted']=allVoted;r[field+'Tie']=tie;r[field+'Candidate']=allVoted&&!tie&&top?{id:top.id,text:top.text,name:top.name,votes:topCount,totalVotes:Object.keys(votes).length}:null;
+      r[field+'AllVoted']=allVoted;r[field+'Tie']=tie;r[field+'Candidate']=allVoted&&!tie&&top?{id:top.id,text:top.text,name:top.name,votes:topCount,totalVotes:required.length}:null;
       if(!r[field+'Candidate']||r[field+'ApprovedId']!==r[field+'Candidate']?.id){r[field+'Approved']=false;r[field+'ApprovedId']=null;r[field+'ApprovedAt']=null;}
       return r[field+'Candidate'];
     };
     const cqFinalizeChoice=(team,key,field)=>{
       team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
-      const proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||{};
+      const proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||{},required=cqRequiredMembers(team,key);
       const rows=Object.values(proposals);
       if(!rows.length)return;
-      const counts={};for(const v of Object.values(votes))counts[v]=(counts[v]||0)+1;
+      const counts={};for(const voterId of required){const v=votes[voterId];if(v)counts[v]=(counts[v]||0)+1;}
       rows.sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||(a.at||0)-(b.at||0));
       const winner=rows[0];r[field]=winner.text;r[field+'Winner']=winner.id;r[field+'FinalizedAt']=Date.now();
     };
@@ -338,6 +338,9 @@ export class ClassroomSession extends BaseClassroomSession {
       cqUpdateCandidate(team,key,'build');cqUpdateCandidate(team,key,'repair');
       if(r.buildAllVoted&&!r.buildTie&&!r.build)cqAutoSelect(team,key,'build');
       if(r.repairAllVoted&&!r.repairTie&&!r.repair)cqAutoSelect(team,key,'repair');
+      const required=cqRequiredMembers(team,key);
+      if(required.length&&required.every(id=>!!r.tested?.[id]))r.phase='ready-twist';
+      if(required.length&&required.every(id=>!!r.checkBallots?.[id]))r.phase='ready-reveal';
       teams[team.id]=team;await this.state.storage.put('cqTeams',teams);
       const players=await cqPlayers();return json({ok:true,team:cqHydrate(team,players,state),playerId,excused:!!r.excused[playerId]});
     }
