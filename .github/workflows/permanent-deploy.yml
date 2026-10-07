@@ -103,7 +103,7 @@ jobs:
       - name: Verify Context Quest hybrid team automation
         run: |
           set -e
-          BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke/cq"
+          BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke-$GITHUB_RUN_ID/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
 
           for n in 1 2 3 4; do
@@ -184,7 +184,7 @@ jobs:
       - name: Verify Context Quest isolated test sandbox
         run: |
           set -e
-          SANDBOX="https://classroom.itsbadlabs.com/api/session/context-quest-sandbox/cq"
+          SANDBOX="https://classroom.itsbadlabs.com/api/session/context-quest-sandbox-$GITHUB_RUN_ID/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$SANDBOX/reset" > /dev/null
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"enabled":true}' "$SANDBOX/test-mode" | grep -q '"testMode":true'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"count":10,"watchers":2}' "$SANDBOX/test-players" | grep -q '"created":10'
@@ -195,7 +195,7 @@ jobs:
       - name: Rehearse Context Quest with 30 concurrent students
         run: |
           set -e
-          LOAD="https://classroom.itsbadlabs.com/api/session/context-quest-load-smoke/cq"
+          LOAD="https://classroom.itsbadlabs.com/api/session/context-quest-load-smoke-$GITHUB_RUN_ID/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$LOAD/reset" > /dev/null
           seq 1 30 | xargs -I{} -P 15 sh -c 'curl --fail --silent --show-error -X POST -H "content-type: application/json" -d "{\"playerId\":\"load-{}\",\"name\":\"Student {}\",\"mode\":\"play\"}" "$0/join" > /dev/null' "$LOAD"
           curl --fail --silent --show-error "$LOAD/snapshot" | grep -q '"playing":30'
