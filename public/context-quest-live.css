@@ -225,3 +225,10 @@ body{background:#17131f;background-image:radial-gradient(#4b3b59 1px,transparent
 .bonusZone{margin-top:10px;border:2px solid #6d3d8e;border-radius:12px;background:#f7efff;padding:10px}
 @media(max-width:980px){.gmConsole{grid-template-columns:1fr 1fr;top:120px}.gmActionBlock{grid-column:1/-1}.needsGroups{grid-template-columns:1fr}.stageStats .statusgrid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.gmConsole{position:relative;top:auto;grid-template-columns:1fr}.gmActionBlock{grid-column:auto}.stageStats .statusgrid{grid-template-columns:repeat(2,1fr)}}
+
+/* Game Master live-control refinements */
+.teamrow{scroll-margin-top:285px}
+.jumpTeam{margin-top:8px}
+.gameMenuPop,.problemPop{max-height:min(70vh,520px);overflow:auto}
+@media(max-width:980px){.teamrow{scroll-margin-top:340px}}
+@media(max-width:640px){.teamrow{scroll-margin-top:20px}}
