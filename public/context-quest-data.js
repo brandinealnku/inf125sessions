@@ -59,8 +59,7 @@ final:{
  twist:"The assistant confidently gives a first-year student incorrect high-stakes course information—and the student is about to act on it.",
  cards:[
   ["WHO","A first-year college student"],
-  ["WHAT","Course-decision help"],
-  ["WHY","Help the student make an informed choice"],
+  ["GOAL","Help the student make an informed course decision"],
   ["SITUATION","University policies + the student's actual situation"],
   ["CONSTRAINTS","Do not invent requirements; protect private data"],
   ["OUTPUT","Clear next steps + visible uncertainty"],
