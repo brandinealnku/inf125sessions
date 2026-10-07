@@ -169,3 +169,19 @@ body{background:#17131f;background-image:radial-gradient(#4b3b59 1px,transparent
 .success{background:#dceca2}
 .chaos{border-color:#a74059}
 .btn.purple{background:#6d3d8e}.btn.teal{background:#84cbb0}.btn.green{background:#9acb67}.btn.red{background:#a74059}
+
+/* Strong charm selection feedback */
+.selectedCharmStatus{display:flex;align-items:center;gap:12px;border:3px solid var(--ink);border-radius:16px;background:#fff3c6;padding:10px 12px;margin:8px 0 12px;box-shadow:0 4px 0 #0002}
+.selectedCharmStatus small{display:block;font-size:10px;font-weight:1000;letter-spacing:.09em;color:#6c3a92}
+.selectedCharmStatus b{display:block;font-size:16px;margin-top:2px}
+.selectedCharmEmoji{display:grid;place-items:center;width:52px;height:52px;border:3px solid var(--ink);border-radius:50%;background:#ffb04f;font-size:30px;flex:none}
+.charmpick{position:relative;transition:transform .12s ease,box-shadow .12s ease,background .12s ease,border-color .12s ease}
+.charmpick:not(:disabled):hover{transform:translateY(-4px) scale(1.03);box-shadow:0 8px 0 var(--ink);background:#fff0bd;border-color:#6d3d8e}
+.charmpick.selected,.charmpick.selected:hover{background:#ffb04f;border:5px solid #24112f;box-shadow:0 0 0 5px #d7f074,0 7px 0 #24112f;transform:translateY(-3px) scale(1.05)}
+.charmpick.selected small{background:#24112f;color:white;border-radius:999px;padding:3px 7px}
+.charmCheck{position:absolute;right:6px;top:6px;display:grid;place-items:center;width:25px;height:25px;border:2px solid var(--ink);border-radius:50%;background:#d7f074;font-size:16px;font-weight:1000}
+.charmEmoji{font-size:34px}
+
+/* Board progress motion */
+.boardPiece{animation:boardPieceArrive .35s ease-out}
+@keyframes boardPieceArrive{0%{transform:scale(.65) translateY(10px);opacity:.35}70%{transform:scale(1.08) translateY(-2px);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
