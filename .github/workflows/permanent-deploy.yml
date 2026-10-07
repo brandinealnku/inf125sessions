@@ -70,6 +70,12 @@ jobs:
           ! echo "$CQ_JS" | grep -q 'GHOST HUNT · TEAM REPAIR SELECTED'
           echo "$CQ_JS" | grep -q 'HOW TO PLAY'
           echo "$CQ_JS" | grep -q 'one active answer'
+          echo "$CQ_JS" | grep -q 'Generative AI'
+          echo "$CQ_JS" | grep -q 'YOUR NEXT'
+          echo "$CQ_JS" | grep -q 'CAN.T ACCESS CHATGPT'
+          echo "$CQ_JS" | grep -q 'I REVIEWED A TEAMMATE / SAMPLE RESPONSE'
+          echo "$CQ_JS" | grep -q 'Judge the RESPONSE, not the prompt'
+          echo "$CQ_JS" | grep -q '1 case point'
           echo "$CQ_JS" | grep -q 'boardPosition' || true
           INST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-instructor.js?verify=$GITHUB_SHA")"
           echo "$INST_JS" | grep -q 'TEST MODE IS ON'
@@ -84,6 +90,8 @@ jobs:
           echo "$INST_JS" | grep -q 'Winning answers are selected automatically'
           echo "$INST_JS" | grep -q 'LIVE TEAM SUBMISSIONS'
           echo "$INST_JS" | grep -q 'D.progressLabels'
+          echo "$INST_JS" | grep -q 'EXCUSE THIS CASE'
+          echo "$INST_JS" | grep -q 'excusePlayer'
           echo "Checking isolated test sandbox runtime"
           TEST_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-test.js?verify=$GITHUB_SHA")"
           echo "$TEST_JS" | grep -q 'context-quest-sandbox'
@@ -102,6 +110,13 @@ jobs:
             curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"p$n\",\"name\":\"Player $n\",\"mode\":\"play\"}" "$BASE/join" | grep -q '"ok":true'
           done
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$BASE/form-teams" | grep -q '"teamsFormed":true'
+          PRE="$(curl --fail --silent --show-error "$BASE/snapshot")"
+          T1_ID="$(printf '%s' "$PRE" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),t=j.teams.find(t=>t.members.some(m=>m.id==="p1"));process.stdout.write(t.id)})')"
+          T1_OTHER="$(printf '%s' "$PRE" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s),t=j.teams.find(t=>t.members.some(m=>m.id==="p1")),m=t.members.find(m=>m.id!=="p1");process.stdout.write(m?.id||"")})')"
+          if [ -n "$T1_OTHER" ]; then
+            curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"teamId\":\"$T1_ID\",\"playerId\":\"$T1_OTHER\",\"excused\":true}" "$BASE/excuse-player" | grep -q '"excused":true'
+            curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"teamId\":\"$T1_ID\",\"playerId\":\"$T1_OTHER\",\"excused\":false}" "$BASE/excuse-player" | grep -q '"excused":false'
+          fi
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","name":"Ghost Hunters","charm":"🎃"}' "$BASE/team-customize" | grep -q '"customized":true'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","name":"Prompt Phantoms","charm":"👻"}' "$BASE/team-customize" | grep -q '"customized":true'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"tutorial","round":0}' "$BASE/control" | grep -q '"stage":"tutorial"'
@@ -161,7 +176,7 @@ jobs:
           SNAP="$(curl --fail --silent --show-error "$BASE/snapshot")"
           echo "=== AFTER SCORE REVEAL ==="
           echo "$SNAP"
-          [ "$(printf '%s' "$SNAP" | grep -o '"position":3' | wc -l)" -ge 2 ]
+          [ "$(printf '%s' "$SNAP" | grep -o '"position":1' | wc -l)" -ge 2 ]
           [ "$(printf '%s' "$SNAP" | grep -o '"boardPosition":5' | wc -l)" -ge 2 ]
 
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
@@ -177,6 +192,18 @@ jobs:
           curl --fail --silent --show-error "$SANDBOX/snapshot" | grep -q '"playing":10'
           curl --fail --silent --show-error "$SANDBOX/snapshot" | grep -q '"testMode":true'
           echo "Context Quest sandbox uses its own session and can create a rehearsal room."
+      - name: Rehearse Context Quest with 30 concurrent students
+        run: |
+          set -e
+          LOAD="https://classroom.itsbadlabs.com/api/session/context-quest-load-smoke/cq"
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$LOAD/reset" > /dev/null
+          seq 1 30 | xargs -I{} -P 15 sh -c 'curl --fail --silent --show-error -X POST -H "content-type: application/json" -d "{\"playerId\":\"load-{}\",\"name\":\"Student {}\",\"mode\":\"play\"}" "$0/join" > /dev/null' "$LOAD"
+          curl --fail --silent --show-error "$LOAD/snapshot" | grep -q '"playing":30'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$LOAD/form-teams" | grep -q '"teamsFormed":true'
+          seq 1 120 | xargs -I{} -P 30 sh -c 'curl --fail --silent --show-error "$0/snapshot" > /dev/null' "$LOAD"
+          curl --fail --silent --show-error "$LOAD/snapshot" | grep -q '"playing":30'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$LOAD/reset" > /dev/null
+          echo "30-student concurrency rehearsal passed."
       - name: Verify Context Quest renders in a browser
         run: |
           set -e
