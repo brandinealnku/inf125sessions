@@ -32,15 +32,15 @@ function animateBoardPositions(){
 function mast(body){return `<header class="mast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">🎃 THE HAUNTED PROMPT LAB · LIVE BOARD</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="pill">🎮 ${snap?.playing||0} PLAYING</div><div class="pill">👀 ${snap?.watching||0} WATCHING</div></div></header>${body}`}
 function phaseData(){
  const s=snap.state.stage,r=D.rounds[snap.state.round];let title=D.stages[s]||s,sub="";
- if(["build","test","twist","check","reveal"].includes(s)){title=`CASE ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?"Investigation teams are finding clues, voting, and testing.":s==="test"?"Teams are in the Test Chamber.":s==="twist"?"👻 THE HAUNTING: "+r.twist:s==="check"?"EVIDENCE CHECK: audience · goal · constraints · evidence":s==="reveal"?"🔮 EVIDENCE + MOVEMENT REVEAL!":""}
+ if(["build","test","twist","check","reveal"].includes(s)){title=`CASE ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?"Investigation teams are finding clues, voting, and testing.":s==="test"?"Teams are in the Test Chamber.":s==="twist"?"👻 THE HAUNTING: "+r.twist:s==="check"?"EVIDENCE CHECK: audience · goal · constraints · evidence":s==="reveal"?"🔮 EVIDENCE + SCORE REVEAL!":""}
  if(s==="lobby"){title=snap.state.teamsFormed?"ASSEMBLE YOUR INVESTIGATION TEAM":"ENTER THE HAUNTED PROMPT LAB";sub=snap.state.teamsFormed?"Choose your team name + Halloween charm on your device.":"classroom.itsbadlabs.com/context-quest · choose INVESTIGATE or OBSERVE"}
  if(s==="tutorial"){title="🔦 INVESTIGATOR TRAINING";sub="Learn the AI context loop by solving the first mini-case."}
- if(s==="final-build"){title="👾 THE CURSE OF THE CONFIDENT AI";sub="Use every clue: WHO · WHAT · WHY · CONTEXT · CONSTRAINTS · OUTPUT · CHECK"}
+ if(s==="final-build"){title="👾 THE CURSE OF THE CONFIDENT AI";sub="Use every clue: WHO · GOAL · SITUATION · CONSTRAINTS · OUTPUT · CHECK"}
  if(s==="final-test"){title="FINAL TEST";sub="Run the team-selected design."}
  if(s==="final-twist"){title="🚨 THE FINAL CURSE";sub=D.final.twist}
- if(s==="final-check"){title="FINAL JUDGMENT";sub="Every player votes. The team result moves the charm."}
+ if(s==="final-check"){title="FINAL JUDGMENT";sub="Every active player completes the Evidence Check. Score and board progress stay separate."}
  if(s==="final-reveal"){title="🏆 FINAL EVIDENCE REVEAL";sub="Who used context, verification, and adaptation best?"}
- if(s==="complete"){title="🎃 CASE CLOSED · CONTEXT BROKE THE CURSE";sub="WHO → WHAT → WHY → CONTEXT → CONSTRAINTS → OUTPUT → CHECK"}
+ if(s==="complete"){title="🎃 CASE CLOSED · CONTEXT BROKE THE CURSE";sub="WHO → GOAL → SITUATION → CONSTRAINTS → OUTPUT → CHECK"}
  return {title,sub}
 }
 function centerPanel(){
