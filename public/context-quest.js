@@ -173,7 +173,7 @@ function teamWait(kind,final=false){
  const t=team();
  const cfg=kind==="ready-twist"
   ?{icon:"🕯️",label:"READY FOR THE HAUNTING",title:"Your team is ready for the Haunting.",text:"Look up. The Game Master will reveal new context to the whole room when the other investigation teams are ready."}
-  :{icon:"🔮",label:"READY FOR EVIDENCE REVEAL",title:"Your investigation is complete.",text:"Look up. The Game Master will reveal scoring and board movement when the room is ready."};
+  :{icon:"🔮",label:"READY FOR EVIDENCE REVEAL",title:"Your investigation is complete.",text:"Look up. The Game Master will reveal the case score when the room is ready. Your charm already shows game progress."};
  $("#app").innerHTML=mast(`<section class="panel wait hauntedWait"><div class="icon">${cfg.icon}</div><div class="label">${cfg.label}</div><h2>${cfg.title}</h2><p>${cfg.text}</p><div class="success"><b>${esc(t?.charm||"👻")} ${esc(t?.name||"Your team")}</b> has finished this part of the case. No more clicks needed.</div></section>`);
 }
 function render(){
@@ -221,7 +221,7 @@ function stableSnapshot(x){
 }
 function isEditing(){
  const a=document.activeElement;
- return !!a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT")&&!a.readOnly&&!a.disabled;
+ return !!a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT"||a.tagName==="SELECT")&&!a.readOnly&&!a.disabled;
 }
 async function refresh(force=false){
  if(!local.name)return render();
