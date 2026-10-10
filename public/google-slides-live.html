@@ -84,6 +84,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 <script src="/shared-v08.js"></script>
 <script>
 const C=Classroom,$=id=>document.getElementById(id);
+const LEGACY_WEEK5_ID='inf125-week05-session1-multimodal-communication',LEGACY_WEEK5_DECK='https://docs.google.com/presentation/d/1Jx0UiNvmFICz7fS8jlwVUtmmpAwTr2N60rIdhzZpU38/edit?usp=drivesdk',LEGACY_WEEK5_RANGES=[[2,2],[3,3],[4,4],[5,6],[7,7],[8,8],[9,9],[10,11],[12,12],[13,13],[14,15],[16,16]];
 let struct='',overlayMode='hidden',deckId='',currentSlide=1,lastPhaseStep=-1;
 
 function deckIdFromUrl(raw){
@@ -93,11 +94,12 @@ function deckIdFromUrl(raw){
   return m?m[1]:'';
 }
 function deckConfig(){
-  const g=C.session.googleSlides||{},deckUrl=(g.deckUrl||'').trim(),ids=Array.isArray(g.slideIds)?g.slideIds.map(x=>String(x||'').replace(/^#?slide=id\./,'').replace(/^id\./,'')).filter(Boolean):[];
+  const g=C.session.googleSlides||{},legacy=C.session.id===LEGACY_WEEK5_ID&&!g.deckUrl,deckUrl=(legacy?LEGACY_WEEK5_DECK:(g.deckUrl||'')).trim(),ids=legacy?Array.from({length:16},(_,i)=>'p'+(i+1)):(Array.isArray(g.slideIds)?g.slideIds.map(x=>String(x||'').replace(/^#?slide=id\./,'').replace(/^id\./,'')).filter(Boolean):[]);
   return{deckUrl,deckId:deckIdFromUrl(deckUrl),slideIds:ids};
 }
 function phaseRange(step=C.snapshot.state.step||0){
-  const m=C.session.steps[Math.max(0,Math.min(C.session.steps.length-1,step))]||{},g=m.googleSlides||{};
+  const m=C.session.steps[Math.max(0,Math.min(C.session.steps.length-1,step))]||{},g=m.googleSlides||{},legacy=C.session.id===LEGACY_WEEK5_ID&&!m.googleSlides;
+  if(legacy&&LEGACY_WEEK5_RANGES[step])return{start:LEGACY_WEEK5_RANGES[step][0],end:LEGACY_WEEK5_RANGES[step][1]};
   const start=Math.max(1,Number(g.start)||step+1),end=Math.max(start,Number(g.end)||start);
   return{start,end};
 }
