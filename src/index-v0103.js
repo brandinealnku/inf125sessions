@@ -51,4 +51,55 @@ export class ClassroomSession {
 }
 export default {async fetch(request,env){const url=new URL(request.url),path=url.pathname.replace(/\/+$/,'')||'/';if(path.startsWith('/api/builder/')){const id=env.CLASSROOM.idFromName('__session_library__'),target=env.CLASSROOM.get(id),u=new URL(request.url);u.pathname=path.replace('/api/builder','/library');return target.fetch(new Request(u.toString(),request))}if(path.startsWith('/api/session/')){const parts=path.split('/').filter(Boolean),id=env.CLASSROOM.idFromName(parts[2]||'session-2');return env.CLASSROOM.get(id).fetch(request)}if(path==='/'&&url.searchParams.get('instructor')==='1')return Response.redirect(withSession('/instructor',url),302);if(path==='/'&&url.searchParams.get('display')==='1')return Response.redirect(withSession('/room',url),302);if(path==='/'||path==='/student')return asset('/student.html',request,env);if(path==='/instructor')return asset('/instructor-v0103.html',request,env);if(path==='/room'||path==='/display')return asset('/room-v0103.html',request,env);if(path==='/builder')return asset('/builder-v0103.html',request,env);return env.ASSETS.fetch(request)}};
 function asset(path,request,env){const u=new URL(request.url);u.pathname=path;return env.ASSETS.fetch(new Request(u.toString(),request))}function withSession(path,url){const u=new URL(path,url),s=url.searchParams.get('session');if(s)u.searchParams.set('session',s);return u.toString()}function slug(v){return String(v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)}function text(v,n=2000){return String(v||'').slice(0,n)}
-function cleanDefinition(body){const id=slug(body.id),steps=Array.isArray(body.steps)?body.steps.slice(0,80).map((s,i)=>({label:text(s.label||`Moment ${i+1}`,80),title:text(s.title||'Untitled moment',200),lead:text(s.lead),minutes:Math.max(1,Math.min(60,Number(s.minutes)||5)),intent:text(s.intent||'',40),type:text(s.type||'prompt',40),key:text(s.key||`moment_${i+1}`,100),choices:Array.isArray(s.choices)?s.choices.map(x=>text(x,200)).slice(0,20):[],multi:!!s.multi,studentTask:text(s.studentTask),roomInstruction:text(s.roomInstruction),visualType:text(s.visualType||'auto',40),visualScene:text(s.visualScene||'',40),visualAccent:text(s.visualAccent,1000),visualCaption:text(s.visualCaption,1500),mediaUrl:text(s.mediaUrl,3000),mediaFit:text(s.mediaFit||'cover',20),mediaOverlay:text(s.mediaOverlay,1000),mediaReveal:text(s.mediaReveal||'immediate',30),focalX:Math.max(0,Math.min(100,Number(s.focalX)??50)),focalY:Math.max(0,Math.min(100,Number(s.focalY)??50)),runbook:{say:text(s.runbook?.say),studentDoes:text(s.runbook?.studentDoes),askNext:text(s.runbook?.askNext),landHere:text(s.runbook?.landHere),watchFor:text(s.runbook?.watchFor),ifStuck:text(s.runbook?.ifStuck),advanceWhen:text(s.runbook?.advanceWhen),transition:text(s.runbook?.transition),openWith:text(s.runbook?.openWith),whyMatters:text(s.runbook?.whyMatters),ask:text(s.runbook?.ask),pause:text(s.runbook?.pause,500),listenFor:text(s.runbook?.listenFor),ifTheySay:text(s.runbook?.ifTheySay),ifQuiet:text(s.runbook?.ifQuiet),pushFurther:text(s.runbook?.pushFurther),revealWhen:text(s.runbook?.revealWhen),sayDuringReveal:text(s.runbook?.sayDuringReveal)}})):[];return{id,title:text(body.title||'Untitled Session',160),course:text(body.course,120),description:text(body.description,1000),durationMinutes:Math.max(10,Math.min(300,Number(body.durationMinutes)||steps.reduce((n,s)=>n+s.minutes,0)||75)),version:'0.10.3',steps}}
+function cleanDefinition(body){
+  const id=slug(body.id);
+  const deckUrl=text(body.googleSlides?.deckUrl,3000);
+  const slideIds=Array.isArray(body.googleSlides?.slideIds)?body.googleSlides.slideIds.map(x=>text(x,160).replace(/^#?slide=id\./,'').replace(/^id\./,'')).filter(Boolean).slice(0,200):[];
+  const steps=Array.isArray(body.steps)?body.steps.slice(0,80).map((s,i)=>({
+    label:text(s.label||`Moment ${i+1}`,80),
+    title:text(s.title||'Untitled moment',200),
+    lead:text(s.lead),
+    minutes:Math.max(1,Math.min(60,Number(s.minutes)||5)),
+    intent:text(s.intent||'',40),
+    type:text(s.type||'prompt',40),
+    key:text(s.key||`moment_${i+1}`,100),
+    choices:Array.isArray(s.choices)?s.choices.map(x=>text(x,200)).slice(0,20):[],
+    multi:!!s.multi,
+    studentTask:text(s.studentTask),
+    roomInstruction:text(s.roomInstruction),
+    visualType:text(s.visualType||'auto',40),
+    visualScene:text(s.visualScene||'',40),
+    visualAccent:text(s.visualAccent,1000),
+    visualCaption:text(s.visualCaption,1500),
+    mediaUrl:text(s.mediaUrl,3000),
+    mediaFit:text(s.mediaFit||'cover',20),
+    mediaOverlay:text(s.mediaOverlay,1000),
+    mediaReveal:text(s.mediaReveal||'immediate',30),
+    focalX:Math.max(0,Math.min(100,Number(s.focalX)??50)),
+    focalY:Math.max(0,Math.min(100,Number(s.focalY)??50)),
+    googleSlides:{
+      start:Math.max(1,Math.min(999,Number(s.googleSlides?.start)||i+1)),
+      end:Math.max(1,Math.min(999,Number(s.googleSlides?.end)||Number(s.googleSlides?.start)||i+1))
+    },
+    runbook:{
+      say:text(s.runbook?.say),studentDoes:text(s.runbook?.studentDoes),askNext:text(s.runbook?.askNext),landHere:text(s.runbook?.landHere),
+      watchFor:text(s.runbook?.watchFor),ifStuck:text(s.runbook?.ifStuck),advanceWhen:text(s.runbook?.advanceWhen),transition:text(s.runbook?.transition),
+      openWith:text(s.runbook?.openWith),whyMatters:text(s.runbook?.whyMatters),ask:text(s.runbook?.ask),pause:text(s.runbook?.pause,500),
+      listenFor:text(s.runbook?.listenFor),ifTheySay:text(s.runbook?.ifTheySay),ifQuiet:text(s.runbook?.ifQuiet),pushFurther:text(s.runbook?.pushFurther),
+      revealWhen:text(s.runbook?.revealWhen),sayDuringReveal:text(s.runbook?.sayDuringReveal)
+    }
+  })):[];
+
+  for(const s of steps) if(s.googleSlides.end<s.googleSlides.start)s.googleSlides.end=s.googleSlides.start;
+
+  return{
+    id,
+    title:text(body.title||'Untitled Session',160),
+    course:text(body.course,120),
+    description:text(body.description,1000),
+    durationMinutes:Math.max(10,Math.min(300,Number(body.durationMinutes)||steps.reduce((n,s)=>n+s.minutes,0)||75)),
+    version:'0.10.6',
+    googleSlides:{deckUrl,slideIds},
+    steps
+  };
+}
