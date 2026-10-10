@@ -47,7 +47,7 @@ jobs:
             echo "Checking https://classroom.itsbadlabs.com/$path"
             curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
-          for path in context-quest context-quest/instructor context-quest/board context-quest/test google-slides-live google-slides-room human-in-the-loop builder; do
+          for path in context-quest context-quest/instructor context-quest/board context-quest/test google-slides-live google-slides-room human-in-the-loop session-report builder; do
             echo "Checking https://classroom.itsbadlabs.com/$path"
             curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
@@ -155,6 +155,22 @@ jobs:
           echo "$HUMAN_LOOP" | grep -q "HUMAN IN THE LOOP"
           echo "$HUMAN_LOOP" | grep -q "not uploaded or stored"
           echo "Optimized INF 128 experience and Human in the Loop finale passed."
+
+          REPORT_HTML="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/session-report?session=inf128-ai-literacy-guest-2026&verify=$GITHUB_SHA")"
+          echo "$REPORT_HTML" | grep -q "Session Impact Report"
+          echo "$REPORT_HTML" | grep -q "Pedagogical map for faculty"
+          echo "$REPORT_HTML" | grep -q "Private instructor appendix"
+
+          IMPACT="https://classroom.itsbadlabs.com/api/session/impact-smoke-$GITHUB_RUN_ID"
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$IMPACT/reset" > /dev/null
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"device":"faculty-test-student","name":"Test Student"}' "$IMPACT/join" | grep -q '"ok":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"device":"faculty-test-student","name":"Test Student","question":"ai_confident_trust","response":"MAYBE — I’D VERIFY"}' "$IMPACT/answer" | grep -q '"ok":true'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"kind":"best_moment","note":"Students reacted strongly to the reveal.","moment":"ai_confident_trust","step":6}' "$IMPACT/research/note" | grep -q '"ok":true'
+          IMPACT_REPORT="$(curl --fail --silent --show-error "$IMPACT/research/report")"
+          printf '%s' "$IMPACT_REPORT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(j.joined!==1||j.answering!==1)process.exit(1);if(j.answerSummary?.ai_confident_trust?.n!==1)process.exit(1);if(j.answerSummary?.ai_confident_trust?.counts?.["MAYBE — I’D VERIFY"]!==1)process.exit(1);if(j.instructorNotes?.[0]?.kind!=="best_moment")process.exit(1);if(JSON.stringify(j).includes("Test Student"))process.exit(1)})'
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$IMPACT/reset" > /dev/null
+          echo "Session Impact Report aggregation, anonymization, and private notes passed."
+
 
 
           echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
@@ -292,6 +308,10 @@ jobs:
           GUEST_LIVE_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/google-slides-live?session=inf128-ai-literacy-guest-2026')"
           echo "INF128 GUEST GOOGLE SLIDES DOM bytes: ${#GUEST_LIVE_DOM}"
           echo "$GUEST_LIVE_DOM" | grep -q "CAN YOU OUTSMART AI" || { echo "INF128 guest ShowRunner did not load"; exit 1; }
+          GUEST_REPORT_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/session-report?session=inf128-ai-literacy-guest-2026')"
+          echo "INF128 IMPACT REPORT DOM bytes: ${#GUEST_REPORT_DOM}"
+          echo "$GUEST_REPORT_DOM" | grep -q "Executive impact summary" || { echo "INF128 impact report did not render"; exit 1; }
+          echo "$GUEST_REPORT_DOM" | grep -q "Human-AI decision boundaries" || { echo "INF128 decision evidence missing from report"; exit 1; }
           GUEST_STUDENT_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/student?session=inf128-ai-literacy-guest-2026')"
           echo "$GUEST_STUDENT_DOM" | grep -q "Can You Outsmart AI" || { echo "INF128 guest student surface did not load"; exit 1; }
           GS_LIVE_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/google-slides-live?session=inf125-week05-session1-multimodal-communication')"
