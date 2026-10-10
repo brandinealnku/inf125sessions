@@ -47,7 +47,7 @@ jobs:
             echo "Checking https://classroom.itsbadlabs.com/$path"
             curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
-          for path in context-quest context-quest/instructor context-quest/board context-quest/test; do
+          for path in context-quest context-quest/instructor context-quest/board context-quest/test google-slides-live google-slides-room builder; do
             echo "Checking https://classroom.itsbadlabs.com/$path"
             curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/$path" > /dev/null
           done
@@ -123,6 +123,31 @@ jobs:
           grep -q 'SIMULATE CURRENT PHASE' /tmp/context-quest-test.js
           grep -q 'REVEAL PLOT TWIST' /tmp/context-quest-test.js || grep -q 'REVEAL THE HAUNTING' /tmp/context-quest-test.js
           grep -q 'LIVE TEAM SUBMISSIONS' /tmp/context-quest-test.js
+          echo "Checking session-driven Google Slides ShowRunner"
+          GS_LIVE="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/google-slides-live?session=inf125-week05-session1-multimodal-communication&verify=$GITHUB_SHA")"
+          GS_ROOM="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/google-slides-room?session=inf125-week05-session1-multimodal-communication&verify=$GITHUB_SHA")"
+          BUILDER="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/builder?verify=$GITHUB_SHA")"
+          printf '%s' "$GS_LIVE" > /tmp/google-slides-live.html
+          printf '%s' "$GS_ROOM" > /tmp/google-slides-room.html
+          printf '%s' "$BUILDER" > /tmp/showrunner-builder.html
+          grep -q 'function deckConfig' /tmp/google-slides-live.html
+          grep -q 'C.session.googleSlides' /tmp/google-slides-live.html
+          grep -q 'function phaseRange' /tmp/google-slides-live.html
+          grep -q 'C.session.googleSlides' /tmp/google-slides-room.html
+          grep -q 'TEACH WITH GOOGLE SLIDES' /tmp/showrunner-builder.html
+          grep -q 'Google Slides deck URL' /tmp/showrunner-builder.html
+          grep -q "gs.start" /tmp/showrunner-builder.html
+          grep -q "gs.end" /tmp/showrunner-builder.html
+
+          BUILDER_ID="showrunner-gslides-smoke-$GITHUB_RUN_ID"
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' \
+            -d "{\"id\":\"$BUILDER_ID\",\"title\":\"Google Slides Smoke\",\"durationMinutes\":20,\"googleSlides\":{\"deckUrl\":\"https://docs.google.com/presentation/d/testDeck123/edit\",\"slideIds\":[\"p1\",\"abc123\",\"abc456\"]},\"steps\":[{\"label\":\"HOOK\",\"title\":\"Hook\",\"minutes\":5,\"googleSlides\":{\"start\":1,\"end\":2}},{\"label\":\"ASK\",\"title\":\"Ask\",\"minutes\":5,\"googleSlides\":{\"start\":3,\"end\":3}}]}" \
+            "https://classroom.itsbadlabs.com/api/builder/session" > /tmp/gslides-save.json
+          GS_DEF="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/api/builder/session/$BUILDER_ID")"
+          printf '%s' "$GS_DEF" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(j.googleSlides?.deckUrl!=="https://docs.google.com/presentation/d/testDeck123/edit")process.exit(1);if(j.googleSlides?.slideIds?.[1]!=="abc123")process.exit(1);if(j.steps?.[0]?.googleSlides?.start!==1||j.steps?.[0]?.googleSlides?.end!==2)process.exit(1);if(j.steps?.[1]?.googleSlides?.start!==3)process.exit(1)})'
+          curl --fail --silent --show-error -X DELETE "https://classroom.itsbadlabs.com/api/builder/session/$BUILDER_ID" > /dev/null
+          echo "Session-driven Google Slides schema and runtimes passed."
+
           echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
       - name: Verify Context Quest hybrid team automation
         run: |
@@ -252,6 +277,13 @@ jobs:
           echo "$INST_DOM" | grep -q "GAME CONTROLS" || { echo "Instructor game controls did not render"; exit 1; }
           echo "$INST_DOM" | grep -q "YOUR NEXT SHARED ACTION" || { echo "Instructor next action did not render"; exit 1; }
           echo "$INST_DOM" | grep -q "ROOM READINESS" || { echo "Instructor room readiness did not render"; exit 1; }
+          GS_LIVE_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/google-slides-live?session=inf125-week05-session1-multimodal-communication')"
+          echo "GOOGLE SLIDES LIVE DOM bytes: ${#GS_LIVE_DOM}"
+          echo "$GS_LIVE_DOM" | grep -q "SHOWRUNNER" || { echo "Google Slides instructor surface did not render"; exit 1; }
+          echo "$GS_LIVE_DOM" | grep -q "AI REMIX" || { echo "Google Slides instructor did not load session content"; exit 1; }
+          GS_ROOM_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/google-slides-room?session=inf125-week05-session1-multimodal-communication')"
+          echo "GOOGLE SLIDES ROOM DOM bytes: ${#GS_ROOM_DOM}"
+          echo "$GS_ROOM_DOM" | grep -q "iframe" || { echo "Google Slides projection did not render deck frame"; exit 1; }
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
           echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
