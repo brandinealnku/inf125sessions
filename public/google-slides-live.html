@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ShowRunner · Week 05 Google Slides Live</title>
+<title>ShowRunner · Google Slides Live</title>
 <link rel="stylesheet" href="/shared-v08.css">
 <style>
 :root{--bg:#090b10;--panel:#11151d;--panel2:#1a2030;--text:#f7f3ea;--muted:#aeb5c2;--accent:#f2b84b;--blue:#4f83d6;--green:#2b7a4e;--red:#b65548;--line:rgba(255,255,255,.14)}
@@ -34,9 +34,9 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
   <iframe id="slidesFrame" allowfullscreen></iframe>
 
   <div class="topbar" id="topbar">
-    <div class="brand">SHOWRUNNER · WEEK 05</div>
-    <input id="slidesUrl" class="url" placeholder="Session 1 source deck" readonly>
-    <button id="loadSlides" class="primary">Reload Source Deck</button>
+    <div class="brand" id="brand">SHOWRUNNER · GOOGLE SLIDES</div>
+    <input id="slidesUrl" class="url" placeholder="Google Slides deck for this experience" readonly>
+    <button id="loadSlides" class="primary">Reload Deck</button>
     <a id="roomLinkTop" class="btn" target="_blank">Projection</a>
     <a id="studentLinkTop" class="btn" target="_blank">Student View</a>
     <button id="fullBtn">Fullscreen</button>
@@ -84,52 +84,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 <script src="/shared-v08.js"></script>
 <script>
 const C=Classroom,$=id=>document.getElementById(id);
-const URL_KEY='showrunner-google-slides-week5-session1-url-v3';
-const DEFAULT_DECK_ID='1Jx0UiNvmFICz7fS8jlwVUtmmpAwTr2N60rIdhzZpU38';
-const DEFAULT_DECK_URL='https://docs.google.com/presentation/d/'+DEFAULT_DECK_ID+'/edit?usp=drivesdk';
-const SLIDES=[
-  {n:1,deck:1,id:'p1',title:'AI REMIX LAB'},
-  {n:2,deck:2,id:'p2',title:'COLD OPEN'},
-  {n:3,deck:3,id:'p3',title:'QUICK VOTE'},
-  {n:4,deck:4,id:'p4',title:'DEBRIEF'},
-  {n:5,deck:5,id:'p5',title:'MINI LESSON'},
-  {n:6,deck:6,id:'p6',title:'CORE MODEL'},
-  {n:7,deck:7,id:'p7',title:'ONE IDEA. FOUR REMIXES'},
-  {n:8,deck:8,id:'p8',title:'TRADEOFFS'},
-  {n:9,deck:9,id:'p9',title:'LIVE REMIX'},
-  {n:10,deck:10,id:'p10',title:'AI REMIX CHALLENGE'},
-  {n:11,deck:11,id:'p11',title:'CHOOSE AN AUDIENCE'},
-  {n:12,deck:12,id:'p12',title:'REMIX IN PROGRESS'},
-  {n:13,deck:13,id:'p13',title:'MULTIMODAL SHOWDOWN'},
-  {n:14,deck:14,id:'p14',title:'POLISHED ≠ ACCURATE'},
-  {n:15,deck:15,id:'p15',title:'HUMAN JUDGMENT'},
-  {n:16,deck:16,id:'p16',title:'EXIT PULSE'}
-];
-const PHASE_MAP_8=[
-  {start:1,end:4},
-  {start:5,end:6},
-  {start:7,end:8},
-  {start:9,end:9},
-  {start:10,end:11},
-  {start:12,end:12},
-  {start:13,end:15},
-  {start:16,end:16}
-];
-const PHASE_MAP_12=[
-  {start:2,end:2},
-  {start:3,end:3},
-  {start:4,end:4},
-  {start:5,end:6},
-  {start:7,end:7},
-  {start:8,end:8},
-  {start:9,end:9},
-  {start:10,end:11},
-  {start:12,end:12},
-  {start:13,end:13},
-  {start:14,end:15},
-  {start:16,end:16}
-];
-let struct='',overlayMode='hidden',deckId=DEFAULT_DECK_ID,currentSlide=1,lastPhaseStep=-1;
+let struct='',overlayMode='hidden',deckId='',currentSlide=1,lastPhaseStep=-1;
 
 function deckIdFromUrl(raw){
   let u;try{u=new URL((raw||'').trim())}catch{return''}
@@ -137,149 +92,123 @@ function deckIdFromUrl(raw){
   const m=u.pathname.match(/\/presentation\/d\/([^/]+)/);
   return m?m[1]:'';
 }
-function slideUrl(slideNumber){
-  const slide=SLIDES[Math.max(1,Math.min(16,slideNumber))-1];
-  const target='id.'+slide.id;
-  return 'https://docs.google.com/presentation/d/'+deckId+'/embed?start=false&loop=false&delayms=3000&rm=minimal&slide='+encodeURIComponent(target)+'#slide='+target;
-}
-function loadSlide(slideNumber){
-  currentSlide=Math.max(1,Math.min(16,slideNumber));
-  $('slidesFrame').src=slideUrl(currentSlide);
-}
-function phaseMap(){
-  return C.session.steps.length===12?PHASE_MAP_12:PHASE_MAP_8;
+function deckConfig(){
+  const g=C.session.googleSlides||{},deckUrl=(g.deckUrl||'').trim(),ids=Array.isArray(g.slideIds)?g.slideIds.map(x=>String(x||'').replace(/^#?slide=id\./,'').replace(/^id\./,'')).filter(Boolean):[];
+  return{deckUrl,deckId:deckIdFromUrl(deckUrl),slideIds:ids};
 }
 function phaseRange(step=C.snapshot.state.step||0){
-  const map=phaseMap();
-  return map[Math.max(0,Math.min(map.length-1,step))]||{start:1,end:16};
+  const m=C.session.steps[Math.max(0,Math.min(C.session.steps.length-1,step))]||{},g=m.googleSlides||{};
+  const start=Math.max(1,Number(g.start)||step+1),end=Math.max(start,Number(g.end)||start);
+  return{start,end};
 }
-function syncSlideToPhase(step=C.snapshot.state.step||0){
-  const range=phaseRange(step);
-  loadSlide(range.start);
+function slideTarget(n){
+  const cfg=deckConfig(),raw=cfg.slideIds[Math.max(1,n)-1]||('p'+Math.max(1,n));
+  return 'id.'+String(raw).replace(/^id\./,'');
 }
+function slideUrl(n){
+  const cfg=deckConfig();if(!cfg.deckId)return'about:blank';
+  const target=slideTarget(n);
+  return 'https://docs.google.com/presentation/d/'+cfg.deckId+'/embed?start=false&loop=false&delayms=3000&rm=minimal&slide='+encodeURIComponent(target)+'#slide='+target;
+}
+function loadSlide(n){
+  const r=phaseRange(),next=Math.max(r.start,Math.min(r.end,Number(n)||r.start));
+  currentSlide=next;
+  $('slidesFrame').src=slideUrl(currentSlide);
+}
+function syncSlideToPhase(step=C.snapshot.state.step||0){const r=phaseRange(step);currentSlide=r.start;$('slidesFrame').src=slideUrl(currentSlide)}
 async function loadSlides(){
-  deckId=DEFAULT_DECK_ID;
-  $('slidesUrl').value=DEFAULT_DECK_URL;
-  localStorage.setItem(URL_KEY,DEFAULT_DECK_URL);
-  syncSlideToPhase();
-  if(C.session?.id) await setState({roomMoment:roomMoment('hidden')});
+  const cfg=deckConfig();
+  if(!cfg.deckId){toastLocal('Add a Google Slides deck URL in ShowRunner Builder first.');return}
+  deckId=cfg.deckId;$('slidesUrl').value=cfg.deckUrl;syncSlideToPhase();
+  await setState({roomMoment:roomMoment('hidden',currentSlide)});
 }
+function toastLocal(msg){$('momentTop').textContent=msg;setTimeout(render,1800)}
 function s(){return C.current()}
 function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['select','multi-select'].includes(x.type))return'select';if(['prompt','reflection'].includes(x.type))return'prompt';return'passive'}
 function responseCount(){return C.participation().count}
-function studentUrl(){const u=new URL('/student',location.origin);u.searchParams.set('session','inf125-week05-session1-multimodal-communication');return u.toString()}
-function roomUrl(){const u=new URL('/google-slides-room',location.origin);u.searchParams.set('session','inf125-week05-session1-multimodal-communication');return u.toString()}
-function roomMoment(type='hidden',slideNumber=currentSlide){return {type,slideNumber,deckId}}
+function studentUrl(){return new URL(C.sessionUrl('/student'),location.origin).toString()}
+function roomUrl(){return new URL(C.sessionUrl('/google-slides-room'),location.origin).toString()}
+function roomMoment(type='hidden',slideNumber=currentSlide){return{type,slideNumber,deckId:deckConfig().deckId}}
 function overlayShell(inner){return '<div class="kicker">'+C.esc(s().label||'Moment')+'</div>'+inner+'<div class="join">Students respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>'}
 function interactionHtml(){
   const x=s(),t=runtimeType(x);
-  if(x.label==='CREATE')return timerHtml();
+  if(C.snapshot.state.roomMoment?.type==='timer')return timerHtml();
   let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1><p class="lead">'+C.esc(x.studentTask||x.roomInstruction||x.lead||'')+'</p>';
-  if((t==='vote'||t==='select')&&x.choices?.length){
-    body+='<div class="choiceGrid">'+x.choices.map(c=>'<div class="choiceBox">'+C.esc(c)+'</div>').join('')+'</div>';
-  }
-  if(t==='prompt')body+='<div class="sub">Respond on your phone. Your response will stay hidden until the room is ready to discuss it.</div>';
+  if((t==='vote'||t==='select')&&x.choices?.length)body+='<div class="choiceGrid">'+x.choices.map(v=>'<div class="choiceBox">'+C.esc(v)+'</div>').join('')+'</div>';
+  if(t==='prompt')body+='<div class="sub">Respond on your phone. Your response stays hidden until the room is ready to discuss it.</div>';
   if(t==='passive')body+='<div class="sub">'+C.esc(x.visualCaption||x.runbook?.landHere||'Look up and stay with the room.')+'</div>';
   return overlayShell(body);
 }
 function resultsHtml(){
-  const x=s(),t=runtimeType(x);
-  let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1>';
+  const x=s(),t=runtimeType(x);let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1>';
   if((t==='vote'||t==='select')&&x.choices?.length){
     const agg=C.aggregate(x.key),meta=C.aggregateMeta(x.key),total=Math.max(1,meta.respondents);
-    body+='<div class="results">'+x.choices.map(c=>{const n=agg[c]||0,p=Math.round(n/total*100);return '<div class="resultRow"><div class="resultLabel">'+C.esc(c)+'</div><div class="track"><div class="fill" style="width:'+p+'%"></div></div><div class="pct">'+p+'% <span style="color:var(--muted);font-size:12px">('+n+')</span></div></div>'}).join('')+'</div>';
+    body+='<div class="results">'+x.choices.map(v=>{const n=agg[v]||0,p=Math.round(n/total*100);return '<div class="resultRow"><div class="resultLabel">'+C.esc(v)+'</div><div class="track"><div class="fill" style="width:'+p+'%"></div></div><div class="pct">'+p+'% <span style="color:var(--muted);font-size:12px">('+n+')</span></div></div>'}).join('')+'</div>';
   }else if(t==='prompt'){
     const rows=C.answers(x.key).slice(-6).reverse();
     body+='<div class="responses">'+(rows.length?rows.map(r=>'<div class="response">'+C.esc(r.response)+'</div>').join(''):'<div class="response">Waiting for student responses…</div>')+'</div>';
-  }else{
-    body+='<p class="lead">'+C.esc(x.runbook?.landHere||x.visualCaption||x.lead||'')+'</p>';
-  }
+  }else body+='<p class="lead">'+C.esc(x.runbook?.landHere||x.visualCaption||x.lead||'')+'</p>';
   body+='<div class="sub">'+responseCount()+' response'+(responseCount()===1?'':'s')+' received.</div>';
   return overlayShell(body);
 }
+function timerMinutes(){return Math.max(1,Math.min(60,Number(s().minutes)||5))}
 function timerHtml(){
-  const text=C.timerText(),active=!!C.snapshot.state.timerEndsAt;
-  return '<div class="kicker">REMIX IN PROGRESS</div><h1 class="headline">Same idea. Two modalities.</h1><p class="lead">ONE AUDIENCE · SAVE AN ARTIFACT</p><div class="timer">'+(active?text:'15:00')+'</div><div class="timerSub">Midpoint: one version done. 3-minute warning: stop perfecting and revise.</div>';
+  const active=!!C.snapshot.state.timerEndsAt,mins=timerMinutes(),title=s().title||'Work time',instruction=s().roomInstruction||s().studentTask||'Stay focused on the task.';
+  return '<div class="kicker">WORK TIME</div><h1 class="headline">'+C.esc(title)+'</h1><p class="lead">'+C.esc(instruction)+'</p><div class="timer">'+(active?C.timerText():mins+':00')+'</div><div class="timerSub">ShowRunner keeps the room, students, and deck on the same moment.</div>';
 }
 function showOverlay(mode){
-  overlayMode=mode;
-  const card=$('overlayCard'),scrim=$('scrim');
+  overlayMode=mode;const card=$('overlayCard'),scrim=$('scrim');
   if(mode==='hidden'){card.classList.remove('on');scrim.classList.remove('on');return}
-  card.innerHTML=mode==='results'?resultsHtml():interactionHtml();
-  card.classList.add('on');scrim.classList.add('on');
+  card.innerHTML=mode==='results'?resultsHtml():interactionHtml();card.classList.add('on');scrim.classList.add('on');
 }
 function timeline(){
-  $('drawer').innerHTML=C.session.steps.map((m,i)=>'<button class="runItem '+(i===C.snapshot.state.step?'active':'')+'" data-step="'+i+'"><span class="time">'+C.elapsed(i)+'–'+(C.elapsed(i)+(m.minutes||0))+' min</span><span class="label">'+C.esc(m.label)+'</span><span class="title">'+C.esc(m.title)+'</span></button>').join('');
+  $('drawer').innerHTML=C.session.steps.map((m,i)=>{const g=m.googleSlides||{},a=Math.max(1,+g.start||i+1),b=Math.max(a,+g.end||a);return '<button class="runItem '+(i===C.snapshot.state.step?'active':'')+'" data-step="'+i+'"><span class="time">'+C.elapsed(i)+'–'+(C.elapsed(i)+(m.minutes||0))+' min · slides '+a+(b!==a?'–'+b:'')+'</span><span class="label">'+C.esc(m.label)+'</span><span class="title">'+C.esc(m.title)+'</span></button>'}).join('');
   $('drawer').querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>go(+b.dataset.step));
 }
 function render(){
-  const x=s(),st=C.snapshot.state,p=C.participation(),t=runtimeType(x);
-  $('momentTop').textContent=(C.snapshot.state.step+1)+' / '+C.session.steps.length+' · '+(x.label||'');
+  const x=s(),st=C.snapshot.state,p=C.participation(),t=runtimeType(x),cfg=deckConfig(),range=phaseRange(st.step);
+  $('brand').textContent='SHOWRUNNER · '+String(C.session.title||'GOOGLE SLIDES').toUpperCase();
+  document.title='ShowRunner · '+(C.session.title||'Google Slides Live');
+  $('slidesUrl').value=cfg.deckUrl||'No Google Slides deck configured';
+  $('loadSlides').disabled=!cfg.deckId;
+  $('momentTop').textContent=(st.step+1)+' / '+C.session.steps.length+' · '+(x.label||'');
   $('momentTitle').textContent=x.title||'';
-  const range=phaseRange(st.step),slide=SLIDES[currentSlide-1],deckList=[];for(let n=range.start;n<=range.end;n++)if(SLIDES[n-1])deckList.push(SLIDES[n-1].deck);$('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/75 planned min · <strong>Deck slide '+(slide?.deck||'?')+'</strong> · phase slides '+deckList.join(', ');$('prevSlideBtn').disabled=currentSlide<=range.start;$('nextSlideBtn').disabled=currentSlide>=range.end;
+  $('stats').innerHTML='<strong>'+C.snapshot.participantCount+'</strong> in room · <strong>'+p.count+'</strong> responses · <strong>'+p.percent+'%</strong> participation · '+C.elapsed(st.step)+'/'+(C.session.durationMinutes||75)+' planned min · <strong>Deck slide '+currentSlide+'</strong> · moment slides '+range.start+(range.end!==range.start?'–'+range.end:'');
+  $('prevSlideBtn').disabled=currentSlide<=range.start;$('nextSlideBtn').disabled=currentSlide>=range.end;
   const interactive=['vote','select','prompt'].includes(t);
-  $('commitBtn').textContent=st.locked?'Reopen Responses':'Close Responses';
-  $('commitBtn').classList.toggle('danger',st.locked);
-  $('commitBtn').style.display=interactive?'inline-block':'none';
-  $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Show Results';
-  $('revealBtn').style.display=interactive?'inline-block':'none';
-  $('phonesBtn').textContent=(st.roomMoment?.type==='interaction')?'Hide Prompt':'Ask Students';
-  $('phonesBtn').style.display=(interactive||x.label==='CREATE')?'inline-block':'none';
-  $('timerBtn').style.display=x.label==='CREATE'?'inline-block':'none';
-  $('timerBtn').textContent=st.timerEndsAt?'Stop Timer':'Start 15:00';
-  timeline();
-  if(overlayMode==='results')showOverlay('results');
-  else if(overlayMode==='interaction')showOverlay('interaction');
+  $('commitBtn').textContent=st.locked?'Reopen Responses':'Close Responses';$('commitBtn').classList.toggle('danger',st.locked);$('commitBtn').style.display=interactive?'inline-block':'none';
+  $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Show Results';$('revealBtn').style.display=interactive?'inline-block':'none';
+  $('phonesBtn').textContent=(st.roomMoment?.type==='interaction')?'Hide Prompt':'Ask Students';$('phonesBtn').style.display=(interactive||t==='passive')?'inline-block':'none';
+  $('timerBtn').style.display=(x.intent==='create'||x.label==='CREATE')?'inline-block':'none';$('timerBtn').textContent=st.timerEndsAt?'Stop Timer':'Start '+timerMinutes()+':00';
+  timeline();if(overlayMode==='results')showOverlay('results');else if(overlayMode==='interaction')showOverlay('interaction');
 }
 async function setState(p){await C.state(p);await C.refresh();struct='';render()}
 async function go(i){
-  i=Math.max(0,Math.min(C.session.steps.length-1,i));
-  overlayMode='hidden';showOverlay('hidden');
-  const range=(C.session.steps.length===12?PHASE_MAP_12:PHASE_MAP_8)[i]||{start:1,end:16};
-  currentSlide=range.start;
+  i=Math.max(0,Math.min(C.session.steps.length-1,i));overlayMode='hidden';showOverlay('hidden');
+  const r=phaseRange(i);currentSlide=r.start;
   await setState({step:i,locked:false,resultsVisible:false,roomMoment:roomMoment('hidden',currentSlide),timerEndsAt:null});
-  loadSlide(currentSlide);render();
+  $('slidesFrame').src=slideUrl(currentSlide);render();
 }
-async function setSlide(n){
-  currentSlide=Math.max(1,Math.min(16,n));
-  loadSlide(currentSlide);
-  await setState({roomMoment:roomMoment('hidden',currentSlide)});
-}
-async function togglePrompt(){
-  const on=C.snapshot.state.roomMoment?.type!=='interaction';
-  overlayMode=on?'interaction':'hidden';
-  showOverlay(overlayMode);
-  await setState({roomMoment:roomMoment(on?'interaction':'hidden')});
-}
-async function toggleCommit(){
-  await setState({locked:!C.snapshot.state.locked,roomMoment:roomMoment(C.snapshot.state.roomMoment?.type||'hidden')});
-}
-async function toggleReveal(){
-  const on=!C.snapshot.state.resultsVisible;
-  overlayMode=on?'results':'interaction';
-  await setState({resultsVisible:on,locked:on?true:C.snapshot.state.locked,roomMoment:roomMoment(on?'results':'interaction')});
-  showOverlay(overlayMode);
-}
+async function setSlide(n){const r=phaseRange();currentSlide=Math.max(r.start,Math.min(r.end,n));$('slidesFrame').src=slideUrl(currentSlide);await setState({roomMoment:roomMoment('hidden',currentSlide)})}
+async function togglePrompt(){const on=C.snapshot.state.roomMoment?.type!=='interaction';overlayMode=on?'interaction':'hidden';showOverlay(overlayMode);await setState({roomMoment:roomMoment(on?'interaction':'hidden')})}
+async function toggleCommit(){await setState({locked:!C.snapshot.state.locked,roomMoment:roomMoment(C.snapshot.state.roomMoment?.type||'hidden')})}
+async function toggleReveal(){const on=!C.snapshot.state.resultsVisible;overlayMode=on?'results':'interaction';await setState({resultsVisible:on,locked:on?true:C.snapshot.state.locked,roomMoment:roomMoment(on?'results':'interaction')});showOverlay(overlayMode)}
 async function toggleTimer(){
-  const active=C.snapshot.state.timerEndsAt;
-  const next=active?null:(Date.now()+15*60*1000);
-  overlayMode=active?'hidden':'interaction';
-  await setState({timerEndsAt:next,roomMoment:roomMoment(active?'hidden':'timer')});
-  showOverlay(active?'hidden':'interaction');
+  const active=C.snapshot.state.timerEndsAt,next=active?null:(Date.now()+timerMinutes()*60*1000);overlayMode=active?'hidden':'interaction';
+  await setState({timerEndsAt:next,roomMoment:roomMoment(active?'hidden':'timer')});showOverlay(active?'hidden':'interaction');
 }
-function key(){const st=C.snapshot.state;return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',responseCount(),C.snapshot.participantCount].join('|')}
+function key(){const st=C.snapshot.state;return[st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',responseCount(),C.snapshot.participantCount].join('|')}
 async function poll(){
   try{
-    await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0),remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);
-    deckId=DEFAULT_DECK_ID;
+    await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0),remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0),cfg=deckConfig();
+    deckId=cfg.deckId;
     if(step!==lastPhaseStep){lastPhaseStep=step;if(!remoteSlide)syncSlideToPhase(step)}
-    if(remoteSlide&&remoteSlide!==currentSlide){currentSlide=remoteSlide;loadSlide(currentSlide)}
+    if(remoteSlide&&remoteSlide!==currentSlide){currentSlide=remoteSlide;$('slidesFrame').src=slideUrl(currentSlide)}
     if(k!==struct){struct=k;render()}
-    if(overlayMode==='interaction'&&s().label==='CREATE')showOverlay('interaction');
+    if(C.snapshot.state.roomMoment?.type==='timer'&&C.snapshot.state.timerEndsAt)showOverlay('interaction');
     if(overlayMode==='results')showOverlay('results');
   }catch(_){}
 }
-
 $('loadSlides').onclick=loadSlides;
 $('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
 $('roomLinkTop').onclick=e=>{e.currentTarget.href=roomUrl()};
@@ -289,31 +218,16 @@ $('backBtn').onclick=()=>go(C.snapshot.state.step-1);
 $('prevSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide>r.start)setSlide(currentSlide-1)};
 $('nextSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide<r.end)setSlide(currentSlide+1)};
 $('nextBtn').onclick=()=>go(C.snapshot.state.step+1);
-$('commitBtn').onclick=toggleCommit;
-$('revealBtn').onclick=toggleReveal;
-$('phonesBtn').onclick=togglePrompt;
-$('timerBtn').onclick=toggleTimer;
+$('commitBtn').onclick=toggleCommit;$('revealBtn').onclick=toggleReveal;$('phonesBtn').onclick=togglePrompt;$('timerBtn').onclick=toggleTimer;
 $('hideBtn').onclick=()=>{$('console').classList.add('hidden');$('topbar').style.display='none'};
-document.addEventListener('keydown',e=>{
-  if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
-  if(e.key.toLowerCase()==='h'){const hidden=$('console').classList.toggle('hidden');$('topbar').style.display=hidden?'none':'grid'}
-  if(e.key.toLowerCase()==='r')showOverlay(overlayMode==='hidden'?'interaction':'hidden');
-  if(e.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
-});
-
+document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;if(e.key.toLowerCase()==='h'){const hidden=$('console').classList.toggle('hidden');$('topbar').style.display=hidden?'none':'grid'}if(e.key.toLowerCase()==='r')showOverlay(overlayMode==='hidden'?'interaction':'hidden');if(e.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.()});
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
-    $('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();
-    localStorage.setItem(URL_KEY,DEFAULT_DECK_URL);$('slidesUrl').value=DEFAULT_DECK_URL;deckId=DEFAULT_DECK_ID;
-    lastPhaseStep=Number(C.snapshot.state.step||0);
-    const remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);
-    currentSlide=remoteSlide||phaseRange(lastPhaseStep).start;
-    loadSlide(currentSlide);
-    if(C.snapshot.state.roomMoment?.deckId!==DEFAULT_DECK_ID){
-      await C.state({roomMoment:{...(C.snapshot.state.roomMoment||{}),type:C.snapshot.state.roomMoment?.type||'hidden',slideNumber:currentSlide,deckId:DEFAULT_DECK_ID}});
-      await C.refresh();
-    }
+    const cfg=deckConfig();deckId=cfg.deckId;$('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();
+    lastPhaseStep=Number(C.snapshot.state.step||0);const remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);currentSlide=remoteSlide||phaseRange(lastPhaseStep).start;
+    if(cfg.deckId)$('slidesFrame').src=slideUrl(currentSlide);
+    if(C.snapshot.state.roomMoment?.deckId!==cfg.deckId){await C.state({roomMoment:{...(C.snapshot.state.roomMoment||{}),type:C.snapshot.state.roomMoment?.type||'hidden',slideNumber:currentSlide,deckId:cfg.deckId}});await C.refresh()}
     render();struct=key();setInterval(poll,900);
   }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
 })();
