@@ -458,13 +458,34 @@ export class ClassroomSession extends BaseClassroomSession {
       pulses[id][short(b.device,120)]={pulse:id,question:short(b.question,240),value:short(b.value,120),comment:short(b.comment,500),moment:short(b.moment,120),at:Date.now()};
       await this.state.storage.put('researchPulses',pulses);return json({ok:true});
     }
+    if(url.pathname.endsWith('/research/note')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),allowed=['room_energy','confusion','best_moment','shorten','expand','other'],kind=allowed.includes(String(b.kind||''))?String(b.kind):'other',note=short(b.note||'',1200);
+      if(!note)return json({error:'note is required'},400);
+      const notes=(await this.state.storage.get('researchInstructorNotes'))||[];
+      notes.push({kind,note,moment:short(b.moment||'',120),step:Number.isFinite(Number(b.step))?Number(b.step):null,at:Date.now()});
+      await this.state.storage.put('researchInstructorNotes',notes.slice(-100));return json({ok:true});
+    }
     if(url.pathname.endsWith('/research/report')&&method==='GET'){
-      const participants=(await this.state.storage.get('participants'))||{},answers=(await this.state.storage.get('answers'))||{},pulses=(await this.state.storage.get('researchPulses'))||{},transitions=(await this.state.storage.get('researchTransitions'))||[];
+      const participants=(await this.state.storage.get('participants'))||{},answers=(await this.state.storage.get('answers'))||{},pulses=(await this.state.storage.get('researchPulses'))||{},transitions=(await this.state.storage.get('researchTransitions'))||[],notes=(await this.state.storage.get('researchInstructorNotes'))||[];
       const answering=new Set();for(const rows of Object.values(answers))for(const d of Object.keys(rows||{}))answering.add(d);
       const pulseSummary={};const comments=[];
       for(const [id,rows] of Object.entries(pulses)){const vals=Object.values(rows||{}),counts={};for(const r of vals){counts[r.value]=(counts[r.value]||0)+1;if(r.comment)comments.push({pulse:id,comment:r.comment,at:r.at})}pulseSummary[id]={n:vals.length,counts};}
+      const answerSummary={};
+      for(const [key,rows] of Object.entries(answers)){
+        const vals=Object.values(rows||{}),counts={},responses=[];
+        for(const r of vals){
+          const v=r?.response;
+          if(Array.isArray(v)){for(const x of v)counts[short(x,200)]=(counts[short(x,200)]||0)+1;}
+          else if(typeof v==='string'){
+            const sv=short(v,1200);counts[sv]=(counts[sv]||0)+1;
+            if(sv)responses.push(sv);
+          }
+        }
+        const multi=vals.some(r=>Array.isArray(r?.response));
+        answerSummary[key]={n:vals.length,multi,counts,responses:multi?[]:responses.slice(0,120)};
+      }
       const moments=[];for(let i=0;i<transitions.length;i++){const t=transitions[i],next=transitions[i+1];moments.push({step:t.step,startedAt:t.at,observedSeconds:next?Math.max(0,(next.at-t.at)/1000):null});}
-      return json({joined:Object.keys(participants).length,answering:answering.size,pulses:pulseSummary,comments,moments,startedAt:transitions[0]?.at||null,lastTransitionAt:transitions.at(-1)?.at||null});
+      return json({joined:Object.keys(participants).length,answering:answering.size,answerSummary,pulses:pulseSummary,comments,moments,instructorNotes:notes,startedAt:transitions[0]?.at||null,lastTransitionAt:transitions.at(-1)?.at||null,generatedAt:Date.now()});
     }
     if(url.pathname.endsWith('/review/start')&&method==='POST'){
       const b=await request.json().catch(()=>({}));if(!b.device)return json({error:'device is required'},400);
