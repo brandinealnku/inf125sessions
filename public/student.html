@@ -198,9 +198,10 @@ function promptView(s){
   };
 }
 function passive(s){
+  const action=s.actionUrl?'<a class="action" style="display:block;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="'+C.esc(s.actionUrl)+'">'+C.esc(s.actionLabel||'Open experience →')+'</a>':'';
   app.innerHTML=chrome()+currentCard(s)+
     '<section class="card move"><div class="label">YOUR MOVE</div><div class="moveText">'+C.esc(task(s,'Look up and stay with the room. There is nothing you need to type right now.'))+'</div></section>'+
-    '<div class="support"><span>No response needed</span><strong>Eyes up ↑</strong></div>';
+    action+'<div class="support"><span>'+(s.actionUrl?'Optional experience':'No response needed')+'</span><strong>'+(s.actionUrl?'Open when instructed ↗':'Eyes up ↑')+'</strong></div>';
 }
 function runtimeType(s){
   if(['vote','choice'].includes(s.type))return'vote';
