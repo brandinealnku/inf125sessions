@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShowRunner · Session Impact Report</title>
+<style>
+:root{font-family:Inter,Arial,sans-serif;color:#171713;--gold:#b9851e;--ink:#171713;--muted:#666;--line:#d8d4cb;--soft:#f5f2eb;--green:#2e7049}
+*{box-sizing:border-box}body{margin:0;background:#eceae5}.page{max-width:1050px;margin:24px auto;background:#fff;padding:42px 50px}.top{display:flex;justify-content:space-between;gap:20px;border-bottom:3px solid var(--ink);padding-bottom:20px}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:var(--gold)}h1{font:600 40px/1.02 Georgia,serif;margin:7px 0}.muted{color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;align-self:flex-start}.btn{background:#171713;color:#fff;border:0;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer}.btn.soft{background:#eee9df;color:#171713}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.card,.section{border:1px solid var(--line);border-radius:12px;padding:16px}.card .big{font:700 31px/1 Georgia,serif;margin-top:6px}.section{margin:16px 0}.section h2{font:600 26px/1.15 Georgia,serif;margin:0 0 12px}.section h3{font:600 19px/1.2 Georgia,serif;margin:18px 0 8px}.summary{font-size:17px;line-height:1.55;background:var(--soft);border-left:5px solid var(--gold);padding:16px 18px;border-radius:8px}.barrow{display:grid;grid-template-columns:minmax(180px,1.5fr) 3fr 62px;gap:10px;align-items:center;margin:9px 0}.bar{height:14px;background:#eee;border-radius:99px;overflow:hidden}.fill{height:100%;background:#171713}.pct{text-align:right;font-weight:900}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.moment{display:grid;grid-template-columns:55px 1.6fr 90px 90px 85px;gap:10px;padding:9px 0;border-top:1px solid #ddd;font-size:13px;align-items:center}.quote{padding:12px 0;border-top:1px solid #ddd;font:500 17px/1.45 Georgia,serif}.map{width:100%;border-collapse:collapse;font-size:14px}.map th,.map td{text-align:left;padding:10px;border-top:1px solid #ddd;vertical-align:top}.map th{font-size:11px;text-transform:uppercase;letter-spacing:.08em}.tag{display:inline-block;border:1px solid #c9c3b8;border-radius:999px;padding:5px 8px;font-size:11px;margin:3px 5px 3px 0}.note{font-size:12px;color:#666;line-height:1.5}.private{display:none;border:2px dashed #9f8d67;background:#fffaf0}.private.on{display:block}.privateItem{padding:10px 0;border-top:1px solid #ddd}.privateItem:first-of-type{border-top:0}.error{color:#8d3535}.good{color:var(--green);font-weight:800}
+@media(max-width:760px){.page{margin:0;padding:24px 18px}.cards{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.moment{grid-template-columns:40px 1fr}.moment span:nth-child(n+3){grid-column:2}.barrow{grid-template-columns:130px 1fr 48px}.top{flex-direction:column}}
+@media print{body{background:#fff}.page{margin:0;max-width:none;padding:0}.actions{display:none}.section{break-inside:avoid}.private:not(.on){display:none}@page{margin:.55in}}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="top"><div><div class="eyebrow">ShowRunner · Session Impact Report</div><h1 id="title">Session Impact Report</h1><div id="meta" class="muted">Loading…</div></div><div class="actions"><button class="btn soft" id="privateBtn">Show private appendix</button><button class="btn" onclick="window.print()">Print / Save PDF</button></div></header>
+<div id="app"></div>
+</main>
+<script>
+const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sid=new URLSearchParams(location.search).get('session')||'inf128-ai-literacy-guest-2026';
+let privateOn=false;
+function pct(n,d){return d?Math.round(n/d*100):0}
+function dist(summary,choices=[]){
+  if(!summary)return'<div class="muted">No responses recorded.</div>';
+  const total=Math.max(1,summary.n||0),keys=choices.length?choices:Object.keys(summary.counts||{});
+  return keys.map(k=>{const n=summary.counts?.[k]||0,p=pct(n,total);return '<div class="barrow"><span>'+E(k)+'</span><div class="bar"><div class="fill" style="width:'+p+'%"></div></div><div class="pct">'+p+'%</div></div>'}).join('');
+}
+function interactionRows(session,data){
+  const answers=data.answerSummary||{},interactive=session.steps.map((s,i)=>({s,i,a:answers[s.key]})).filter(x=>x.s.key&&x.a);
+  return interactive.map(x=>{const active=Math.max(1,data.joined||0),p=pct(x.a.n,active);return '<div class="moment"><span>'+(x.i+1)+'</span><span><b>'+E(x.s.label)+'</b><br>'+E(x.s.title)+'</span><span>'+x.a.n+'/'+active+'</span><span>'+p+'%</span><span>'+E(x.s.type||'')+'</span></div>'}).join('');
+}
+function themeTransfer(responses){
+  const themes=[
+    ['Verify important claims',/(verify|check|confirm|fact|accuracy|accurate|source|evidence)/i],
+    ['Give AI more context',/(context|detail|specific|situation|constraint|goal)/i],
+    ['Check policy / official sources',/(policy|syllabus|official|professor|advisor|university)/i],
+    ['Keep human judgment',/(human|judgment|decide|decision|rely|authority|think for myself|myself)/i]
+  ],counts={Other:0};
+  for(const [name] of themes)counts[name]=0;
+  for(const r of responses){let hit=false;for(const [name,re] of themes){if(re.test(r)){counts[name]++;hit=true;break}}if(!hit)counts.Other++}
+  return counts;
+}
+function guestFacultySummary(data){
+  const a=data.answerSummary||{},joined=data.joined||0,answering=data.answering||0;
+  const conf=a.ai_confident_trust,hire=a.ai_override_hiring,transfer=a.ai_personal_rule;
+  const verify=(conf?.counts?.['MAYBE — I’D VERIFY']||0),human=(hire?.counts?.['HUMAN DECIDES']||0);
+  const bits=[];
+  bits.push(answering+' of '+joined+' joined students submitted at least one ShowRunner response.');
+  if(conf?.n)bits.push(pct(verify,conf.n)+'% chose “maybe — I’d verify” when presented with a mostly useful but deliberately flawed AI answer.');
+  if(hire?.n)bits.push(pct(human,hire.n)+'% kept final ownership human in the highest-consequence hiring scenario.');
+  if(transfer?.n)bits.push(transfer.n+' students articulated a specific future AI-use rule.');
+  return bits.join(' ');
+}
+function pedagogicalMap(){
+ return '<table class="map"><tr><th>Experience</th><th>AI literacy capability</th><th>Evidence generated</th></tr>'+
+ '<tr><td>Context Changes Everything</td><td>Contextual prompting</td><td>Discussion + framework recognition</td></tr>'+
+ '<tr><td>Confident AI Trap</td><td>Evaluation of AI outputs</td><td>Trust judgment before reveal</td></tr>'+
+ '<tr><td>Ghost Hunt</td><td>Verification / evidence literacy</td><td>Priority choices for what to verify</td></tr>'+
+ '<tr><td>Human Override</td><td>Human agency + risk judgment</td><td>Decision-boundary pattern across scenarios</td></tr>'+
+ '<tr><td>Personal AI Rule</td><td>Transfer / metacognition</td><td>Anonymized intended behavior changes</td></tr>'+
+ '<tr><td>Human in the Loop</td><td>Human responsibility</td><td>Memorable reinforcement artifact</td></tr></table>';
+}
+function notesHtml(notes=[]){const labels={room_energy:'Room energy',confusion:'Confusion point',best_moment:'Best moment',shorten:'Shorten next time',expand:'Expand next time',other:'Other'};return notes.length?notes.map(n=>'<div class="privateItem"><b>'+E(labels[n.kind]||n.kind)+'</b><div>'+E(n.note)+'</div><div class="note">'+(n.moment?'Moment: '+E(n.moment)+' · ':'')+new Date(n.at).toLocaleTimeString()+'</div></div>').join(''):'<div class="muted">No instructor notes captured.</div>'}
+(async()=>{
+ try{
+  const [rr,br]=await Promise.all([fetch('/api/session/'+encodeURIComponent(sid)+'/research/report',{cache:'no-store'}),fetch('/api/builder/session/'+encodeURIComponent(sid),{cache:'no-store'})]);
+  if(!rr.ok)throw Error('Report unavailable');
+  const data=await rr.json();let session=null;
+  if(br.ok)session=await br.json();else{const sr=await fetch('/sessions/'+encodeURIComponent(sid)+'.json',{cache:'no-store'});if(sr.ok)session=await sr.json()}
+  if(!session)throw Error('Session definition unavailable');
+  title.textContent=session.title+' · Impact Report';
+  meta.textContent=(session.course||'')+' · Generated '+new Date().toLocaleString()+' · Aggregate student evidence; names omitted';
+  const answers=data.answerSummary||{},joined=data.joined||0,answering=data.answering||0;
+  const interactive=session.steps.filter(s=>s.key&&answers[s.key]),avg=interactive.length?Math.round(interactive.reduce((n,s)=>n+pct(answers[s.key].n,Math.max(1,joined)),0)/interactive.length):0;
+  const transfer=answers.ai_personal_rule?.responses||[],themes=themeTransfer(transfer),topQuotes=transfer.slice(0,5);
+  const moments=data.moments||[];
+  const pacing='<div class="moment"><b>#</b><b>Moment</b><b>Planned</b><b>Observed</b><b>Variance</b></div>'+moments.map(m=>{const x=session.steps[m.step]||{},obs=m.observedSeconds==null?null:Math.round(m.observedSeconds/6)/10,plan=x.minutes||0,diff=obs==null?null:Math.round((obs-plan)*10)/10;return '<div class="moment"><span>'+(m.step+1)+'</span><span>'+E((x.label?x.label+' · ':'')+(x.title||'Moment'))+'</span><span>'+plan+' min</span><span>'+(obs==null?'—':obs+' min')+'</span><span>'+(diff==null?'—':(diff>0?'+':'')+diff)+'</span></div>'}).join('');
+  app.innerHTML=
+   '<div class="cards"><div class="card"><div class="eyebrow">Joined</div><div class="big">'+joined+'</div></div><div class="card"><div class="eyebrow">Responded</div><div class="big">'+answering+'</div></div><div class="card"><div class="eyebrow">Avg interaction participation</div><div class="big">'+avg+'%</div></div><div class="card"><div class="eyebrow">Transfer statements</div><div class="big">'+transfer.length+'</div></div></div>'+
+   '<section class="section"><h2>Executive impact summary</h2><div class="summary">'+E(sid==='inf128-ai-literacy-guest-2026'?guestFacultySummary(data):('The session recorded '+answering+' responding students from '+joined+' joined participants, with average interactive participation of '+avg+'%.'))+'</div><p class="note">These are descriptive session observations, not a pre/post causal measure of learning gains.</p></section>'+
+   '<section class="section"><h2>AI literacy learning evidence</h2><div class="grid2"><div><h3>Initial trust threshold</h3>'+dist(answers.ai_trust_open,['YES','MAYBE','NO'])+'</div><div><h3>Mostly-good but flawed AI answer</h3>'+dist(answers.ai_confident_trust,['YES','MAYBE — I’D VERIFY','NO'])+'</div></div><h3>What students prioritized for verification</h3>'+dist(answers.ai_ghost_hunt,['SPECIFIC DEADLINE / POLICY CLAIM','UNSUPPORTED STATISTIC','BLANKET RECOMMENDATION','PRIVATE DATA REQUEST'])+'</section>'+
+   '<section class="section"><h2>Human-AI decision boundaries</h2><table class="map"><tr><th>Scenario</th><th>AI decides</th><th>AI helps</th><th>Human decides</th></tr>'+[
+    ['University policy summary','ai_override_policy'],['Course recommendation','ai_override_course'],['Applicant screening','ai_override_hiring']
+   ].map(([label,key])=>{const s=answers[key],n=Math.max(1,s?.n||0);return '<tr><td>'+E(label)+'</td><td>'+pct(s?.counts?.['AI DECIDES']||0,n)+'%</td><td>'+pct(s?.counts?.['AI HELPS']||0,n)+'%</td><td>'+pct(s?.counts?.['HUMAN DECIDES']||0,n)+'%</td></tr>'}).join('')+'</table></section>'+
+   '<section class="section"><h2>Student transfer: “The next time I use AI, I will…”</h2><div class="grid2"><div>'+Object.entries(themes).map(([k,v])=>'<div class="barrow"><span>'+E(k)+'</span><div class="bar"><div class="fill" style="width:'+pct(v,Math.max(1,transfer.length))+'%"></div></div><div class="pct">'+v+'</div></div>').join('')+'<p class="note">Theme scan is an automatic keyword-based grouping for reflection, not formal qualitative coding.</p></div><div><h3>Representative anonymized responses</h3>'+(topQuotes.length?topQuotes.map(q=>'<div class="quote">“'+E(q)+'”</div>').join(''):'<div class="muted">No transfer responses yet.</div>')+'</div></div></section>'+
+   '<section class="section"><h2>Participation by interactive moment</h2><div class="moment"><b>#</b><b>Moment</b><b>Responses</b><b>Rate</b><b>Type</b></div>'+interactionRows(session,data)+'</section>'+
+   '<section class="section"><h2>Session pacing</h2>'+pacing+'<p class="note">Observed time is derived from instructor moment transitions. It is useful for redesigning pacing, not for evaluating teaching quality.</p></section>'+
+   '<section class="section"><h2>Pedagogical map for faculty</h2>'+pedagogicalMap()+'</section>'+
+   '<section class="section"><h2>What this evidence supports</h2><p>This report supports claims about <b>participation, observed judgment patterns, verification priorities, decision-boundary choices, intended behavior changes, and session pacing</b>. It does not by itself establish durable learning, causation, or long-term behavior change.</p></section>'+
+   '<section class="section private" id="private"><div class="eyebrow">Private instructor appendix · omit from faculty PDF unless intentionally included</div><h2>Instructor reflection notes</h2>'+notesHtml(data.instructorNotes||[])+'</section>';
+  privateBtn.onclick=()=>{privateOn=!privateOn;document.getElementById('private').classList.toggle('on',privateOn);privateBtn.textContent=privateOn?'Hide private appendix':'Show private appendix'};
+ }catch(e){app.innerHTML='<p class="error">The session impact report could not load: '+E(e.message)+'</p>'}
+})();
+</script>
+</body></html>
