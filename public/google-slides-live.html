@@ -10,7 +10,7 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#000;color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif;overflow:hidden}
 .app{position:fixed;inset:0;background:#000}
 #slidesFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
-.topbar{position:absolute;z-index:40;left:0;right:0;top:0;display:grid;grid-template-columns:auto 1fr auto auto auto auto;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,10,14,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+.topbar{position:absolute;z-index:40;left:0;right:0;top:0;display:grid;grid-template-columns:auto 1fr auto auto auto auto auto;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,10,14,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
 .brand{font-weight:950;font-size:13px;letter-spacing:.05em}.url{width:100%;min-width:0;border:1px solid var(--line);background:#0e1118;color:#fff;border-radius:9px;padding:9px 11px;font-size:13px}
 button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;border-radius:9px;padding:9px 11px;font-weight:850;cursor:pointer;text-decoration:none;font-size:13px}
 .primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#111!important}.blue{background:#315b9e!important}.green{background:#20623d!important}.danger{background:#6d2f28!important}
@@ -25,7 +25,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 .console.hidden{opacity:0;pointer-events:none}.controls{display:flex;gap:7px;flex-wrap:wrap}.moment{min-width:0}.momentTop{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:950}.momentTitle{font-size:14px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stats{font-size:11px;color:var(--muted);white-space:nowrap}.stats strong{color:#fff}
 .drawer{position:absolute;z-index:50;left:12px;bottom:84px;width:min(410px,92vw);max-height:70vh;overflow:auto;background:rgba(12,14,20,.98);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 22px 70px rgba(0,0,0,.55);display:none}.drawer.on{display:block}
 .runItem{width:100%;text-align:left;border:0;border-bottom:1px solid #232833;background:transparent;color:#bbb;padding:10px 6px}.runItem.active{color:#fff;background:rgba(242,184,75,.08)}.runItem .time{font-size:10px;color:var(--accent);display:block}.runItem .label{font-size:11px;font-weight:900;display:block}.runItem .title{font-family:Georgia,serif;font-size:14px;display:block;margin-top:2px}
-.helper{position:absolute;z-index:25;left:16px;top:62px;padding:7px 9px;border-radius:9px;background:rgba(0,0,0,.64);font-size:11px;color:#ddd}
+.helper{position:absolute;z-index:25;left:16px;top:62px;padding:7px 9px;border-radius:9px;background:rgba(0,0,0,.64);font-size:11px;color:#ddd}.notePanel{position:absolute;z-index:60;right:16px;top:64px;width:min(430px,92vw);background:rgba(12,14,20,.98);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 22px 70px rgba(0,0,0,.55);display:none}.notePanel.on{display:block}.notePanel h3{margin:3px 0 10px;font:700 24px Georgia,serif}.notePanel label{display:block;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:10px 0 5px}.notePanel select,.notePanel textarea{width:100%;background:#0e1118;color:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.notePanel textarea{min-height:130px;resize:vertical}.noteActions{display:flex;gap:8px;margin-top:10px}.noteStatus{font-size:11px;color:var(--muted);margin-top:8px}
 @media(max-width:900px){.topbar{grid-template-columns:1fr auto auto}.brand{display:none}.url{grid-column:1/-1;grid-row:2}.console{grid-template-columns:1fr}.stats{text-align:left}.choiceGrid{grid-template-columns:1fr}.resultRow{grid-template-columns:1fr}.pct{text-align:left}}
 </style>
 </head>
@@ -39,10 +39,21 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
     <button id="loadSlides" class="primary">Reload Deck</button>
     <a id="roomLinkTop" class="btn" target="_blank">Projection</a>
     <a id="studentLinkTop" class="btn" target="_blank">Student View</a>
+    <a id="reportLinkTop" class="btn" target="_blank">Session Report</a>
     <button id="fullBtn">Fullscreen</button>
   </div>
 
   <div class="helper"><b>Projection is a separate clean screen.</b> Advance Class → moves the phase, student view, and projection slide together.</div>
+  <aside id="notePanel" class="notePanel">
+    <div class="kicker">Private instructor evidence</div>
+    <h3>Capture a quick note.</h3>
+    <label for="noteKind">What kind of note?</label>
+    <select id="noteKind"><option value="room_energy">Room energy</option><option value="confusion">Confusion point</option><option value="best_moment">Best moment</option><option value="shorten">Shorten next time</option><option value="expand">Expand next time</option><option value="other">Other</option></select>
+    <label for="noteText">Observation</label>
+    <textarea id="noteText" placeholder="What happened? What should you remember after class?"></textarea>
+    <div class="noteActions"><button id="saveNoteBtn" class="primary">Save note</button><button id="closeNoteBtn">Cancel</button></div>
+    <div id="noteStatus" class="noteStatus"></div>
+  </aside>
 
   <div class="overlayLayer">
     <div id="scrim" class="scrim"></div>
@@ -54,6 +65,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
   <div id="console" class="console">
     <div class="controls">
       <button id="runBtn">Run of Show</button>
+      <button id="noteBtn">+ Instructor Note</button>
       <button id="backBtn">← Phase</button>
       <button id="prevSlideBtn">← Slide</button>
       <button id="nextSlideBtn">Slide →</button>
@@ -130,6 +142,7 @@ function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['
 function responseCount(){return C.participation().count}
 function studentUrl(){return new URL(C.sessionUrl('/student'),location.origin).toString()}
 function roomUrl(){return new URL(C.sessionUrl('/google-slides-room'),location.origin).toString()}
+function reportUrl(){return new URL(C.sessionUrl('/session-report'),location.origin).toString()}
 function roomMoment(type='hidden',slideNumber=currentSlide){return{type,slideNumber,deckId:deckConfig().deckId}}
 function overlayShell(inner){return '<div class="kicker">'+C.esc(s().label||'Moment')+'</div>'+inner+'<div class="join">Students respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>'}
 function interactionHtml(){
@@ -215,7 +228,18 @@ $('loadSlides').onclick=loadSlides;
 $('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
 $('roomLinkTop').onclick=e=>{e.currentTarget.href=roomUrl()};
 $('studentLinkTop').onclick=e=>{e.currentTarget.href=studentUrl()};
+$('reportLinkTop').onclick=e=>{e.currentTarget.href=reportUrl()};
 $('runBtn').onclick=()=>$('drawer').classList.toggle('on');
+$('noteBtn').onclick=()=>{$('notePanel').classList.add('on');$('noteStatus').textContent='Current moment: '+(s().label||s().title||'')};
+$('closeNoteBtn').onclick=()=>{$('notePanel').classList.remove('on');$('noteStatus').textContent=''};
+$('saveNoteBtn').onclick=async()=>{
+  const note=$('noteText').value.trim();if(!note){$('noteStatus').textContent='Add a note first.';return}
+  $('saveNoteBtn').disabled=true;$('noteStatus').textContent='Saving…';
+  try{
+    await C.api('/research/note',{method:'POST',body:JSON.stringify({kind:$('noteKind').value,note,moment:s().key||s().label||'',step:C.snapshot.state.step})});
+    $('noteText').value='';$('noteStatus').textContent='Saved to the private report appendix.';setTimeout(()=>{$('notePanel').classList.remove('on');$('noteStatus').textContent=''},700)
+  }catch(e){$('noteStatus').textContent='Could not save note.'}finally{$('saveNoteBtn').disabled=false}
+};
 $('backBtn').onclick=()=>go(C.snapshot.state.step-1);
 $('prevSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide>r.start)setSlide(currentSlide-1)};
 $('nextSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide<r.end)setSlide(currentSlide+1)};
@@ -226,7 +250,7 @@ document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(documen
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
-    const cfg=deckConfig();deckId=cfg.deckId;$('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();
+    const cfg=deckConfig();deckId=cfg.deckId;$('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();$('reportLinkTop').href=reportUrl();
     lastPhaseStep=Number(C.snapshot.state.step||0);const remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);currentSlide=remoteSlide||phaseRange(lastPhaseStep).start;
     if(cfg.deckId)$('slidesFrame').src=slideUrl(currentSlide);
     if(C.snapshot.state.roomMoment?.deckId!==cfg.deckId){await C.state({roomMoment:{...(C.snapshot.state.roomMoment||{}),type:C.snapshot.state.roomMoment?.type||'hidden',slideNumber:currentSlide,deckId:cfg.deckId}});await C.refresh()}
