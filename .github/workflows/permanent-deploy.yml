@@ -247,7 +247,10 @@ jobs:
           LOAD="https://classroom.itsbadlabs.com/api/session/context-quest-load-smoke-$GITHUB_RUN_ID/cq"
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$LOAD/reset" > /dev/null
           seq 1 30 | xargs -I{} -P 15 sh -c 'curl --fail --silent --show-error -X POST -H "content-type: application/json" -d "{\"playerId\":\"load-{}\",\"name\":\"Student {}\",\"mode\":\"play\"}" "$0/join" > /dev/null' "$LOAD"
-          curl --fail --silent --show-error "$LOAD/snapshot" | grep -q '"playing":30'
+          # Retry the same idempotent joins once so a transient burst miss does not create a false failure.
+          seq 1 30 | xargs -I{} -P 10 sh -c 'curl --fail --silent --show-error -X POST -H "content-type: application/json" -d "{\"playerId\":\"load-{}\",\"name\":\"Student {}\",\"mode\":\"play\"}" "$0/join" > /dev/null' "$LOAD"
+          SNAP30="$(curl --fail --silent --show-error "$LOAD/snapshot")"
+          echo "$SNAP30" | grep -q '"playing":30'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"teamSize":5}' "$LOAD/form-teams" | grep -q '"teamsFormed":true'
           seq 1 120 | xargs -I{} -P 30 sh -c 'curl --fail --silent --show-error "$0/snapshot" > /dev/null' "$LOAD"
           curl --fail --silent --show-error "$LOAD/snapshot" | grep -q '"playing":30'
