@@ -544,6 +544,7 @@ export default {
     if (path === '/human-in-the-loop') { const u = new URL('/human-in-the-loop.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/week5-powerpoint-test') { const u = new URL('/week5-powerpoint-test.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/pilot-report') { const u = new URL('/pilot-report-v01021.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/session-report') { const u = new URL('/session-impact-report.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest' || path === '/context-quest/team' || path === '/inf128-context-quest') { const u = new URL('/context-quest.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest/instructor') { const u = new URL('/context-quest-instructor.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/context-quest/test') { const u = new URL('/context-quest-test.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
