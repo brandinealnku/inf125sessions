@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ShowRunner · Week 05 Projection</title>
+<title>ShowRunner · Google Slides Projection</title>
 <link rel="stylesheet" href="/shared-v08.css">
 <style>
 :root{--accent:#f2b84b;--muted:#b8bec9;--line:rgba(255,255,255,.16)}
@@ -52,52 +52,39 @@ html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family
 <script src="/shared-v08.js"></script>
 <script>
 const C=Classroom,$=id=>document.getElementById(id);
-const DEFAULT_DECK_ID='1Jx0UiNvmFICz7fS8jlwVUtmmpAwTr2N60rIdhzZpU38';
-const SLIDES=[
-  {n:1,deck:1,id:'p1'},{n:2,deck:2,id:'p2'},{n:3,deck:3,id:'p3'},{n:4,deck:4,id:'p4'},
-  {n:5,deck:5,id:'p5'},{n:6,deck:6,id:'p6'},{n:7,deck:7,id:'p7'},{n:8,deck:8,id:'p8'},
-  {n:9,deck:9,id:'p9'},{n:10,deck:10,id:'p10'},{n:11,deck:11,id:'p11'},{n:12,deck:12,id:'p12'},
-  {n:13,deck:13,id:'p13'},{n:14,deck:14,id:'p14'},{n:15,deck:15,id:'p15'},{n:16,deck:16,id:'p16'}
-];
-const PHASE_MAP_8=[
-  {start:1,end:4},{start:5,end:6},{start:7,end:8},{start:9,end:9},
-  {start:10,end:11},{start:12,end:12},{start:13,end:15},{start:16,end:16}
-];
-const PHASE_MAP_12=[
-  {start:2,end:2},{start:3,end:3},{start:4,end:4},{start:5,end:6},
-  {start:7,end:7},{start:8,end:8},{start:9,end:9},{start:10,end:11},
-  {start:12,end:12},{start:13,end:13},{start:14,end:15},{start:16,end:16}
-];
-let deckId=DEFAULT_DECK_ID,currentSlide=0,lastKey='',stopPush=null;
+let deckId='',currentSlide=0,lastKey='',stopPush=null;
 
-function phaseMap(){return C.session.steps.length===12?PHASE_MAP_12:PHASE_MAP_8}
-function phaseRange(step=C.snapshot.state.step||0){
-  const map=phaseMap();return map[Math.max(0,Math.min(map.length-1,step))]||{start:1,end:16}
+function deckIdFromUrl(raw){
+  let u;try{u=new URL((raw||'').trim())}catch{return''}
+  if(u.protocol!=='https:'||!/^(docs|drive)\.google\.com$/i.test(u.hostname))return'';
+  const m=u.pathname.match(/\/presentation\/d\/([^/]+)/);return m?m[1]:'';
 }
+function deckConfig(){
+  const g=C.session.googleSlides||{},deckUrl=(g.deckUrl||'').trim(),ids=Array.isArray(g.slideIds)?g.slideIds.map(x=>String(x||'').replace(/^#?slide=id\./,'').replace(/^id\./,'')).filter(Boolean):[];
+  return{deckUrl,deckId:deckIdFromUrl(deckUrl),slideIds:ids};
+}
+function phaseRange(step=C.snapshot.state.step||0){
+  const m=C.session.steps[Math.max(0,Math.min(C.session.steps.length-1,step))]||{},g=m.googleSlides||{};
+  const start=Math.max(1,Number(g.start)||step+1),end=Math.max(start,Number(g.end)||start);return{start,end};
+}
+function slideTarget(n){const cfg=deckConfig(),raw=cfg.slideIds[Math.max(1,n)-1]||('p'+Math.max(1,n));return'id.'+String(raw).replace(/^id\./,'')}
 function slideUrl(n){
-  const slide=SLIDES[Math.max(1,Math.min(16,n))-1],target='id.'+slide.id;
-  return 'https://docs.google.com/presentation/d/'+deckId+'/embed?start=false&loop=false&delayms=3000&rm=minimal&slide='+encodeURIComponent(target)+'#slide='+target;
+  const cfg=deckConfig();if(!cfg.deckId)return'about:blank';
+  const target=slideTarget(n);return'https://docs.google.com/presentation/d/'+cfg.deckId+'/embed?start=false&loop=false&delayms=3000&rm=minimal&slide='+encodeURIComponent(target)+'#slide='+target;
 }
 function ensureSlide(){
-  const rm=C.snapshot.state.roomMoment||{},remoteSlide=Number(rm.slideNumber||phaseRange().start);
-  if(deckId!==DEFAULT_DECK_ID||remoteSlide!==currentSlide){
-    deckId=DEFAULT_DECK_ID;currentSlide=remoteSlide;$('frame').src=slideUrl(currentSlide);
-  }
+  const cfg=deckConfig(),rm=C.snapshot.state.roomMoment||{},r=phaseRange(),remoteSlide=Number(rm.slideNumber||r.start);
+  if(cfg.deckId!==deckId||remoteSlide!==currentSlide){deckId=cfg.deckId;currentSlide=remoteSlide;if(deckId)$('frame').src=slideUrl(currentSlide)}
 }
 function s(){return C.current()}
 function runtimeType(x){if(['vote','choice'].includes(x.type))return'vote';if(['select','multi-select'].includes(x.type))return'select';if(['prompt','reflection'].includes(x.type))return'prompt';return'passive'}
-function studentUrl(){return location.origin+C.sessionUrl('/student')}
-function shell(inner){
-  return '<div class="kicker">'+C.esc(s().label||'LIVE CLASS')+'</div>'+inner+
-    '<div class="join">Respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>';
-}
+function studentUrl(){return new URL(C.sessionUrl('/student'),location.origin).toString()}
+function shell(inner){return'<div class="kicker">'+C.esc(s().label||'LIVE CLASS')+'</div>'+inner+'<div class="join">Respond at <strong>'+C.esc(studentUrl().replace(/^https?:\/\//,''))+'</strong></div>'}
 function interactionHtml(){
   const x=s(),t=runtimeType(x);
-  if((C.snapshot.state.roomMoment?.type==='timer')||x.label==='CREATE')return timerHtml();
+  if(C.snapshot.state.roomMoment?.type==='timer')return timerHtml();
   let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1><p class="lead">'+C.esc(x.studentTask||x.roomInstruction||x.lead||'')+'</p>';
-  if((t==='vote'||t==='select')&&x.choices?.length){
-    body+='<div class="choiceGrid">'+x.choices.map(v=>'<div class="choiceBox">'+C.esc(v)+'</div>').join('')+'</div>';
-  }
+  if((t==='vote'||t==='select')&&x.choices?.length)body+='<div class="choiceGrid">'+x.choices.map(v=>'<div class="choiceBox">'+C.esc(v)+'</div>').join('')+'</div>';
   if(t==='prompt')body+='<div class="sub">Add one thought worth bringing into the room. Results stay hidden until your instructor reveals them.</div>';
   return shell(body);
 }
@@ -105,51 +92,31 @@ function resultsHtml(){
   const x=s(),t=runtimeType(x);let body='<h1 class="headline">'+C.esc(x.title||'')+'</h1>';
   if((t==='vote'||t==='select')&&x.choices?.length){
     const agg=C.aggregate(x.key),meta=C.aggregateMeta(x.key),total=Math.max(1,meta.respondents);
-    body+='<div class="results">'+x.choices.map(v=>{const n=agg[v]||0,p=Math.round(n/total*100);return '<div class="resultRow"><div class="resultLabel">'+C.esc(v)+'</div><div class="track"><div class="fill" style="width:'+p+'%"></div></div><div class="pct">'+p+'% <span style="font-size:13px;color:var(--muted)">('+n+')</span></div></div>'}).join('')+'</div>';
+    body+='<div class="results">'+x.choices.map(v=>{const n=agg[v]||0,p=Math.round(n/total*100);return'<div class="resultRow"><div class="resultLabel">'+C.esc(v)+'</div><div class="track"><div class="fill" style="width:'+p+'%"></div></div><div class="pct">'+p+'% <span style="font-size:13px;color:var(--muted)">('+n+')</span></div></div>'}).join('')+'</div>';
   }else if(t==='prompt'){
-    const rows=C.answers(x.key).slice(-7).reverse();
-    body+='<div class="responses">'+(rows.length?rows.map(r=>'<div class="response">'+C.esc(r.response)+'</div>').join(''):'<div class="response">Waiting for responses…</div>')+'</div>';
-  }else{
-    body+='<p class="lead">'+C.esc(x.runbook?.landHere||x.visualCaption||x.lead||'')+'</p>';
-  }
-  body+='<div class="sub">'+C.participation().count+' response'+(C.participation().count===1?'':'s')+' received.</div>';
-  return shell(body);
+    const rows=C.answers(x.key).slice(-7).reverse();body+='<div class="responses">'+(rows.length?rows.map(r=>'<div class="response">'+C.esc(r.response)+'</div>').join(''):'<div class="response">Waiting for responses…</div>')+'</div>';
+  }else body+='<p class="lead">'+C.esc(x.runbook?.landHere||x.visualCaption||x.lead||'')+'</p>';
+  body+='<div class="sub">'+C.participation().count+' response'+(C.participation().count===1?'':'s')+' received.</div>';return shell(body);
 }
 function timerHtml(){
-  const active=!!C.snapshot.state.timerEndsAt;
-  return '<div class="kicker">REMIX IN PROGRESS</div><h1 class="headline">Same idea. Two modalities.</h1>'+
-    '<p class="lead">ONE AUDIENCE · SAVE AN ARTIFACT</p><div class="timer">'+(active?C.timerText():'15:00')+'</div>'+
-    '<div class="timerSub">Midpoint: one version done. At 3 minutes: stop perfecting and choose the artifact that gives you the best story about what changed.</div>';
+  const active=!!C.snapshot.state.timerEndsAt,mins=Math.max(1,Math.min(60,Number(s().minutes)||5)),title=s().title||'Work time',instruction=s().roomInstruction||s().studentTask||'Stay focused on the task.';
+  return'<div class="kicker">WORK TIME</div><h1 class="headline">'+C.esc(title)+'</h1><p class="lead">'+C.esc(instruction)+'</p><div class="timer">'+(active?C.timerText():mins+':00')+'</div><div class="timerSub">ShowRunner keeps the room, students, and deck on the same moment.</div>';
 }
 function render(){
-  ensureSlide();
-  const type=C.snapshot.state.roomMoment?.type||'hidden',card=$('card'),scrim=$('scrim');
-  if(type==='hidden'||type==='slide'||type==='commit'){
-    card.classList.remove('on');scrim.classList.remove('on');
-  }else{
-    card.innerHTML=type==='results'?resultsHtml():interactionHtml();
-    card.classList.add('on');scrim.classList.add('on');
-  }
-  const slide=SLIDES[Math.max(1,currentSlide)-1];$('status').textContent='Phase '+(Number(C.snapshot.state.step||0)+1)+' / '+C.session.steps.length+' · Deck slide '+(slide?.deck||'?');
+  ensureSlide();const type=C.snapshot.state.roomMoment?.type||'hidden',card=$('card'),scrim=$('scrim');
+  if(type==='hidden'||type==='slide'||type==='commit'){card.classList.remove('on');scrim.classList.remove('on')}
+  else{card.innerHTML=type==='results'?resultsHtml():interactionHtml();card.classList.add('on');scrim.classList.add('on')}
+  const r=phaseRange();$('status').textContent=(C.session.title||'ShowRunner')+' · Moment '+(Number(C.snapshot.state.step||0)+1)+' / '+C.session.steps.length+' · Slide '+currentSlide+' · range '+r.start+(r.end!==r.start?'–'+r.end:'');
+  document.title='ShowRunner · '+(C.session.title||'Google Slides Projection');
 }
-function key(){
-  const st=C.snapshot.state;
-  return [st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',C.participation().count,C.snapshot.participantCount].join('|');
-}
-async function poll(){
-  try{
-    await C.refresh();const k=key();
-    if(k!==lastKey){lastKey=k;render()}
-    else if(C.snapshot.state.roomMoment?.type==='timer'&&C.snapshot.state.timerEndsAt)render();
-  }catch(_){$('status').textContent='Reconnecting…'}
-}
+function key(){const st=C.snapshot.state;return[st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',C.participation().count,C.snapshot.participantCount].join('|')}
+async function poll(){try{await C.refresh();const k=key();if(k!==lastKey){lastKey=k;render()}else if(C.snapshot.state.roomMoment?.type==='timer'&&C.snapshot.state.timerEndsAt)render()}catch(_){$('status').textContent='Reconnecting…'}}
 (async()=>{
   try{
     await C.loadSession();await C.refresh();render();lastKey=key();
     if(C.subscribe)stopPush=C.subscribe(()=>render());
-    setInterval(poll,700);
-    setInterval(()=>{if(C.snapshot.state.roomMoment?.type==='timer')render()},500);
-  }catch(e){$('status').textContent='Projection failed to load'}
+    setInterval(poll,700);setInterval(()=>{if(C.snapshot.state.roomMoment?.type==='timer')render()},500);
+  }catch(e){$('status').textContent='Projection failed to load: '+String(e.message||e)}
 })();
 </script>
 </body>
