@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<title>Human in the Loop · AI Literacy Experience</title>
+<style>
+:root{--bg:#0b0d12;--panel:#121722;--ink:#f7f3ea;--muted:#aeb7c5;--gold:#f2b84b;--line:#2b3342}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+body{display:grid;place-items:center;padding:18px}
+.app{width:min(560px,100%);display:grid;gap:14px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:950}
+h1{font:800 clamp(38px,10vw,64px)/.92 Arial;margin:4px 0 8px;letter-spacing:-.055em}
+p{color:var(--muted);line-height:1.45;margin:0}
+.stage{position:relative;aspect-ratio:9/16;border:1px solid var(--line);border-radius:26px;overflow:hidden;background:#05070a;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+video{transform:scaleX(-1)}
+canvas{display:none}
+.overlay{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(4,5,8,.18),rgba(4,5,8,.02) 45%,rgba(4,5,8,.72))}
+.badge{position:absolute;left:7%;right:7%;bottom:6%;border:1px solid rgba(255,255,255,.35);border-radius:22px;padding:18px;background:rgba(8,10,14,.64);backdrop-filter:blur(10px)}
+.badge h2{font:900 clamp(24px,7vw,38px)/.95 Arial;margin:4px 0 10px;letter-spacing:-.03em}
+.badge strong{color:var(--gold)}.skills{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.skills span{border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 9px;font-size:10px;font-weight:900}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{flex:1;min-width:140px;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-weight:900;cursor:pointer;background:#1a2230;color:#fff;text-align:center;text-decoration:none}.btn.primary{background:var(--gold);color:#111;border-color:var(--gold)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.note{font-size:12px;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px;color:var(--muted)}
+.status{font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<main class="app">
+  <div>
+    <div class="eyebrow">AI Literacy Experience · Dr. Brandi Neal</div>
+    <h1>Human in the Loop.</h1>
+    <p>You spent the session deciding what AI should do—and what should stay human. Now claim the badge.</p>
+  </div>
+  <section class="stage">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas" width="1080" height="1920"></canvas>
+    <div class="overlay" id="liveOverlay">
+      <div class="badge">
+        <div class="eyebrow">OFFICIALLY</div>
+        <h2>HUMAN IN THE LOOP</h2>
+        <div class="skills"><span>CONTEXT DETECTIVE</span><span>EVIDENCE CHECKER</span><span>HUMAN OVERRIDE</span></div>
+        <strong>AI CAN GENERATE. I DECIDE.</strong>
+        <div style="margin-top:8px;font-size:11px;color:#d2d7df">Principles of Informatics · AI Literacy Experience · Dr. Brandi Neal</div>
+      </div>
+    </div>
+  </section>
+  <div class="actions">
+    <button class="btn primary" id="capture">Take my photo</button>
+    <button class="btn" id="retake" disabled>Retake</button>
+    <a class="btn" id="save" download="human-in-the-loop.png" hidden>Save photo</a>
+  </div>
+  <div class="note"><b>Privacy:</b> your camera stays in this browser. The photo is created on your device and is not uploaded or stored by ShowRunner.</div>
+  <div class="status" id="status">Allow camera access to begin.</div>
+</main>
+<script>
+const video=document.getElementById('video'),canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),capture=document.getElementById('capture'),retake=document.getElementById('retake'),save=document.getElementById('save'),overlay=document.getElementById('liveOverlay'),status=document.getElementById('status');
+let stream=null;
+function fitCover(sw,sh,dw,dh){const s=Math.max(dw/sw,dh/sh),w=sw*s,h=sh*s;return{x:(dw-w)/2,y:(dh-h)/2,w,h}}
+function drawBadge(){
+  const W=canvas.width,H=canvas.height;
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(4,5,8,.12)');g.addColorStop(.55,'rgba(4,5,8,.02)');g.addColorStop(1,'rgba(4,5,8,.78)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const x=70,y=1415,w=940,h=385,r=28;
+  ctx.fillStyle='rgba(8,10,14,.72)';ctx.strokeStyle='rgba(255,255,255,.38)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#f2b84b';ctx.font='900 28px Arial';ctx.fillText('OFFICIALLY',110,1480);
+  ctx.fillStyle='#f7f3ea';ctx.font='900 74px Arial';ctx.fillText('HUMAN IN THE LOOP',110,1570);
+  const pills=['CONTEXT DETECTIVE','EVIDENCE CHECKER','HUMAN OVERRIDE'];ctx.font='900 21px Arial';
+  let px=110;for(const p of pills){const tw=ctx.measureText(p).width+36;ctx.strokeStyle='rgba(255,255,255,.38)';ctx.beginPath();ctx.roundRect(px,1615,tw,48,24);ctx.stroke();ctx.fillStyle='#f7f3ea';ctx.fillText(p,px+18,1647);px+=tw+12}
+  ctx.fillStyle='#f2b84b';ctx.font='900 31px Arial';ctx.fillText('AI CAN GENERATE. I DECIDE.',110,1725);
+  ctx.fillStyle='#d2d7df';ctx.font='24px Arial';ctx.fillText('Principles of Informatics · AI Literacy Experience · Dr. Brandi Neal',110,1775);
+}
+async function start(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1080},height:{ideal:1920}},audio:false});
+    video.srcObject=stream;status.textContent='Camera ready. Frame yourself, then take the photo.';
+  }catch(e){status.textContent='Camera access was blocked. You can still participate without taking a photo.';capture.disabled=true}
+}
+capture.onclick=()=>{
+  if(!video.videoWidth)return;
+  const f=fitCover(video.videoWidth,video.videoHeight,canvas.width,canvas.height);
+  ctx.save();ctx.translate(canvas.width,0);ctx.scale(-1,1);ctx.drawImage(video,f.x,f.y,f.w,f.h);ctx.restore();drawBadge();
+  canvas.style.display='block';video.style.display='none';overlay.style.display='none';capture.disabled=true;retake.disabled=false;
+  save.href=canvas.toDataURL('image/png');save.hidden=false;status.textContent='Your Human in the Loop badge is ready.';
+};
+retake.onclick=()=>{canvas.style.display='none';video.style.display='block';overlay.style.display='block';capture.disabled=false;retake.disabled=true;save.hidden=true;status.textContent='Frame yourself and try again.'};
+start();
+</script>
+</body>
+</html>
