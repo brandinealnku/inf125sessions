@@ -1,0 +1,296 @@
+{
+  "id": "encoreai-trust-games",
+  "title": "The AI Trust Games: EncoreAI",
+  "course": "INF 125 · AI Literacy",
+  "description": "A 75-minute, student-synchronized, no-Google-Slides live simulation of fictional AI concert-ticket pricing, complete with votes, AI challenges, breaking-news reveal, team response, and individual exit ticket.",
+  "durationMinutes": 80,
+  "version": "0.10.1",
+  "steps": [
+    {
+      "minutes": 4,
+      "type": "teach",
+      "label": "WELCOME",
+      "key": "enc_welcome",
+      "title": "THE AI TRUST GAMES",
+      "lead": "You are about to run a fictional concert-ticket company.",
+      "choices": [],
+      "studentTask": "Look up. Think about the most expensive concert ticket you would buy.",
+      "roomInstruction": "Look up. Think about the most expensive concert ticket you would buy.",
+      "runbook": {
+        "say": "Today you run EncoreAI. Your decisions affect fans, artists, and the business. There is no single correct policy—only defensible reasoning.",
+        "studentDoes": "Look up. Think about the most expensive concert ticket you would buy.",
+        "askNext": "Who is ready to run the company?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Let me show you the price problem."
+      }
+    },
+    {
+      "minutes": 3,
+      "type": "vote",
+      "label": "PRICE SHOCK",
+      "key": "enc_fair",
+      "title": "YOUR FRIEND: $89. YOU: $179.",
+      "lead": "Same concert. Comparable seats. AI set different prices.",
+      "choices": [
+        "FAIR",
+        "UNFAIR",
+        "IT DEPENDS"
+      ],
+      "studentTask": "Vote independently: is this pricing fair?",
+      "roomInstruction": "Vote independently: is this pricing fair?",
+      "runbook": {
+        "say": "Your friend paid $89, you paid $179. Same concert and section. What if AI predicted that you would pay more because you searched the artist often?",
+        "studentDoes": "Vote independently: is this pricing fair?",
+        "askNext": "Would your answer change if you owned the ticket platform?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Now you control the algorithm."
+      }
+    },
+    {
+      "minutes": 8,
+      "type": "vote",
+      "label": "PRICING ENGINE",
+      "key": "enc_model",
+      "title": "CHOOSE YOUR PRICING MODEL",
+      "lead": "A: Fixed prices. B: Demand-based prices. C: Individualized AI prices.",
+      "choices": [
+        "A — FIXED",
+        "B — DEMAND",
+        "C — PERSONALIZED"
+      ],
+      "studentTask": "Vote, then persuade someone who chose differently. Raise 1, 2, or 3 fingers if voting offline.",
+      "roomInstruction": "Vote, then persuade someone who chose differently. Raise 1, 2, or 3 fingers if voting offline.",
+      "runbook": {
+        "say": "Fixed pricing uses the same published price. Demand pricing changes with overall demand and remaining inventory. Personalized AI pricing predicts individuals' willingness to pay. Choose your policy.",
+        "studentDoes": "Vote, then persuade someone who chose differently. Raise 1, 2, or 3 fingers if voting offline.",
+        "askNext": "What if you are the artist instead of the fan?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Time to form your company's board."
+      }
+    },
+    {
+      "minutes": 4,
+      "type": "teach",
+      "label": "EXECUTIVE ROLES",
+      "key": "enc_roles",
+      "title": "BUILD YOUR EXECUTIVE BOARD",
+      "lead": "Teams of 3–4. CEO • Fan Advocate • AI/Data Lead • Spokesperson.",
+      "choices": [],
+      "studentTask": "Join a team of 3–4 and choose roles. Combine CEO and Spokesperson if needed.",
+      "roomInstruction": "Join a team of 3–4 and choose roles. Combine CEO and Spokesperson if needed.",
+      "runbook": {
+        "say": "Your board balances business results and responsibility to customers. Give everyone a voice, especially your Fan Advocate.",
+        "studentDoes": "Join a team of 3–4 and choose roles. Combine CEO and Spokesperson if needed.",
+        "askNext": "Which teammate will challenge the assumptions?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Commit alone before group discussion."
+      }
+    },
+    {
+      "minutes": 8,
+      "type": "prompt",
+      "label": "INITIAL DECISION",
+      "key": "enc_initial",
+      "title": "NO AI. LOCK YOUR DECISION.",
+      "lead": "Choose your model and explain why before hearing AI's advice.",
+      "choices": [],
+      "studentTask": "Individually submit A/B/C/H, your strongest reason, and one missing fact. No AI or team input.",
+      "roomInstruction": "Individually submit A/B/C/H, your strongest reason, and one missing fact. No AI or team input.",
+      "runbook": {
+        "say": "I want your independent judgment first. Choose a policy and name one uncertainty that might change your mind.",
+        "studentDoes": "Individually submit A/B/C/H, your strongest reason, and one missing fact. No AI or team input.",
+        "askNext": "Which information do you wish you had?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Now compare your answers within your team."
+      }
+    },
+    {
+      "minutes": 6,
+      "type": "prompt",
+      "label": "BOARD CONSENSUS",
+      "key": "enc_team_first",
+      "title": "YOUR TEAM'S FIRST POLICY",
+      "lead": "Record a group decision—and a tradeoff you're accepting.",
+      "choices": [],
+      "studentTask": "Each team agrees on A/B/C/H. One spokesperson submits policy, reason, and biggest uncertainty.",
+      "roomInstruction": "Each team agrees on A/B/C/H. One spokesperson submits policy, reason, and biggest uncertainty.",
+      "runbook": {
+        "say": "Agree on one initial policy. You may reverse it later, but you will have to explain what new evidence drove the change.",
+        "studentDoes": "Each team agrees on A/B/C/H. One spokesperson submits policy, reason, and biggest uncertainty.",
+        "askNext": "Can you defend the policy from the fan's point of view?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Now a consultant joins the meeting."
+      }
+    },
+    {
+      "minutes": 7,
+      "type": "prompt",
+      "label": "AI CONSULTANT",
+      "key": "enc_ai_review",
+      "title": "ASK YOUR AI CONSULTANT",
+      "lead": "AI must consider revenue, fairness, privacy, fan trust, and reputation.",
+      "choices": [],
+      "studentTask": "Use an AI tool: 'We run a fictional concert-ticket platform with 10,000 tickets. Compare fixed, demand-based, and personalized AI pricing. Recommend a model or hybrid. State assumptions, risks, stakeholders, and missing evidence. Do not invent forecasts.' Submit a summary of the AI answer.",
+      "roomInstruction": "Use an AI tool: 'We run a fictional concert-ticket platform with 10,000 tickets. Compare fixed, demand-based, and personalized AI pricing. Recommend a model or hybrid. State assumptions, risks, stakeholders, and missing evidence. Do not invent forecasts.' Submit a summary of the AI answer.",
+      "runbook": {
+        "say": "Your AI consultant may sound confident. It does not have sales forecasts. Record what it recommended and what it could not know.",
+        "studentDoes": "Use an AI tool: 'We run a fictional concert-ticket platform with 10,000 tickets. Compare fixed, demand-based, and personalized AI pricing. Recommend a model or hybrid. State assumptions, risks, stakeholders, and missing evidence. Do not invent forecasts.' Submit a summary of the AI answer.",
+        "askNext": "Where is the evidence for its recommendation?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "A good board challenges its consultants."
+      }
+    },
+    {
+      "minutes": 6,
+      "type": "prompt",
+      "label": "AI CROSS-EXAM",
+      "key": "enc_ai_challenge",
+      "title": "CHALLENGE THE AI",
+      "lead": "An eloquent answer is not automatically a trustworthy answer.",
+      "choices": [],
+      "studentTask": "Ask AI: 'Challenge your own pricing recommendation. What is unsupported? Who is harmed? What data is missing? Suggest a safeguard.' Submit one AI weakness and your current judgment.",
+      "roomInstruction": "Ask AI: 'Challenge your own pricing recommendation. What is unsupported? Who is harmed? What data is missing? Suggest a safeguard.' Submit one AI weakness and your current judgment.",
+      "runbook": {
+        "say": "Do not ask AI to repeat itself. Make it argue against its own conclusion.",
+        "studentDoes": "Ask AI: 'Challenge your own pricing recommendation. What is unsupported? Who is harmed? What data is missing? Suggest a safeguard.' Submit one AI weakness and your current judgment.",
+        "askNext": "Did AI change its mind? Should that change yours?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Executives, we have breaking news."
+      }
+    },
+    {
+      "minutes": 8,
+      "type": "teach",
+      "label": "BREAKING NEWS",
+      "key": "enc_crisis",
+      "title": "BREAKING: #ENCOREAIEXPOSED",
+      "lead": "NEW FICTIONAL EVIDENCE — do not reveal until this moment.",
+      "choices": [],
+      "studentTask": "Read the new facts. Then discuss whether your original policy survives.",
+      "roomInstruction": "Read the new facts. Then discuss whether your original policy survives.",
+      "runbook": {
+        "say": "Stop everything. Fans report $89 versus $179 quotes; repeated artist searches may have influenced prices; the artist wants an explanation. Leaked fictional GROSS revenue: Fixed $890,000; Demand $1,180,000; Personalized $1,430,000. Refunds and reputational losses are NOT included. These figures are invented for this classroom case.",
+        "studentDoes": "Read the new facts. Then discuss whether your original policy survives.",
+        "askNext": "Does highest gross revenue automatically mean the best decision?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "The board needs an emergency response."
+      }
+    },
+    {
+      "minutes": 4,
+      "type": "prompt",
+      "label": "EMERGENCY BOARD",
+      "key": "enc_crisis_response",
+      "title": "KEEP IT, PAUSE IT, OR CHANGE IT?",
+      "lead": "You have four minutes to make a defensible response.",
+      "choices": [],
+      "studentTask": "One team response: revised policy, evidence that mattered, consumer safeguard, and one-sentence message to upset fans.",
+      "roomInstruction": "One team response: revised policy, evidence that mattered, consumer safeguard, and one-sentence message to upset fans.",
+      "runbook": {
+        "say": "Investors want answers. Fans want answers. Your team can keep, pause, change, or propose a hybrid. Explain your decision and write one public sentence.",
+        "studentDoes": "One team response: revised policy, evidence that mattered, consumer safeguard, and one-sentence message to upset fans.",
+        "askNext": "What is missing from the revenue figures?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Your board will now defend its decision."
+      }
+    },
+    {
+      "minutes": 12,
+      "type": "prompt",
+      "label": "BOARDROOM SHOWDOWN",
+      "key": "enc_pitch",
+      "title": "THE BOARDROOM SHOWDOWN",
+      "lead": "45-second pitch per team. Strong evidence wins.",
+      "choices": [],
+      "studentTask": "Submit a concise final pitch: policy; what AI advised; what new evidence changed or confirmed your view; stakeholder impact; one safeguard. Prepare to share it aloud.",
+      "roomInstruction": "Submit a concise final pitch: policy; what AI advised; what new evidence changed or confirmed your view; stakeholder impact; one safeguard. Prepare to share it aloud.",
+      "runbook": {
+        "say": "You win for critical thinking, not for choosing the model I prefer. Evidence, AI skepticism, stakeholder thinking, response to new evidence, and safeguards are each worth two points.",
+        "studentDoes": "Submit a concise final pitch: policy; what AI advised; what new evidence changed or confirmed your view; stakeholder impact; one safeguard. Prepare to share it aloud.",
+        "askNext": "Could you defend your policy publicly to a fan who paid $179?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Now the room votes as the board."
+      }
+    },
+    {
+      "minutes": 5,
+      "type": "vote",
+      "label": "FINAL BOARD VOTE",
+      "key": "enc_final_vote",
+      "title": "THE FINAL VERDICT",
+      "lead": "What should EncoreAI adopt after the fictional crisis?",
+      "choices": [
+        "A — FIXED",
+        "B — DEMAND",
+        "C — PERSONALIZED",
+        "H — HYBRID WITH SAFEGUARDS"
+      ],
+      "studentTask": "Cast your final vote. Compare it mentally with your first vote.",
+      "roomInstruction": "Cast your final vote. Compare it mentally with your first vote.",
+      "runbook": {
+        "say": "You heard the arguments, questioned AI, and saw new evidence. Which policy do you support now?",
+        "studentDoes": "Cast your final vote. Compare it mentally with your first vote.",
+        "askNext": "Who changed their mind—and what evidence was decisive?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "One last decision, without AI."
+      }
+    },
+    {
+      "minutes": 5,
+      "type": "reflection",
+      "label": "HUMAN OVERRIDE",
+      "key": "enc_exit",
+      "title": "THE HUMAN OVERRIDE",
+      "lead": "Individual exit ticket. NO AI.",
+      "choices": [],
+      "studentTask": "In 3–5 sentences: Would you allow AI to set concert-ticket prices? What should remain under human control? Name one risk, one safeguard, and whether today's evidence changed your view.",
+      "roomInstruction": "In 3–5 sentences: Would you allow AI to set concert-ticket prices? What should remain under human control? Name one risk, one safeguard, and whether today's evidence changed your view.",
+      "runbook": {
+        "say": "AI can optimize a goal, but humans are responsible for choosing the goals and examining consequences. Tell me what YOU think, without AI.",
+        "studentDoes": "In 3–5 sentences: Would you allow AI to set concert-ticket prices? What should remain under human control? Name one risk, one safeguard, and whether today's evidence changed your view.",
+        "askNext": "Who benefits? Who carries the risk?",
+        "landHere": "Focus on evidence, stakeholders, uncertainty, and accountability.",
+        "watchFor": "Students treating confident AI advice or fictional numbers as proven evidence.",
+        "ifStuck": "Ask: What evidence do we have? What is missing? Who might be harmed?",
+        "advanceWhen": "Most groups have completed the task, or the planned minutes have elapsed.",
+        "transition": "Thank you. Question the evidence behind decisions you encounter."
+      }
+    }
+  ]
+}
