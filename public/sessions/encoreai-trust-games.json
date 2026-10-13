@@ -3,7 +3,7 @@
   "title": "The AI Trust Games: EncoreAI",
   "course": "INF 125 · AI Literacy",
   "description": "A 75-minute, student-synchronized, no-Google-Slides live simulation of fictional AI concert-ticket pricing, complete with votes, AI challenges, breaking-news reveal, team response, and individual exit ticket.",
-  "durationMinutes": 80,
+  "durationMinutes": 75,
   "version": "0.10.1",
   "steps": [
     {
@@ -99,7 +99,7 @@
       }
     },
     {
-      "minutes": 8,
+      "minutes": 6,
       "type": "prompt",
       "label": "INITIAL DECISION",
       "key": "enc_initial",
@@ -225,7 +225,7 @@
       }
     },
     {
-      "minutes": 12,
+      "minutes": 9,
       "type": "prompt",
       "label": "BOARDROOM SHOWDOWN",
       "key": "enc_pitch",
