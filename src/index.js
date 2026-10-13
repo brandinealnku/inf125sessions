@@ -10,6 +10,21 @@ export class ClassroomSession {
     // V0.10 session library lives in a dedicated Durable Object instance.
     if (url.pathname.startsWith('/library')) {
       const library = (await this.state.storage.get('library')) || {};
+      // Seed the published EncoreAI lesson into the editable session library once.
+      // Existing saved sessions and instructor edits take precedence.
+      if (method === 'GET' && !library['encoreai-trust-games']) {
+        try {
+          const assetUrl = new URL('/sessions/encoreai-trust-games.json', request.url);
+          const assetResponse = await this.env.ASSETS.fetch(new Request(assetUrl.toString()));
+          if (assetResponse.ok) {
+            const seeded = cleanDefinition(await assetResponse.json());
+            if (seeded.id === 'encoreai-trust-games' && seeded.steps.length) {
+              library[seeded.id] = seeded;
+              await this.state.storage.put('library', library);
+            }
+          }
+        } catch (_) { /* Leave existing library available if static seed cannot load. */ }
+      }
       if (method === 'GET' && url.pathname === '/library/sessions') {
         const sessions = Object.values(library).map(s => ({ id:s.id, title:s.title, course:s.course||'', durationMinutes:s.durationMinutes||75, updatedAt:s.updatedAt||0, stepCount:Array.isArray(s.steps)?s.steps.length:0 })).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
         return json({ sessions });
