@@ -298,8 +298,8 @@ jobs:
           }
           TEAM_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest)"
           echo "TEAM DOM bytes: ${#TEAM_DOM}"
-          echo "$TEAM_DOM" | grep -q "CONTEXT" || { echo "Team surface missing Context Quest render"; exit 1; }
-          echo "$TEAM_DOM" | grep -Eq "PROMPTS|INVESTIGATION TEAM SETUP|INVESTIGATOR TRAINING|CASE|TEAM READY|CASE PAUSED" || { echo "Team surface did not render a playable state"; exit 1; }
+          echo "$TEAM_DOM" | grep -q "THE HAUNTED" || { echo "Team surface missing Context Quest render"; exit 1; }
+          echo "$TEAM_DOM" | grep -Eq "THE AI LAB|INVESTIGATION TEAM SETUP|INVESTIGATOR TRAINING|CASE|TEAM READY|CASE PAUSED" || { echo "Team surface did not render a playable state"; exit 1; }
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "INSTRUCTOR DOM bytes: ${#INST_DOM}"
           echo "$INST_DOM" | grep -q "GAME MASTER" || { echo "Instructor surface missing Game Master render"; exit 1; }
@@ -325,7 +325,7 @@ jobs:
           echo "$GS_ROOM_DOM" | grep -q "iframe" || { echo "Google Slides projection did not render deck frame"; exit 1; }
           BOARD_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/board)"
           echo "BOARD DOM bytes: ${#BOARD_DOM}"
-          echo "$BOARD_DOM" | grep -q "HAUNTED PROMPT LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
+          echo "$BOARD_DOM" | grep -q "THE HAUNTED AI LAB" || { echo "Haunted Prompt Lab board header did not render"; exit 1; }
           BOARD_JS="$(curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors --max-time 20 "https://classroom.itsbadlabs.com/context-quest-board.js?verify=$GITHUB_SHA")"
           printf '%s' "$BOARD_JS" > /tmp/context-quest-board.js
           grep -q 'animateBoardPositions' /tmp/context-quest-board.js
@@ -335,9 +335,9 @@ jobs:
           grep -q 'TEST CHAMBER' /tmp/context-quest-board.js
           grep -q 'THE HAUNTING' /tmp/context-quest-board.js
           grep -q 'EVIDENCE CHECK' /tmp/context-quest-board.js
-          ! grep -q 'TEST CHAMBER' /tmp/context-quest-board.js
-          ! grep -q 'EVIDENCE CHECK' /tmp/context-quest-board.js
-          echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
+          ! grep -q 'AI SÉANCE' /tmp/context-quest-board.js
+          ! grep -q 'GHOST HUNT' /tmp/context-quest-board.js
+          echo "$BOARD_DOM" | grep -Eq "THE HAUNTED AI LAB|ENTER THE THE HAUNTED AI LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
           ! echo "$BOARD_DOM" | grep -Eq ">PROFESSOR<|>UNIVERSITY<|>STUDENT<|>ACADEMIC ADVISOR<" || { echo "Obsolete stakeholder label rendered"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
           echo "TEST DOM bytes: ${#TEST_DOM}"
