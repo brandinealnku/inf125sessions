@@ -29,11 +29,11 @@ function animateBoardPositions(){
  };
  moveTimer=setTimeout(step,120);
 }
-function mast(body){return `<header class="mast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">🎃 THE HAUNTED PROMPT LAB · LIVE BOARD</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="pill">🎮 ${snap?.playing||0} PLAYING</div><div class="pill">👀 ${snap?.watching||0} WATCHING</div></div></header>${body}`}
+function mast(body){return `<header class="mast"><div><div class="logo">THE HAUNTED <span>AI LAB</span></div><div class="tiny">🎃 THE HAUNTED AI LAB · LIVE BOARD</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="pill">🎮 ${snap?.playing||0} PLAYING</div><div class="pill">👀 ${snap?.watching||0} WATCHING</div></div></header>${body}`}
 function phaseData(){
  const s=snap.state.stage,r=D.rounds[snap.state.round];let title=D.stages[s]||s,sub="";
  if(["build","test","twist","check","reveal"].includes(s)){title=`CASE ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?"Investigation teams are finding clues, voting, and testing.":s==="test"?"Teams are in the Test Chamber.":s==="twist"?"👻 THE HAUNTING: "+r.twist:s==="check"?"EVIDENCE CHECK: audience · goal · constraints · evidence":s==="reveal"?"🔮 EVIDENCE + SCORE REVEAL!":""}
- if(s==="lobby"){title=snap.state.teamsFormed?"ASSEMBLE YOUR INVESTIGATION TEAM":"ENTER THE HAUNTED PROMPT LAB";sub=snap.state.teamsFormed?"Choose your team name + Halloween charm on your device.":"classroom.itsbadlabs.com/context-quest · choose INVESTIGATE or OBSERVE"}
+ if(s==="lobby"){title=snap.state.teamsFormed?"ASSEMBLE YOUR INVESTIGATION TEAM":"ENTER THE HAUNTED AI LAB";sub=snap.state.teamsFormed?"Choose your team name + Halloween charm on your device.":"classroom.itsbadlabs.com/context-quest · choose INVESTIGATE or OBSERVE"}
  if(s==="tutorial"){title="🔦 INVESTIGATOR TRAINING";sub="Learn the AI context loop by solving the first mini-case."}
  if(s==="final-build"){title="👾 THE CURSE OF THE CONFIDENT AI";sub="Use every clue: WHO · GOAL · SITUATION · CONSTRAINTS · OUTPUT · CHECK"}
  if(s==="final-test"){title="FINAL TEST";sub="Run the team-selected design."}
@@ -46,7 +46,7 @@ function phaseData(){
 function centerPanel(){
  const {title,sub}=phaseData(),teams=[...(snap.teams||[])].sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
  const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>SCORE ${t.totalPoints||0} · SPACE ${shownPosition(t)}${shownPosition(t)!==targetPosition(t)?` → ${targetPosition(t)}`:""} · ${esc(D.progressLabels?.[t.progressKey]||String(t.progressKey||"WAITING").replaceAll("_"," "))}${(t.awards||[]).length?` · 🏅 ${t.awards.length}`:""}</small></span></div>`).join("");
- return `<div class="boardCenter"><div class="tiny">CONTEXT QUEST · THE HAUNTED PROMPT LAB</div><div class="boardCenterTitle">${esc(title)}</div><p>${esc(sub)}</p><div class="boardCenterTeams">${chips||'<span class="mini">Waiting for teams…</span>'}</div></div>`
+ return `<div class="boardCenter"><div class="tiny">THE HAUNTED AI LAB</div><div class="boardCenterTitle">${esc(title)}</div><p>${esc(sub)}</p><div class="boardCenterTeams">${chips||'<span class="mini">Waiting for teams…</span>'}</div></div>`
 }
 function boardSpace(i){
  const [label,type]=BOARD_SPACES[i],coord=COORDS[i],teams=(snap.teams||[]).filter(t=>shownPosition(t)===i);
