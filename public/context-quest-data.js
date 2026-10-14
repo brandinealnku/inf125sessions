@@ -1,5 +1,5 @@
 window.CQ_DATA={
-title:"CONTEXT QUEST: THE HAUNTED AI LAB",
+title:"THE HAUNTED AI LAB",
 tagline:"Investigate AI. Spot its blind spots. Keep humans in control.",
 rounds:[
 {
