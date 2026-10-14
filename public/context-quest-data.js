@@ -1,9 +1,9 @@
 window.CQ_DATA={
-title:"CONTEXT QUEST: THE HAUNTED PROMPT LAB",
-tagline:"Find the missing context. Test the answer. Survive the twist.",
+title:"CONTEXT QUEST: THE HAUNTED AI LAB",
+tagline:"Investigate AI. Spot its blind spots. Keep humans in control.",
 rounds:[
 {
- key:"THE MYSTERY PROMPT",icon:"🧛",title:"This prompt sounds ridiculous. Is it?",style:"match",
+ key:"THE MISSING CONTEXT",icon:"🧛",title:"This prompt sounds ridiculous. Is it?",style:"match",
  bad:"Tell me how to survive college like I’m a vampire.",
  context:[["CASE FILE 01","A strange prompt can be useful when the context explains why it exists."]],
  twist:"The student works late shifts, feels overwhelmed by daytime obligations, and remembers advice better when it is funny and themed.",
@@ -17,28 +17,29 @@ rounds:[
  best:0
 },
 {
- key:"THE MISSING CLUES",icon:"🔮",title:"No one teammate has the whole story.",style:"secret",
- bad:"Help me choose an AI tool.",
- context:[["CASE FILE 02","The prompt is haunted by missing information. Each investigator holds one clue."]],
- twist:"The student now says they have only 10 minutes, are using a phone, and cannot upload private course material.",
- nudge:"Reveal your clue aloud. Combine the team's evidence before anyone builds the prompt.",
- sampleResponse:"Three possibilities: 1) Use the school's approved AI assistant if available because it may already meet privacy requirements. 2) Use a free general AI tool only with non-private material. 3) If you are unsure whether course material is private, ask the instructor or use a non-AI study method.",
+ key:"THE BIASED CRYSTAL BALL",icon:"🔮",title:"A clever recommendation can miss the whole picture.",style:"secret",
+ bad:"Use AI to choose which students should receive extra academic support.",
+ context:[["CASE FILE 02","A school's fictional AI system flags students for academic support. Each investigator holds evidence the others lack."]],
+ twist:"NEW EVIDENCE: The model used prior online login activity as a strong risk signal. Some students share devices or lack reliable internet. The team must reconsider whether that proxy is fair.",
+ nudge:"Each investigator has a different clue. Share them before proposing an accountable decision-support prompt. No real student data.",
+ sampleResponse:"This hypothetical model should not decide which students receive support by itself. Review the quality and representativeness of the data, especially whether online activity unfairly flags students with limited access. Include staff review, student context, an explanation of the alert, and a way to correct errors. Test outcomes across relevant groups before deployment.",
  secrets:[
-  ["WHO CLUE","A first-year college student"],
-  ["GOAL CLUE","Choose an AI tool for studying"],
-  ["CONSTRAINT CLUE","It must be free or already provided by the school"],
-  ["PRIVACY CLUE","The student cannot upload private course materials"],
-  ["OUTPUT CLUE","Give only three short bullets"]
+  ["GOAL CLUE","The aim is offering supportive outreach, not punishing students"],
+  ["DATA CLUE","The model uses assignment activity and frequency of online logins"],
+  ["MISSING PERSPECTIVE","Some students have limited internet access or share devices"],
+  ["FAIRNESS CLUE","Low logins may reflect access barriers, not lack of effort"],
+  ["OVERSIGHT CLUE","A human advisor must confirm the recommendation and allow correction"]
  ],
  builders:{
-  audience:["a first-year college student","a graduate student","a professor"],
-  goal:["choose an AI tool for studying","write an entire assignment","find the most popular AI app"],
-  constraint:["that is free or already provided by the school and does not require uploading private course material","with no restrictions","that stores all class files"],
-  output:["Give three short bullets with one reason for each recommendation.","Write a long essay.","Give only product names."]
+  audience:["a student-support advisor reviewing a fictional AI alert","an AI system that makes final enrollment decisions","a marketer selecting the most popular study app"],
+  goal:["evaluate whether an academic-support alert is fair and useful","automatically penalize students with few logins","maximize a risk score without reviewing it"],
+  constraint:["using only fictional examples, noting missing data and access barriers, and requiring human review","assuming that every low login count means disengagement","with no explanation or appeal"],
+  output:["Give a short recommendation, two possible biases, and a human verification step.","Give a risk label without explaining it.","Provide only an unexplained yes or no."]
  }
+
 },
 {
- key:"THE HAUNTED ANSWER",icon:"👻",title:"The AI sounds confident. Something is still wrong.",style:"spot",
+ key:"THE CONFIDENTLY WRONG GHOST",icon:"👻",title:"The AI sounds confident. Something is still wrong.",style:"spot",
  bad:"Can I trust this answer?",
  context:[["HAUNTED AI RESPONSE","“87% of college students who use AI get better grades, so you should use it for every assignment. Your university allows ChatGPT in all classes.”"]],
  twist:"The student followed the answer—and discovered their professor prohibits AI-generated work on this assignment.",
@@ -54,9 +55,9 @@ rounds:[
 ],
 final:{
  style:"freeform",
- name:"THE CURSE OF THE CONFIDENT AI",
- bad:"Write the instructions for an AI assistant that helps a first-year student make a course decision safely.",
- twist:"The assistant confidently gives a first-year student incorrect high-stakes course information—and the student is about to act on it.",
+ name:"THE HUMAN OVERRIDE",
+ bad:"Your team advises a first-year student using AI to decide whether to drop an important class. Should they accept the AI recommendation, revise it, or pause and consult a person? Write a responsible assistant prompt and explain who makes the final decision.",
+ twist:"The AI confidently cites an invented prerequisite and ignores financial-aid implications. The student is about to act. STOP, CHECK, and decide when a human advisor must take over.",
  cards:[
   ["WHO","A first-year college student"],
   ["GOAL","Help the student make an informed course decision"],
@@ -67,7 +68,7 @@ final:{
  ],
  sampleResponse:"I can help you think through a course decision, but I should not invent requirements or make the decision for you. Tell me your goal, the specific course choice, any official policy or degree information you already have, and constraints such as schedule or prerequisites. I will separate verified facts from assumptions, show what still needs confirmation, and direct you to an advisor or official source for high-stakes questions."
 },
-moments:["THE MYSTERY PROMPT","THE MISSING CLUES","THE HAUNTED ANSWER"],
+moments:["THE MISSING CONTEXT","THE BIASED CRYSTAL BALL","THE CONFIDENTLY WRONG GHOST"],
 bonusTypes:[
  {key:"context",label:"🔮 CONTEXT CLAIRVOYANT",description:"Best use of audience, goal, or situational context."},
  {key:"recovery",label:"🧟 CURSE BREAKER",description:"Strongest adaptation after the Plot Twist."},
