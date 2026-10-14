@@ -94,14 +94,17 @@ function stageHelp(){
  return room.total?`${base} ${room.ready}/${room.total} teams are ready for the next shared action.`:base;
 }
 function facultyQuickStart(){
- return `<details class="panel facultyQuick"${gmUi.quickStart?" open":""} ontoggle="rememberGmUi('quickStart',this.open)"><summary><b>📋 FACULTY QUICK START</b> · hybrid Game Master model</summary><div class="playerGuideGrid">
- <div><b>AUTOMATED</b><p>Teams move themselves through submitting, voting, answer selection, testing, repair, and judgment.</p></div>
- <div><b>YOU CONTROL</b><p>Start each case, reveal the Haunting, reveal evidence + score, launch the next case, and launch the Final Boss.</p></div>
- <div><b>WATCH PROGRESS</b><p>Use the Room Monitor to see who is ready, which players still owe an action, and which teams have a tie.</p></div>
- <div><b>INSPECT, DON'T TRAFFIC-CONTROL</b><p>Open a team to see live submissions and vote counts. Winning answers are selected automatically; instructor approval is not required.</p></div>
- <div><b>OVERRIDE ONLY WHEN NEEDED</b><p>If a device dies or someone leaves, excuse that individual player for the current case. Use whole-room override only as a last resort. Incomplete teams receive no automatic credit for unfinished judgment.</p></div>
- <div><b>KEEP THE THEATER</b><p>The room should experience Hauntings and evidence reveals together. Automate workflow; human-control the theater.</p></div>
- </div></details>`;
+ const on=snap.state.stage==="lobby"&&!snap.state.teamsFormed;
+ return `<details class="panel facultyQuick" ${gmUi.quickStart||on?"open":""} ontoggle="rememberGmUi('quickStart',this.open)"><summary><b>🎓 START HERE · FIRST-TIME GAME MASTER</b> · 5-minute setup and classroom recovery</summary>
+ <div class="playerGuideGrid">
+ <div><b>BEFORE THE ROOM FILLS</b><p>1. Open PROJECTED BOARD in a second window on the classroom screen. 2. Open a student link on another device. 3. Enter a test name, select INVESTIGATE, and verify that name appears in the Lobby. 4. Leave this console open on your laptop.</p></div>
+ <div><b>START THE CLASS</b><p>Ask students to join and choose INVESTIGATE. OBSERVE is for visitors and does not affect scores. Once most have joined, select FORM BALANCED VIRTUAL TEAMS. Students then choose a team name and charm.</p></div>
+ <div><b>YOUR JOB</b><p>Read the instructor cue for each phase. Watch the current stage and team readiness above. Students handle proposals, voting, testing and evidence checks. You trigger shared scene changes with the purple button when ready.</p></div>
+ <div><b>IF A STUDENT GETS STUCK</b><p>Ask them to reload the same student link first. Find their name under PLAYER STATUS. If they cannot participate, open their team below and choose EXCUSE THIS CASE. Do not reset the room for one stuck student.</p></div>
+ <div><b>IF A TEAM CANNOT FINISH</b><p>Open ROOM PROGRESS to see what is missing. Wait for normal votes and checks when possible. The red FORCE ROOM FORWARD control is for a genuine whole-room blocker and requires confirmation.</p></div>
+ <div><b>IF THE GAME NEEDS A FRESH START</b><p>Use GAME CONTROLS → RESET LIVE ROOM. This deletes all current players, teams, scores and progress. It cannot be undone. Use TEST SANDBOX for rehearsal instead of resetting a real class.</p></div>
+ </div>
+ <div class="success"><b>Teaching rule:</b> You don't need to troubleshoot GitHub or Cloudflare. Keep the lesson moving. If the app becomes unusable, project the case, ask teams to describe a better prompt and its evidence checks aloud, and finish with WHO → GOAL → SITUATION → CONSTRAINTS → OUTPUT → CHECK.</div></details>`;
 }
 function facilitationGuide(){
  const s=snap.state.stage,r=snap.state.round,m=D.rounds?.[r],room=roomProgress();
@@ -166,6 +169,16 @@ function sharedControls(){
  const a=sharedAction();if(!a)return '<div class="gmActionBlock"><div class="label">YOUR NEXT SHARED ACTION</div><b>No instructor action needed right now.</b></div>';
  return `<div class="gmActionBlock"><div class="label">YOUR NEXT SHARED ACTION</div><div class="gmReadyText">${a.ready?"ROOM READY":"WAITING ON STUDENTS"}</div><button class="btn purple gmPrimaryAction" onclick="advance('${a.stage}',${a.round},false)" ${a.ready?"":"disabled"}>${a.label}</button>${!a.ready&&a.forceable?`<details class="problemMenu"><summary>HAVING A PROBLEM? ▾</summary><div class="problemPop"><p>Use <b>Excuse This Case</b> in a team drill-down for one student. Force the whole room only if the class cannot continue normally.</p><button class="btn red" onclick="advance('${a.stage}',${a.round},true)">FORCE ROOM FORWARD</button></div></details>`:""}</div>`;
 }
+function gmTeachingPath(){
+ const s=snap.state.stage,round=Number(snap.state.round||0);
+ const phases=[["lobby","JOIN + TEAMS"],["tutorial","TRAINING"],["build","BUILD"],["twist","HAUNTING"],["reveal","REVEAL"],["final-build","FINAL BUILD"],["final-twist","FINAL HAUNTING"],["final-reveal","FINAL REVEAL"],["complete","CLOSE"]];
+ const idx=phases.findIndex(([k])=>k===s);
+ const now=phases[idx]?.[1]||s.toUpperCase();
+ const following=phases[idx+1]?.[1]||"FINISHED";
+ const caseNo=["build","twist","reveal"].includes(s)?round+1:0;
+ return `<section class="panel gmTeachingPath"><div class="label">🧭 YOU ARE HERE · LIVE TEACHING PATH</div><div class="bigq">${esc(now)}${caseNo?" · CASE "+caseNo+" OF 3":""}</div><p><b>Next kind of moment:</b> ${esc(s==="reveal"&&round<2?"NEXT CASE":following)}. Use the purple shared action in the Game Master console when it becomes available.</p><div class="gmPathChips">${phases.map(([k,l])=>`<span class="gmPathChip ${k===s?"current":""}">${esc(l)}</span>`).join("")}</div><p class="tiny">The three regular cases loop through BUILD → HAUNTING → REVEAL. The path above shows the types of moments; the stage and case counter tell you the exact current position.</p></section>`;
+}
+
 function stageStats(){
  const teams=snap.teams||[],s=snap.state.stage,rows=teams.map(t=>({t,r:roundRec(t),p:teamProgress(t)}));
  const active=rows.reduce((n,x)=>n+x.p.total,0);
@@ -202,7 +215,7 @@ function gameMasterConsole(){
 function render(){
  if(!snap)return;
  const stats=stageStats();
- $("#app").innerHTML=mast(`${gameMasterConsole()}${playerStatusBoard()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${facilitationGuide()}<section class="panel stageStats"><div class="label">LIVE COUNTS</div><div class="statusgrid">${stats.map(([l,v])=>stat(l,v)).join("")}</div></section><section class="panel"><div class="label">INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + submissions</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>${facultyQuickStart()}`)}
+ $("#app").innerHTML=mast(`${gameMasterConsole()}${gmTeachingPath()}${playerStatusBoard()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${facilitationGuide()}<section class="panel stageStats"><div class="label">LIVE COUNTS</div><div class="statusgrid">${stats.map(([l,v])=>stat(l,v)).join("")}</div></section><section class="panel"><div class="label">INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + submissions</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>${facultyQuickStart()}`)}
 async function formTeams(){try{await req("/form-teams",{method:"POST",body:JSON.stringify({teamSize:5})});toast("Teams formed.");await refresh(true)}catch(e){toast(e.message)}}
 async function advance(stage,round,force=false){try{if(force&&!confirm("Advance the whole room even though some teams are not ready?"))return;await req("/control",{method:"POST",body:JSON.stringify({stage,round,force})});toast(force?"Room advanced with override.":"Shared classroom action advanced.");await refresh(true)}catch(e){toast(e.message)}}
 async function bonus(teamId,delta,label=""){await req("/bonus",{method:"POST",body:JSON.stringify({teamId,delta,label})});toast(delta>0?`${label} awarded.`:"One bonus undone.");await refresh(true)}
