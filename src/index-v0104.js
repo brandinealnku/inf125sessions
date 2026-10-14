@@ -226,24 +226,35 @@ export class ClassroomSession extends BaseClassroomSession {
       const state=await cqState(),players=await cqPlayers(),teams=await cqTeams(),now=Date.now(),final=String(state.stage).startsWith('final'),key=cqRoundKey(state.round,final);
       const testPlayers=Object.values(players).filter(p=>p.isTest&&p.mode==='play'&&p.teamId);
       if(!testPlayers.length)return json({error:'No test players are available'},400);
+      // Preserve manual work and normalize legacy simulator duplicates to normal proposal IDs.
+      const fillProposal=(r,field,p,text,now)=>{
+        const proposals=r[field+'Proposals']||={},votes=r[field+'Votes']||={},pid=p.id+'-'+field;
+        const existing=proposals[pid]||Object.values(proposals).find(x=>x.playerId===p.id);
+        proposals[pid]=existing?{...existing,id:pid}:{id:pid,playerId:p.id,name:p.name,text,at:now};
+        for(const [oldId,row] of Object.entries(proposals))if(row.playerId===p.id&&oldId!==pid){
+          delete proposals[oldId];for(const voter of Object.keys(votes))if(votes[voter]===oldId)votes[voter]=pid;
+        }
+      };
       for(const p of testPlayers){
         const team=teams[p.teamId];if(!team)continue;
         team.rounds=team.rounds||{};team.rounds[key]=team.rounds[key]||{};const r=team.rounds[key];
-        const base=final?'Help a first-year student make a safe course decision using verified university information.':[
-          'Explain AI to a first-year College of Informatics student using plain language and one example.',
-          'Help a first-year student decide when AI is useful for schoolwork and when it is not.',
-          'Recommend a free study AI tool for a first-year student in three bullets without using private course data.',
-          'Evaluate this AI answer, separate facts from assumptions, and flag claims that need verification.'
-        ][Math.min(3,state.round||0)];
+        const base=final?'Help a first-year student weigh whether to drop a course. Separate verified university policy from assumptions, protect private data, consult an academic advisor, and leave the final decision to the student.':[
+          'Help a first-year college student who works late shifts adjust to college life. Use a funny vampire survival guide with practical, reassuring advice that is easy to remember.',
+          'Help a student-support advisor evaluate a fictional academic-support alert. Review missing data and internet-access barriers, identify two possible biases, and require human review and correction before outreach.',
+          'Evaluate the unsourced 87% grade claim and the claim that ChatGPT is allowed in every class. Separate facts from assumptions, reject blanket advice, and verify assignment rules with the syllabus or instructor.'
+        ][Math.min(2,state.round||0)];
+        const repair=final?'Stop before dropping the course. Verify prerequisites with official degree information and financial-aid consequences with the appropriate office. Ask an academic advisor to review the decision; do not invent policy or disclose private records.':[
+          'Adapt the vampire survival guide for a student working late shifts who feels overwhelmed by daytime obligations. Prioritize sleep, manageable routines, and supportive advice in a memorable humorous style.',
+          'Reconsider the online-login risk signal: shared devices and limited internet access can cause false alerts. Review access barriers with a human advisor, test fairness, explain alerts, and let students correct errors before acting.',
+          'The professor prohibits AI-generated work on this assignment. Stop using the generated answer, verify the syllabus and ask the instructor what assistance is allowed. Retract unsupported statistics and policy claims and label uncertainty.'
+        ][Math.min(2,state.round||0)];
         if(state.stage==='tutorial'){p.tutorialDone=true;}
         if(state.stage==='build'||state.stage==='final-build'){
-          r.buildProposals=r.buildProposals||{};const pid='sim-build-'+p.id;r.buildProposals[pid]={id:pid,playerId:p.id,name:p.name,text:base,at:now};
-          r.buildVotes=r.buildVotes||{};r.buildVotes[p.id]='sim-build-'+(team.members?.[0]||p.id);r.status='building';cqUpdateCandidate(team,key,'build');
+          fillProposal(r,'build',p,base,now);r.status='building';
         }
-        if(state.stage==='test'||state.stage==='final-test'){r.tested=r.tested||{};r.tested[p.id]=now;r.status='tested';}
+        if(state.stage==='test'||state.stage==='final-test'){r.tested=r.tested||{};r.tested[p.id]=r.tested[p.id]||now;r.status='tested';}
         if(state.stage==='twist'||state.stage==='final-twist'){
-          r.repairProposals=r.repairProposals||{};const pid='sim-repair-'+p.id;r.repairProposals[pid]={id:pid,playerId:p.id,name:p.name,text:base+' Also account for the new information and state uncertainty clearly.',at:now};
-          r.repairVotes=r.repairVotes||{};r.repairVotes[p.id]='sim-repair-'+(team.members?.[0]||p.id);r.status='repairing';cqUpdateCandidate(team,key,'repair');
+          fillProposal(r,'repair',p,repair,now);r.status='repairing';
         }
         if(state.stage==='check'||state.stage==='final-check'){
           r.checkBallots=r.checkBallots||{};
@@ -251,6 +262,16 @@ export class ClassroomSession extends BaseClassroomSession {
           r.checkBallots[p.id]={playerId:p.id,name:p.name,checks:variant===0?[true,true,true,false]:[true,true,true,true],at:now};r.status='checking';
         }
         team.rounds[key]=r;teams[team.id]=team;players[p.id]=p;
+      }
+      // Fill missing votes only after all proposals exist, then use normal finalization.
+      const field=['build','final-build'].includes(state.stage)?'build':['twist','final-twist'].includes(state.stage)?'repair':null;
+      if(field)for(const team of Object.values(teams)){
+        const r=team.rounds?.[key];if(!r)continue;
+        const required=cqRequiredMembers(team,key),proposals=r[field+'Proposals']||{},votes=r[field+'Votes']||={};
+        const winner=Object.values(proposals).find(x=>required.includes(x.playerId));
+        if(!winner)continue;
+        for(const id of required)if(players[id]?.isTest&&!proposals[votes[id]])votes[id]=winner.id;
+        cqAutoSelect(team,key,field);
       }
       await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
       return json({ok:true,stage:state.stage,simulated:testPlayers.length});

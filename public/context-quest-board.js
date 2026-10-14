@@ -40,7 +40,7 @@ function phaseData(){
  if(s==="final-twist"){title="🚨 THE FINAL CURSE";sub=D.final.twist}
  if(s==="final-check"){title="FINAL JUDGMENT";sub="Every active player completes the Evidence Check. Score and board progress stay separate."}
  if(s==="final-reveal"){title="🏆 FINAL EVIDENCE REVEAL";sub="Who used context, verification, and adaptation best?"}
- if(s==="complete"){title="🎃 CASE CLOSED · CONTEXT BROKE THE CURSE";sub="WHO → GOAL → SITUATION → CONSTRAINTS → OUTPUT → CHECK"}
+ if(s==="complete"){title="🎃 CASE CLOSED · HUMAN JUDGMENT BROKE THE CURSE";sub="UNDERSTAND AI · ADD CONTEXT · VERIFY · CHECK BIAS · KEEP HUMANS IN CONTROL"}
  return {title,sub}
 }
 function centerPanel(){
