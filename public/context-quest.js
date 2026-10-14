@@ -224,7 +224,9 @@ function isEditing(){
  return !!a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT"||a.tagName==="SELECT")&&!a.readOnly&&!a.disabled;
 }
 async function refresh(force=false){
- if(!local.name)return render();
+ // Keep the join form mounted while a new student types their name.
+ // Re-rendering every polling tick replaces the focused input and blocks typing.
+ if(!local.name)return;
  try{
    const next=await req("/snapshot");
    const sig=stableSnapshot(next);
