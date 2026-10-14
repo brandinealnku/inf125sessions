@@ -63,7 +63,7 @@ function teamLobby(){
  const activeCharm=local.teamDraftCharm||t.charm||"";
  const charms=(snap.charms||["🎃","👻","🧛","🧙","🦇","💀","🐈‍⬛","🕷️","🔮","🧟","🕯️","🧪"]).map(ch=>{
    const taken=used.has(ch),selected=activeCharm===ch;
-   return `<button class="charmpick ${selected?"selected":""}" aria-pressed="${selected?"true":"false"}" ${taken?"disabled":""} onclick="chooseCharm('${ch}')"><span class="charmEmoji">${ch}</span>${selected?'<span class="charmCheck">✓</span>':""}<small>${taken?"TAKEN":selected?"SELECTED":"CHOOSE"}</small></button>`;
+   return `<button class="charmpick ${selected?"selected":""}" aria-pressed="${selected?"true":"false"}" ${taken?"disabled":""} onclick="chooseCharm('${ch}')"><span class="charmArt"><span class="charmEmoji">${ch}</span>${selected?'<span class="charmCheck" aria-hidden="true">✓</span>':""}</span><small>${taken?"TAKEN":selected?"SELECTED":"CHOOSE"}</small></button>`;
  }).join("");
  return mast(`<section class="panel hero teamsetupHero hauntedHero"><div class="tiny">🔮 INVESTIGATION TEAM SETUP</div><div class="charmHero">${esc(t?.charm||local.teamDraftCharm||"👻")}</div><h1 style="color:${t?.color||"var(--purple)"}">${esc(t?.name||"YOUR TEAM")}</h1><p>Find your investigators, then choose your <b>team name</b> and a Halloween <b>charm</b> to move around the Haunted Prompt Lab.</p></section>
  <section class="panel"><div class="label">YOUR INVESTIGATORS</div><div class="actions">${members}</div>
