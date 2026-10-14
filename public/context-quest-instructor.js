@@ -2,7 +2,7 @@ const API="/api/session/context-quest-live/cq",D=window.CQ_DATA,$=s=>document.qu
 async function req(path,opts={}){const r=await fetch(API+path,{headers:{"content-type":"application/json"},...opts});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1700)}
 function rememberGmUi(key,isOpen){gmUi[key]=!!isOpen}
-function mast(body){const test=snap?.state?.testMode?`<div class="testModeBanner">🧪 TEST MODE IS ON IN THE LIVE ROOM · RESET BEFORE CLASS</div>`:"";return `<header class="mast gmMast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">🎃 HAUNTED PROMPT LAB · GAME MASTER</div></div><div class="actions"><a class="btn soft" style="text-decoration:none" href="/context-quest/board" target="_blank">PROJECTED BOARD ↗</a><details class="gameMenu"${gmUi.gameMenu?" open":""} ontoggle="rememberGmUi('gameMenu',this.open)"><summary class="btn soft">GAME CONTROLS ▾</summary><div class="gameMenuPop"><a class="btn teal" style="text-decoration:none" href="/context-quest/test">🧪 TEST SANDBOX</a><button class="btn red" onclick="resetGame()">RESET LIVE ROOM</button><p class="tiny">Reset removes live players, teams, scores, and current game progress.</p></div></details></div></header>${test}${body}`}
+function mast(body){const test=snap?.state?.testMode?`<div class="testModeBanner">🧪 TEST MODE IS ON IN THE LIVE ROOM · RESET BEFORE CLASS</div>`:"";return `<header class="mast gmMast"><div><div class="logo">CONTEXT <span>QUEST</span></div><div class="tiny">🎃 HAUNTED PROMPT LAB · GAME MASTER</div></div><div class="actions"><a class="btn soft" style="text-decoration:none" href="/context-quest/board" target="_blank">PROJECTED BOARD ↗</a><details class="gameMenu"${gmUi.gameMenu?" open":""} ontoggle="rememberGmUi('gameMenu',this.open)"><summary class="btn soft">GAME CONTROLS ▾</summary><div class="gameMenuPop"><a class="btn teal" style="text-decoration:none" href="/context-quest/test">🧪 TEST SANDBOX</a><button class="btn red" onclick="resetGame()">RESET LIVE ROOM</button><p class="tiny"><b>Start a fresh class:</b> Game Controls → Reset Live Room. This permanently clears players, teams, scores and progress. Use Test Sandbox for rehearsals.</p></div></details></div></header>${test}${body}`}
 function stat(label,value){return `<div class="stat"><span class="tiny">${label}</span><b>${value}</b></div>`}
 function roundRec(t){const final=String(snap.state.stage).startsWith("final"),key=final?"final":String(snap.state.round||0);return t.rounds?.[key]||{}}
 function counts(){const teams=snap.teams||[],players=snap.players||[],playing=players.filter(p=>p.mode==="play"),r=t=>roundRec(t);return{joined:players.length,playing:playing.length,watching:players.filter(p=>p.mode==="watch").length,teams:teams.length,ready:playing.filter(p=>p.tutorialDone).length,proposals:teams.reduce((n,t)=>n+Object.keys(r(t).buildProposals||{}).length,0),tested:teams.reduce((n,t)=>n+Object.keys(r(t).tested||{}).length,0),repairs:teams.reduce((n,t)=>n+Object.keys(r(t).repairProposals||{}).length,0),ballots:teams.reduce((n,t)=>n+Object.keys(r(t).checkBallots||{}).length,0)}}
@@ -183,6 +183,18 @@ function stageStats(){
  }
  const cc=counts();return [["Joined",cc.joined],["Playing",cc.playing],["Watching",cc.watching],["Teams",cc.teams],["Training ready",cc.ready]];
 }
+function playerStatusBoard(){
+ const players=snap.players||[], teams=snap.teams||[];
+ const rows=players.map(p=>{
+   const t=teams.find(t=>(t.members||[]).some(m=>m.id===p.id));
+   const isWatching=p.mode==="watch";
+   const isTraining=snap.state.stage==="tutorial";
+   const progress=t?teamProgress(t):null;
+   const label=isWatching?"👀 OBSERVING":!t?"WAITING FOR TEAM":isTraining?(p.tutorialDone?"✓ TRAINING DONE":"TRAINING"):progress?.ready?"✓ TEAM READY":progress?.status||"IN PROGRESS";
+   return {p,t,label};
+ });
+ return `<details class="panel playerStatusBoard"><summary><b>PLAYER STATUS · ${players.length} JOINED</b> <span class="tiny">See each learner's team, activity and readiness ▾</span></summary><div class="playerStatusList">${rows.map(({p,t,label})=>`<div class="playerStatusRow"><b>${esc(p.name)}${p.isTest?" · TEST":""}</b><span>${esc(t?.name|| (p.mode==="watch"?"Observer":"Not assigned"))}</span><span>${esc(label)}</span></div>`).join("")||"<p>Waiting for learners to join.</p>"}</div><p class="tiny">During team activities, open Investigation Team Drill-Down to see individual missing votes, checks, and submissions. Status updates as the game progresses.</p></details>`;
+}
 function gameMasterConsole(){
  const room=roomProgress(),stage=D.stages[snap.state.stage]||snap.state.stage,caseLabel=snap.state.round<3&&["build","twist","reveal"].includes(snap.state.stage)?`CASE ${snap.state.round+1}/3`:"";
  return `<section class="gmConsole"><div class="gmWhere"><div class="label">LIVE GAME</div><div class="gmStage">${esc(stage)}</div><div class="tiny">${esc(caseLabel)}</div></div><div class="gmReadiness"><div class="label">ROOM READINESS</div><div class="gmReadyNumber">${room.ready}/${room.total||0} teams</div><div>${room.completed}/${room.active||0} active students complete</div></div>${sharedControls()}</section>`;
@@ -190,7 +202,7 @@ function gameMasterConsole(){
 function render(){
  if(!snap)return;
  const stats=stageStats();
- $("#app").innerHTML=mast(`${gameMasterConsole()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${facilitationGuide()}<section class="panel stageStats"><div class="label">LIVE COUNTS</div><div class="statusgrid">${stats.map(([l,v])=>stat(l,v)).join("")}</div></section><section class="panel"><div class="label">INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + submissions</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>${facultyQuickStart()}`)}
+ $("#app").innerHTML=mast(`${gameMasterConsole()}${playerStatusBoard()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${facilitationGuide()}<section class="panel stageStats"><div class="label">LIVE COUNTS</div><div class="statusgrid">${stats.map(([l,v])=>stat(l,v)).join("")}</div></section><section class="panel"><div class="label">INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + submissions</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>${facultyQuickStart()}`)}
 async function formTeams(){try{await req("/form-teams",{method:"POST",body:JSON.stringify({teamSize:5})});toast("Teams formed.");await refresh(true)}catch(e){toast(e.message)}}
 async function advance(stage,round,force=false){try{if(force&&!confirm("Advance the whole room even though some teams are not ready?"))return;await req("/control",{method:"POST",body:JSON.stringify({stage,round,force})});toast(force?"Room advanced with override.":"Shared classroom action advanced.");await refresh(true)}catch(e){toast(e.message)}}
 async function bonus(teamId,delta,label=""){await req("/bonus",{method:"POST",body:JSON.stringify({teamId,delta,label})});toast(delta>0?`${label} awarded.`:"One bonus undone.");await refresh(true)}
