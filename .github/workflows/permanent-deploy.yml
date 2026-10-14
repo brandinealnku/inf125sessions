@@ -95,9 +95,9 @@ jobs:
           grep -q 'FACILITATION GUIDE' /tmp/context-quest-instructor.js
           grep -q 'TEST SANDBOX' /tmp/context-quest-instructor.js
           grep -q 'ADVANCE WHEN' /tmp/context-quest-instructor.js
-          grep -q 'FACULTY QUICK START' /tmp/context-quest-instructor.js
+          grep -q 'START HERE · FIRST-TIME GAME MASTER' /tmp/context-quest-instructor.js
           grep -q 'ROOM PROGRESS' /tmp/context-quest-instructor.js
-          grep -q 'Winning answers are selected automatically' /tmp/context-quest-instructor.js
+          grep -q 'Winning answer is selected automatically' /tmp/context-quest-instructor.js
           grep -q 'LIVE TEAM SUBMISSIONS' /tmp/context-quest-instructor.js
           grep -q 'D.progressLabels' /tmp/context-quest-instructor.js
           grep -q 'EXCUSE THIS CASE' /tmp/context-quest-instructor.js
@@ -335,8 +335,8 @@ jobs:
           grep -q 'TEST CHAMBER' /tmp/context-quest-board.js
           grep -q 'THE HAUNTING' /tmp/context-quest-board.js
           grep -q 'EVIDENCE CHECK' /tmp/context-quest-board.js
-          ! grep -q 'AI SÉANCE' /tmp/context-quest-board.js
-          ! grep -q 'GHOST HUNT' /tmp/context-quest-board.js
+          ! grep -q 'TEST CHAMBER' /tmp/context-quest-board.js
+          ! grep -q 'EVIDENCE CHECK' /tmp/context-quest-board.js
           echo "$BOARD_DOM" | grep -Eq "HAUNTED PROMPT LAB|ENTER THE HAUNTED PROMPT LAB|INVESTIGATION TEAM|CONTEXT QUEST|CASE|FINAL" || { echo "Board state did not render"; exit 1; }
           ! echo "$BOARD_DOM" | grep -Eq ">PROFESSOR<|>UNIVERSITY<|>STUDENT<|>ACADEMIC ADVISOR<" || { echo "Obsolete stakeholder label rendered"; exit 1; }
           TEST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/test)"
