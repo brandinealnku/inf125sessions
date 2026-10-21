@@ -126,10 +126,25 @@ async function doJoin(){
   const i=document.getElementById('nameInput');studentName=i.value.trim();
   if(!studentName)return err('Enter your name for attendance.');
   const button=document.getElementById('joinBtn');button.disabled=true;button.textContent='Joining…';
+  let joined=false,lastError=null;
+  for(let attempt=0;attempt<2&&!joined;attempt++){
+    try{
+      await C.join(studentName);joined=true;
+    }catch(e){
+      lastError=e;
+      if(attempt===0)await new Promise(r=>setTimeout(r,450));
+    }
+  }
+  if(!joined){
+    button.disabled=false;button.textContent='Enter the room →';
+    return err('Could not join the live room. Please try once more or refresh this page. '+(lastError?.message||''));
+  }
+  localStorage.classroomName=studentName;
   try{
-    await C.join(studentName);localStorage.classroomName=studentName;
     render(true);startLiveSync();
-  }catch(e){button.disabled=false;button.textContent='Enter the room →';err('Could not join. Check your connection and try again.');}
+  }catch(e){
+    app.innerHTML='<section class="join"><div class="joinCard"><div class="label">JOINED</div><h1 class="joinTitle">You are in the room.</h1><p class="joinLead">The live view had trouble rendering. Refresh this page; your attendance join was already recorded.</p><button class="action" onclick="location.reload()">Refresh live view →</button></div></section>';
+  }
 }
 function answered(s){return s.key&&!!localStorage.getItem('answer:'+C.session.id+':'+s.key)}
 function look(s){
@@ -233,9 +248,19 @@ function startLiveSync(){
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
-    if(studentName){await C.join(studentName);render(true);startLiveSync()}
-    else joinView();
-  }catch(e){app.innerHTML='<p class="error">This class could not load.</p>'}
+    if(studentName){
+      try{
+        await C.join(studentName);render(true);startLiveSync();
+      }catch(e){
+        studentName='';
+        localStorage.removeItem('classroomName');
+        joinView();
+        err('Your saved classroom session could not reconnect. Enter your name to join again.');
+      }
+    }else joinView();
+  }catch(e){
+    app.innerHTML='<section class="join"><div class="joinCard"><div class="label">CONNECTION ISSUE</div><h1 class="joinTitle">The class did not load yet.</h1><p class="joinLead">Refresh this page. If the problem continues, tell your instructor what you see on this screen.</p><button class="action" onclick="location.reload()">Try again →</button></div></section>';
+  }
 })();
 </script>
 </body>
