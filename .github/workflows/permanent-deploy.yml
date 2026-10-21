@@ -158,6 +158,11 @@ jobs:
           echo "$HUMAN_LOOP" | grep -q "not uploaded or stored"
           echo "Optimized INF 128 experience and Human in the Loop finale passed."
 
+          echo "Checking INF 125 Week 08 evidence lab"
+          W8_DEF="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/sessions/inf125-week08-human-ai-evidence-lab.json?verify=$GITHUB_SHA")"
+          printf '%s' "$W8_DEF" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(j.durationMinutes!==75)process.exit(1);if(j.steps?.length!==10)process.exit(1);if(j.steps?.[6]?.type!=="prompt")process.exit(1);if(j.steps?.[9]?.maxSelections!==2)process.exit(1);if(j.steps?.reduce((n,x)=>n+(x.minutes||0),0)!==75)process.exit(1)})'
+          echo "INF 125 Week 08 evidence lab definition passed."
+
           REPORT_HTML="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/session-report?session=inf128-ai-literacy-guest-2026&verify=$GITHUB_SHA")"
           echo "$REPORT_HTML" | grep -q "Session Impact Report"
           echo "$REPORT_HTML" | grep -q "Pedagogical map for faculty"
@@ -314,6 +319,13 @@ jobs:
           echo "INF128 IMPACT REPORT DOM bytes: ${#GUEST_REPORT_DOM}"
           echo "$GUEST_REPORT_DOM" | grep -q "Executive impact summary" || { echo "INF128 impact report did not render"; exit 1; }
           echo "$GUEST_REPORT_DOM" | grep -q "Human-AI decision boundaries" || { echo "INF128 decision evidence missing from report"; exit 1; }
+          W8_STUDENT_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/student?session=inf125-week08-human-ai-evidence-lab')"
+          echo "INF125 WEEK08 STUDENT DOM bytes: ${#W8_STUDENT_DOM}"
+          echo "$W8_STUDENT_DOM" | grep -q "Human vs. AI: Who Can You Trust?" || { echo "INF125 Week 08 student surface did not load"; exit 1; }
+          W8_INST_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/instructor?session=inf125-week08-human-ai-evidence-lab')"
+          echo "$W8_INST_DOM" | grep -q "Human vs. AI: Who Can You Trust?" || { echo "INF125 Week 08 instructor surface did not load"; exit 1; }
+          W8_ROOM_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/room?session=inf125-week08-human-ai-evidence-lab')"
+          echo "$W8_ROOM_DOM" | grep -q "Human vs. AI: Who Can You Trust?" || { echo "INF125 Week 08 room surface did not load"; exit 1; }
           GUEST_STUDENT_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/student?session=inf128-ai-literacy-guest-2026')"
           echo "$GUEST_STUDENT_DOM" | grep -q "Can You Outsmart AI" || { echo "INF128 guest student surface did not load"; exit 1; }
           GS_LIVE_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/google-slides-live?session=inf125-week05-session1-multimodal-communication')"
