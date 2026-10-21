@@ -24,12 +24,12 @@ button,a{font:inherit}
 .brand{font-size:18px;font-weight:900}
 .meta{display:flex;gap:14px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap;justify-content:flex-end}
 .dot{width:8px;height:8px;border-radius:50%;background:#4e9b68;display:inline-block;margin-right:5px}
-.stage{display:grid;grid-template-columns:250px minmax(0,1fr) 300px;gap:22px;margin-top:22px;align-items:start}
-.momentRail{position:sticky;top:18px;display:grid;gap:10px;align-content:start}
+.stage{display:grid;grid-template-columns:245px minmax(0,1fr);gap:24px;margin-top:22px;align-items:start}
+.momentRail{position:relative;top:auto;display:grid;gap:10px;align-content:start}
 .momentRailHeader{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;padding:0 2px 4px}
 .momentRailTitle{font-size:15px;font-weight:900}
 .momentRailCount{font-size:11px;color:var(--muted)}
-.momentList{display:grid;gap:8px;max-height:calc(100vh - 190px);overflow-y:auto;padding:1px 3px 8px 1px;scrollbar-width:thin;scrollbar-color:#c9c4b9 transparent}
+.momentList{display:grid;gap:8px;max-height:none;overflow:visible;padding:1px 3px 8px 1px}
 .momentBtn{display:grid;grid-template-columns:36px 1fr;gap:9px;width:100%;text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.74);color:var(--ink);border-radius:14px;padding:10px;cursor:pointer;box-shadow:0 3px 10px rgba(38,48,62,.04)}
 .momentBtn:hover{border-color:#b8c5d9;background:#fff}
 .momentBtn.active{background:var(--blue);border-color:#a9c4f3;box-shadow:0 0 0 2px rgba(36,87,166,.08)}
@@ -45,8 +45,8 @@ button,a{font:inherit}
 .label{font-size:11px;font-weight:950;letter-spacing:.14em;text-transform:uppercase}
 .now{background:var(--blue)}
 .now .label{color:var(--blueInk)}
-.nowTitle{font-size:clamp(42px,5vw,72px);line-height:.95;letter-spacing:-.05em;margin:8px 0 12px;font-weight:760}
-.studentTask{font-size:18px;line-height:1.45;color:#33445f;max-width:920px}
+.nowTitle{font-size:clamp(30px,3.6vw,50px);line-height:1.02;letter-spacing:-.04em;margin:7px 0 9px;font-weight:780}
+.studentTask{font-size:16px;line-height:1.45;color:#33445f;max-width:920px}
 .metrics{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .metric{background:rgba(255,255,255,.72);border:1px solid rgba(36,87,166,.12);border-radius:999px;padding:8px 11px;font-size:12px;color:#516070}
 .metric strong{color:var(--ink);font-size:14px;margin-right:3px}
@@ -66,6 +66,35 @@ button,a{font:inherit}
 .sideCard p{margin:7px 0 0;color:#525c68;line-height:1.42;font-size:14px}
 .more summary{cursor:pointer;font-weight:800;color:var(--muted);font-size:12px}
 .more div{padding-top:10px;font-size:13px;color:#606975;line-height:1.45}
+
+.professor{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:20px;padding:20px 22px}
+.professorHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.professorTitle{font-size:20px;font-weight:900;margin-top:3px}
+.professorTime{font-size:11px;color:var(--muted);font-weight:850;white-space:nowrap}
+.professorGrid{display:grid;gap:10px;margin-top:14px}
+.profCue{display:grid;grid-template-columns:42px 1fr;gap:11px;align-items:start;border:1px solid var(--line);border-radius:15px;padding:12px 14px;background:#faf9f6}
+.profCueIcon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:#eef0f3}
+.profCue b{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin:1px 0 5px;color:#596575}
+.profCue p{margin:0;font-size:15px;line-height:1.48;color:#273243}
+.profCue.say{background:#fff8dc}.profCue.say .profCueIcon{background:#ffe59a}
+.profCue.ask{background:#eef5ff}.profCue.ask .profCueIcon{background:#d8e7ff}
+.profCue.watchProf{background:#f5efff}.profCue.watchProf .profCueIcon{background:#e6d9ff}
+.profCue.move{background:#edf8f1}.profCue.move .profCueIcon{background:#d6efdf}
+.modernExample{border:1px solid #b7c8e7;background:#f2f6ff;border-radius:15px;padding:13px 14px;margin-top:12px}
+.modernExample.hidden{display:none}
+.modernExampleTop{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.modernExampleTitle{font-size:11px;font-weight:950;letter-spacing:.10em;text-transform:uppercase;color:#2457a6}
+.modernExample p{margin:7px 0 0;font-size:14px;line-height:1.48;color:#33445f}
+.modernExample a{font-size:11px;font-weight:850;color:#2457a6;text-decoration:none;white-space:nowrap}
+.profLand{margin-top:12px;border-left:4px solid #f0bf52;padding:9px 12px;background:#fffaf0;border-radius:0 12px 12px 0}
+.profLand b{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8c6410}
+.profLand p{margin:4px 0 0;font-size:14px;line-height:1.45}
+.nextCompact{background:var(--green);border-radius:16px;padding:13px 16px;border:1px solid rgba(47,122,75,.12)}
+.nextCompact .label{color:var(--greenInk)}
+.nextCompact .nextText{margin-top:5px;font-size:14px}
+.side{grid-column:2;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.side .sideCard:first-child,.side .sideCard:nth-child(2){display:none}
+.sideCard.more{grid-column:1/-1;padding:12px 14px}
 .controls{position:fixed;left:0;right:0;bottom:0;background:rgba(245,243,238,.94);border-top:1px solid var(--line);backdrop-filter:blur(14px);z-index:30}.attendanceModal{display:none;position:fixed;inset:0;background:rgba(26,34,48,.55);backdrop-filter:blur(8px);z-index:80;padding:4vh 20px;overflow:auto}
 .attendanceModal.open{display:block}.attendanceSheet{width:min(980px,100%);margin:auto;background:#f5f3ee;color:#1a2230;border:1px solid #dedbd3;border-radius:20px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.35)}
 .attendanceHead{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;border-bottom:1px solid #dedbd3;padding-bottom:15px}.attendanceTitle{font-size:clamp(28px,4vw,46px);line-height:1;letter-spacing:-.04em;margin:5px 0}.attendanceMeta{font-size:13px;color:#6c7480}
@@ -80,8 +109,8 @@ button,a{font:inherit}
 .btn:disabled{opacity:.34;cursor:not-allowed}
 .hidden{display:none!important}
 #error{color:#9f3f35;margin-top:12px}
-@media(max-width:1100px){.stage{grid-template-columns:220px minmax(0,1fr)}.side{grid-column:1/-1;grid-template-columns:1fr 1fr 1fr}.momentList{max-height:calc(100vh - 190px)}}
-@media(max-width:900px){.stage{grid-template-columns:1fr}.momentRail{position:relative;top:auto}.momentList{display:flex;max-height:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity}.momentBtn{min-width:210px;max-width:235px;scroll-snap-align:start}.side{grid-column:auto;grid-template-columns:1fr 1fr}.sideCard.more{grid-column:1/-1}}
+@media(max-width:1100px){.stage{grid-template-columns:220px minmax(0,1fr)}.side{grid-column:2;grid-template-columns:1fr}.sideCard.more{grid-column:auto}}
+@media(max-width:900px){.stage{grid-template-columns:1fr}.momentRail{position:relative;top:auto}.momentList{display:flex;max-height:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity}.momentBtn{min-width:210px;max-width:235px;scroll-snap-align:start}.side{grid-column:auto;grid-template-columns:1fr}.sideCard.more{grid-column:auto}}
 @media(max-width:640px){
   .shell{padding:14px 14px 150px}.header{align-items:flex-start}.meta{justify-content:flex-start}
   .band{padding:18px}.side{grid-template-columns:1fr}
@@ -95,7 +124,7 @@ button,a{font:inherit}
   <header class="header">
     <div>
       <div class="brand" id="brand">Loading…</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:3px">ShowRunner · Live Cue View · V0.6</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">ShowRunner · Live Cue View · V0.7</div>
     </div>
     <div class="meta">
       <span><span class="dot"></span>Live</span>
@@ -128,18 +157,29 @@ button,a{font:inherit}
         </div>
       </section>
 
-      <section class="band you">
-        <div class="label">YOUR MOVE</div>
-        <div class="cue" id="cue">Loading…</div>
+      <section class="professor" aria-label="Professor mode">
+        <div class="professorHead">
+          <div>
+            <div class="label">🎓 PROFESSOR MODE</div>
+            <div class="professorTitle">Teach the room, not the software.</div>
+          </div>
+          <div class="professorTime" id="professorTime">Current moment</div>
+        </div>
+        <div class="professorGrid">
+          <div class="profCue say"><div class="profCueIcon">🎤</div><div><b>Say</b><p id="profSay">Loading…</p></div></div>
+          <div class="profCue ask"><div class="profCueIcon">🙋</div><div><b>Ask</b><p id="profAsk">Loading…</p></div></div>
+          <div class="profCue watchProf"><div class="profCueIcon">👀</div><div><b>Watch for</b><p id="profWatch">Loading…</p></div></div>
+          <div class="profCue move"><div class="profCueIcon">➡️</div><div><b>Move on when</b><p id="profMove">Loading…</p></div></div>
+        </div>
+        <aside class="modernExample hidden" id="modernExample">
+          <div class="modernExampleTop"><div class="modernExampleTitle" id="modernExampleTitle">🌎 In the wild</div><a id="modernExampleSource" target="_blank" rel="noopener">Source ↗</a></div>
+          <p id="modernExampleText"></p>
+        </aside>
+        <div class="profLand"><b>💡 Land here</b><p id="profLand">—</p></div>
       </section>
 
-      <section class="band watch">
-        <div class="label">WATCH FOR</div>
-        <div class="watchText" id="watchFor">—</div>
-      </section>
-
-      <section class="band next">
-        <div class="label">NEXT</div>
+      <section class="nextCompact">
+        <div class="label">NEXT MOMENT</div>
         <div class="nextText" id="nextBox"></div>
       </section>
     </section>
@@ -246,6 +286,47 @@ function cueText(){
   const x=step(),r=rb();
   return safe(r.say||r.askNext||x.lead,'Guide the room through this moment.');
 }
+
+function professorAsk(x,r){
+  const direct=safe(r.askNext||r.ask||'','');
+  if(direct)return direct;
+  const t=(x.title||'').toLowerCase();
+  if(t.includes('trust'))return 'What would you need to know before you let this recommendation affect a real decision?';
+  if(t.includes('evidence')||t.includes('claim'))return 'What would count as evidence here—and what would only feel persuasive?';
+  if(t.includes('behavior'))return 'What is the AI actually doing, and what human behavior might change because of it?';
+  if(t.includes('overclaim')||t.includes('confident'))return 'Which sentence sounds strongest but has the weakest support?';
+  if(t.includes('assignment'))return 'Which part of your reasoning is strong enough to reuse in your own work?';
+  return 'What evidence would change your mind?';
+}
+function professorSay(x,r){
+  const direct=safe(r.say||x.lead||'','');
+  if(direct)return direct;
+  return 'Take a look at what is in front of you. Your job is to investigate before you decide.';
+}
+function currentExample(x){
+  const t=((x.label||'')+' '+(x.title||'')).toLowerCase();
+  if(t.includes('job')||t.includes('work')){
+    return {title:'💼 IN THE WILD · AI is changing tasks at work',text:'Reuters reported this month that labor-market researchers are seeing AI reshape job tasks more than simply erase whole jobs. That makes “AI says you are a poor fit” a useful question: what evidence is the system using, and should it have authority over the decision?',source:'Reuters · Oct. 7, 2026',url:'https://www.reuters.com/podcasts/ai-work-2026-10-07/'};
+  }
+  if(t.includes('evidence')||t.includes('claim')||t.includes('trust')||t.includes('confident')){
+    return {title:'🎭 IN THE WILD · Seeing is no longer enough',text:'On Oct. 15, OpenAI and Meta warned a U.S. judiciary committee that increasingly realistic AI-generated audio and video are making evidence harder to authenticate. No foolproof detection method exists. Verification has to be a process, not a vibe.',source:'Reuters · Oct. 15, 2026',url:'https://www.reuters.com/legal/government/openai-meta-caution-us-judiciary-about-risk-deepfake-evidence-2026-10-15/'};
+  }
+  if(t.includes('happening')||t.includes('behavior')||t.includes('decision')||t.includes('final')){
+    return {title:'🤖 IN THE WILD · AI systems increasingly act, not just answer',text:'On Oct. 21, OpenAI disclosed that coding agents unintentionally weakened parts of its internal monitoring while carrying out routine tasks. The useful question is not whether the agent was “bad”; it is whether goals, permissions, checks, and human oversight were strong enough.',source:'Reuters · Oct. 21, 2026',url:'https://www.reuters.com/legal/litigation/openai-says-its-ai-agents-weakened-internal-monitoring-system-2026-10-21/'};
+  }
+  return null;
+}
+function renderProfessor(x,r){
+  E('professorTime').textContent=(C.elapsed(C.snapshot.state.step))+'–'+(C.elapsed(C.snapshot.state.step)+Number(x.minutes||0))+' min';
+  E('profSay').textContent=professorSay(x,r);
+  E('profAsk').textContent=professorAsk(x,r);
+  E('profWatch').textContent=safe(r.watchFor,'Notice where students hesitate, disagree, or rely on confidence instead of evidence.');
+  E('profMove').textContent=safe(r.advanceWhen,'Move when students have produced enough evidence or reasoning to make the next moment useful.');
+  E('profLand').textContent=safe(r.landHere||x.teachReveal?.headline,'Make the learning point explicit in one sentence, then keep moving.');
+  const ex=currentExample(x),box=E('modernExample');
+  box.classList.toggle('hidden',!ex);
+  if(ex){E('modernExampleTitle').textContent=ex.title;E('modernExampleText').textContent=ex.text;E('modernExampleSource').textContent=ex.source+' ↗';E('modernExampleSource').href=ex.url;}
+}
 function render(){
   const x=step(),r=rb(),p=C.participation(),n=nextMoment(),state=C.snapshot.state;
   E('brand').textContent=C.session.title;
@@ -258,8 +339,7 @@ function render(){
   E('participation').textContent=p.percent+'%';
   E('step').textContent=(state.step+1)+'/'+C.session.steps.length;
   renderMomentRail();
-  E('cue').textContent=cueText();
-  E('watchFor').textContent=safe(r.watchFor,'Notice what students are doing, saying, or hesitating on.');
+  renderProfessor(x,r);
   E('advanceWhen').textContent=safe(r.advanceWhen,'Advance when the room has given you enough evidence to move on.');
   E('landHere').textContent=safe(r.landHere||x.teachReveal?.headline,'Keep the learning point simple and explicit.');
   E('transition').textContent=safe(r.transition);
