@@ -11,7 +11,7 @@
   },
   "steps": [
     {
-      "label": "ARRIVAL",
+      "label": "👋 ARRIVAL",
       "title": "Human vs. AI: Who Can You Trust?",
       "lead": "Today you are not here to memorize AI ethics. You are here to investigate claims, evidence, and human behavior.",
       "minutes": 3,
@@ -55,7 +55,7 @@
       }
     },
     {
-      "label": "TRUST TEST",
+      "label": "🗳️ TRUST TEST",
       "title": "AI says you are a poor fit for a job. Would you follow the recommendation?",
       "lead": "Make your own call before you hear anyone else.",
       "minutes": 5,
@@ -103,7 +103,7 @@
       }
     },
     {
-      "label": "EVIDENCE OR VIBES · 1",
+      "label": "🔎 EVIDENCE OR VIBES",
       "title": "“People trust AI too much.”",
       "lead": "Is this evidence, or is it only a claim?",
       "minutes": 5,
@@ -147,30 +147,30 @@
         "revealWhen": "Most students have voted.",
         "sayDuringReveal": "",
         "landHere": "A claim becomes researchable when we define the people, behavior, evidence, and context.",
-        "transition": "Now I’m going to give you a stronger claim."
+        "transition": "Now let’s connect that reasoning to cases happening in the real world."
       }
     },
     {
-      "label": "EVIDENCE OR VIBES · 2",
-      "title": "“In a study, participants followed AI advice more often when it was presented with high confidence.”",
-      "lead": "Does this sentence give us enough to make a conclusion?",
+      "label": "🌎 HAPPENING NOW",
+      "title": "AI decisions are not hypothetical. Which current case worries you most?",
+      "lead": "All three are current 2026 examples of AI changing professional judgment, responsibility, or access.",
       "minutes": 5,
       "intent": "choose",
       "type": "vote",
-      "key": "w8_ev_2",
+      "key": "w8_current_cases",
       "choices": [
-        "SUPPORTED FINDING",
-        "TOO BROAD",
-        "NEED METHOD DETAILS"
+        "⚖️ LAW — AI-assisted court filings raise professional-judgment questions",
+        "🩺 HEALTHCARE — physicians increasingly use AI evidence tools in clinical work",
+        "💼 HIRING — workers challenge alleged discrimination from AI screening"
       ],
       "multi": false,
       "maxSelections": 3,
-      "studentTask": "Choose the best classification. Be ready to say what the sentence still does not prove.",
-      "roomInstruction": "WHAT DOES THIS ACTUALLY SUPPORT?",
-      "visualScene": "data",
+      "studentTask": "Pick the case you think creates the hardest human-judgment problem. Your choice is not about which technology is 'worst'—it is about stakes, evidence, and accountability.",
+      "roomInstruction": "WHICH CASE CREATES THE HARDEST HUMAN-JUDGMENT PROBLEM?",
+      "visualScene": "examples",
       "visualType": "live-results",
       "visualAccent": "",
-      "visualCaption": "Finding ≠ universal truth",
+      "visualCaption": "Today’s question: when AI influences a consequential decision, what must humans still verify and own?",
       "mediaUrl": "",
       "mediaFit": "cover",
       "mediaOverlay": "",
@@ -184,22 +184,23 @@
       "actionUrl": "",
       "actionLabel": "",
       "runbook": {
-        "openWith": "This is much stronger than 'people trust AI too much'—but it still has limits.",
-        "whyMatters": "Practices interpreting findings without overgeneralizing.",
-        "ask": "What can we reasonably say? What can we NOT say?",
-        "pause": "Vote, then call on one student for each side.",
-        "listenFor": "This study/context only; participants may not represent everyone; confidence may influence behavior but does not prove causation unless design supports it.",
-        "ifTheySay": "This proves AI manipulates people → ask what the study actually measured.",
-        "ifQuiet": "Ask whether one study lets us say 'everyone always does this.'",
-        "pushFurther": "What detail about the method would increase your confidence?",
-        "revealWhen": "Most students are locked in.",
-        "sayDuringReveal": "",
-        "landHere": "Evidence earns a bounded conclusion—not a bigger one than the method supports.",
-        "transition": "Now you become the research team."
+        "openWith": "These are not futuristic examples. They are current cases unfolding now.",
+        "whyMatters": "Connects the Gen Ed evidence framework to current professional decisions instead of hypothetical AI scenarios.",
+        "ask": "Which case most needs strong human oversight—and what evidence would you want before trusting the AI-supported decision?",
+        "pause": "Vote first, then take one explanation from two different choices.",
+        "listenFor": "Consequence, professional responsibility, verification, bias, source quality, appeal, accountability.",
+        "ifTheySay": "All of them → ask which failure would be hardest to reverse.",
+        "ifQuiet": "Ask who owns the consequence in each case: lawyer, physician, employer, software vendor, or someone else?",
+        "pushFurther": "Does your evidence standard change when the consequence is a court ruling, medical decision, or job opportunity?",
+        "revealWhen": "Most students have voted.",
+        "sayDuringReveal": "Current AI debates are often really human-accountability debates.",
+        "landHere": "The higher the stakes, the more important it becomes to ask what evidence supports the system and who owns the consequence.",
+        "transition": "Now you become the evidence team.",
+        "sourceNotes": "Oct. 21 Reuters: Florida lawyer referred for possible discipline over AI-associated filing quality. Oct. 21 FT and Oct. 15 JAMA: rapid physician use of AI clinical information tools. Sept. 21 Reuters: Workday AI hiring discrimination litigation and liability questions."
       }
     },
     {
-      "label": "DETECTIVE BRIEF",
+      "label": "🕵️ AI BEHAVIOR DETECTIVE",
       "title": "AI Behavior Detective",
       "lead": "Your team will investigate one human + AI decision case.",
       "minutes": 5,
@@ -220,7 +221,7 @@
       "visualScene": "sequence",
       "visualType": "statement",
       "visualAccent": "",
-      "visualCaption": "Use the case/source you will analyze for the Signature Assignment.",
+      "visualCaption": "Possible directions: hiring, healthcare, student support, lending/benefits, or content moderation.",
       "mediaUrl": "",
       "mediaFit": "cover",
       "mediaOverlay": "",
@@ -234,7 +235,7 @@
       "actionUrl": "",
       "actionLabel": "",
       "runbook": {
-        "openWith": "For the next 15 minutes, you are not students. You are the evidence team.",
+        "openWith": "You just saw current cases where evidence and accountability matter. Now your team will investigate one.",
         "whyMatters": "Directly mirrors the Signature Assignment structure.",
         "ask": "Choose a case category and open a credible case, study, report, or data-based source connected to it.",
         "pause": "Give teams time to form and choose.",
@@ -249,7 +250,7 @@
       }
     },
     {
-      "label": "CASE INVESTIGATION",
+      "label": "🧪 CASE INVESTIGATION",
       "title": "Build the Evidence Board",
       "lead": "Find the pieces your Signature Assignment needs.",
       "minutes": 15,
@@ -264,7 +265,7 @@
       ],
       "multi": false,
       "maxSelections": 3,
-      "studentTask": "As a team, identify: AI context, people, behavior, evidence, method, finding, and one limit. Write down your answers.",
+      "studentTask": "As a team, identify: AI context, people, behavior, evidence, method, finding, and one limit. If you choose a current case from the previous screen, locate a credible report or study behind it—not just commentary.",
       "roomInstruction": "SOLVE THE CASE · DO NOT JUST SUMMARIZE IT",
       "visualScene": "examples",
       "visualType": "statement",
@@ -298,7 +299,7 @@
       }
     },
     {
-      "label": "CONFIDENCE TRAP",
+      "label": "⚠️ CONFIDENCE TRAP",
       "title": "Catch the AI Overclaim",
       "lead": "Ask AI what your evidence proves. Your job is to catch it overstating the case.",
       "minutes": 10,
@@ -342,7 +343,7 @@
       }
     },
     {
-      "label": "EVIDENCE COURT",
+      "label": "⚖️ EVIDENCE COURT",
       "title": "Put Your Claim on Trial",
       "lead": "Your team gets 30 seconds. The room gets to challenge the evidence.",
       "minutes": 10,
@@ -386,7 +387,7 @@
       }
     },
     {
-      "label": "SIGNATURE BUILD",
+      "label": "✍️ SIGNATURE BUILD",
       "title": "Turn the Investigation Into Your Assignment",
       "lead": "Start the 80-point Gen Ed Signature Assignment while the evidence is fresh.",
       "minutes": 12,
@@ -435,7 +436,7 @@
       }
     },
     {
-      "label": "FINAL BOSS",
+      "label": "🏁 FINAL BOSS",
       "title": "Which TWO questions protect you from an evidence overclaim?",
       "lead": "Pick the two that matter most before you make a strong conclusion.",
       "minutes": 5,
