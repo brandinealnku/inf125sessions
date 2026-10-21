@@ -160,6 +160,11 @@ jobs:
 
           echo "Checking INF 125 Week 08 evidence lab"
           W8_DEF="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/sessions/inf125-week08-human-ai-evidence-lab.json?verify=$GITHUB_SHA")"
+          # Keep the live Builder library synchronized with the bundled Week 08 definition.
+          curl --fail --silent --show-error -X POST -H 'content-type: application/json' \
+            --data-binary "$W8_DEF" \
+            "https://classroom.itsbadlabs.com/api/builder/session" > /tmp/w8-builder-sync.json
+          grep -q '"ok":true' /tmp/w8-builder-sync.json
           printf '%s' "$W8_DEF" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(j.durationMinutes!==75)process.exit(1);if(j.steps?.length!==10)process.exit(1);if(j.steps?.[6]?.type!=="prompt")process.exit(1);if(j.steps?.[9]?.maxSelections!==2)process.exit(1);if(j.steps?.reduce((n,x)=>n+(x.minutes||0),0)!==75)process.exit(1)})'
           echo "INF 125 Week 08 evidence lab definition passed."
 
@@ -170,6 +175,14 @@ jobs:
           W8_SNAP="$(curl --fail --silent --show-error "$W8_API/snapshot")"
           printf '%s' "$W8_SNAP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(!Array.isArray(j.participants))process.exit(1)})'
           echo "INF 125 Week 08 student join flow passed."
+
+          echo "Checking instructor scroll stabilization + labeled icon UX"
+          INST_HTML="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/instructor?session=inf125-week08-human-ai-evidence-lab&verify=$GITHUB_SHA")"
+          printf '%s' "$INST_HTML" | grep -q "scrollingUntil"
+          printf '%s' "$INST_HTML" | grep -q "captureUi"
+          printf '%s' "$INST_HTML" | grep -q "restoreUi"
+          printf '%s' "$INST_HTML" | grep -q "🔒 Commit"
+          echo "Instructor scroll stabilization and icon labels passed."
 
           echo "Checking Week 08 student name prompt is session-scoped"
           STUDENT_HTML="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/student?session=inf125-week08-human-ai-evidence-lab&verify=$GITHUB_SHA")"
