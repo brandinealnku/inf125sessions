@@ -171,6 +171,12 @@ jobs:
           printf '%s' "$W8_SNAP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(!Array.isArray(j.participants))process.exit(1)})'
           echo "INF 125 Week 08 student join flow passed."
 
+          echo "Checking Week 08 student name prompt is session-scoped"
+          STUDENT_HTML="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/student?session=inf125-week08-human-ai-evidence-lab&verify=$GITHUB_SHA")"
+          printf '%s' "$STUDENT_HTML" | grep -q "classroomName:"
+          printf '%s' "$STUDENT_HTML" | grep -q "YOUR NAME FOR ATTENDANCE"
+          echo "Week 08 student name prompt wiring passed."
+
           REPORT_HTML="$(curl --fail --silent --show-error "https://classroom.itsbadlabs.com/session-report?session=inf128-ai-literacy-guest-2026&verify=$GITHUB_SHA")"
           echo "$REPORT_HTML" | grep -q "Session Impact Report"
           echo "$REPORT_HTML" | grep -q "Pedagogical map for faculty"
