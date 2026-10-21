@@ -82,7 +82,8 @@ button{touch-action:manipulation}
 <script>
 const C=Classroom;
 const app=document.getElementById('app');
-let studentName=localStorage.classroomName||'',lastKey='',selected=[],stopLivePush=null,submitting=false;
+const nameKey='classroomName:'+new URLSearchParams(location.search).get('session');
+let studentName=localStorage.getItem(nameKey)||'',lastKey='',selected=[],stopLivePush=null,submitting=false;
 
 function slideNumber(){
   if(!C.session.googleSlides?.deckUrl)return null;
@@ -139,7 +140,7 @@ async function doJoin(){
     button.disabled=false;button.textContent='Enter the room →';
     return err('Could not join the live room. Please try once more or refresh this page. '+(lastError?.message||''));
   }
-  localStorage.classroomName=studentName;
+  localStorage.setItem(nameKey,studentName);
   try{
     render(true);startLiveSync();
   }catch(e){
@@ -253,7 +254,7 @@ function startLiveSync(){
         await C.join(studentName);render(true);startLiveSync();
       }catch(e){
         studentName='';
-        localStorage.removeItem('classroomName');
+        localStorage.removeItem(nameKey);
         joinView();
         err('Your saved classroom session could not reconnect. Enter your name to join again.');
       }
