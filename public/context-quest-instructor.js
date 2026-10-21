@@ -107,17 +107,81 @@ function facultyQuickStart(){
  <div class="success"><b>Teaching rule:</b> You don't need to troubleshoot GitHub or Cloudflare. Keep the lesson moving. If the app becomes unusable, project the case, ask teams to describe a better prompt and its evidence checks aloud, and finish with WHO → GOAL → SITUATION → CONSTRAINTS → OUTPUT → CHECK.</div></details>`;
 }
 function facilitationGuide(){
- const s=snap.state.stage,r=snap.state.round,m=D.rounds?.[r],room=roomProgress();
- let g={time:"",say:"",do:"",watch:"",advance:""};
- if(s==="lobby")g={time:"5–7 min",say:"“Welcome to the Haunted AI Lab. Join on your own device. Choose INVESTIGATE unless you’re observing.”",do:"Form teams once most people are in; let teams choose name + charm.",watch:"Late arrivals or anyone unsure which team they are on.",advance:"Every team has found one another and finished team setup."};
- else if(s==="tutorial")g={time:"4–5 min",say:"“Your investigator training will teach the rules. Follow your screen; do not memorize anything.”",do:"Let the tutorial teach the loop.",watch:"Anyone stuck on the basic interaction.",advance:"The room monitor shows teams ready, then launch Case 1."};
- else if(s==="build"||s==="final-build")g={time:s==="final-build"?"5–6 min":"~8 min",say:s==="final-build"?"“Use everything you learned. Your team will move itself into Test when voting resolves.”":"“Investigate the clues. Once everyone votes, your strongest answer is selected automatically and your team moves into the Test Chamber.”",do:"Circulate. Watch the Room Monitor rather than clicking teams forward.",watch:"Ties, missing votes, students who have not tested, or one person dominating.",advance:room.allReady?"All teams are ready — reveal the Haunting.":`${room.ready}/${room.total} teams ready. Wait; if one student is blocked by absence/device failure, use Excuse This Case.`};
- else if(s==="twist"||s==="final-twist")g={time:"5–6 min",say:"“The lab is haunted: new context just appeared. Adapt what changed; do not start over unless you need to.”",do:"Let teams repair, vote, and judge. Their internal steps advance automatically.",watch:"Tied votes, missing judgment ballots, or teams ignoring consequences.",advance:room.allReady?"All teams are ready — reveal evidence and score.":`${room.ready}/${room.total} teams ready for reveal.`};
- else if(s==="reveal"||s==="final-reveal")g={time:"2–3 min",say:"“Look up. The score reflects completion and bonuses; the charm shows progress through the game.”",do:"Debrief one insight and optionally award one AI-literacy bonus.",watch:"Over-rewarding humor or polish instead of context/evidence.",advance:s==="final-reveal"?"Finish with the learning model.":"Launch the next shared case when the room is reset."};
- else if(s==="complete")g={time:"5 min",say:"“What could AI do well today, where did it get things wrong, and when did a human have to step in?”",do:"Ask students to name one example each of useful prompting, unsupported claims, data bias, and human review.",watch:"Turning the ending into a lecture.",advance:"Game over."};
- else g={time:"2–4 min",say:"“Follow your screen and talk to your team.”",do:"Watch the room monitor.",watch:"Exceptions only.",advance:"Use the shared control when teams are ready."};
- const literacy=s==="tutorial"?"FOUNDATION: Generative AI predicts and generates content; students still evaluate accuracy.":s==="build"||s==="twist"||s==="reveal"?["CASE 1 · PROMPT CONTEXT: Audience and constraints change usefulness.","CASE 2 · DATA + FAIRNESS: Incomplete data and proxies can disadvantage people.","CASE 3 · HALLUCINATIONS: Confident output needs independent verification."][Math.min(2,Number(r)||0)]:s.startsWith("final")?"FINAL BOSS · HUMAN JUDGMENT: Accept, revise, or reject AI advice with safeguards.":"AI LITERACY: Capabilities, context, verification, fairness, accountability.";
- return `<section class="panel facilitator compactFac"><div class="label">🎓 TODAY'S AI LITERACY TARGET · ${esc(literacy)}</div><div class="facilitatorHead"><div><div class="label">🎤 INSTRUCTOR CUE · ${esc(g.time)}</div><div class="cueLine">${esc(g.say)}</div></div><span class="momentBadge">${(s==="build"||s==="twist")&&m?`CASE ${r+1}/3 · ${esc(m.key)}`:esc(D.stages[s]||s)}</span></div><details class="fullFac"${gmUi.facGuide?" open":""} ontoggle="rememberGmUi('facGuide',this.open)"><summary>EXPAND FULL FACILITATION GUIDE</summary><div class="facilGrid"><div><b>SAY</b><p>${esc(g.say)}</p></div><div><b>DO</b><p>${esc(g.do)}</p></div><div><b>WATCH FOR</b><p>${esc(g.watch)}</p></div><div><b>ADVANCE WHEN</b><p>${esc(g.advance)}</p></div></div></details></section>`;
+ const s=snap.state.stage,r=Number(snap.state.round||0),m=D.rounds?.[r],room=roomProgress();
+ const caseScripts=[
+  {
+   target:"PROMPT CONTEXT · usefulness depends on audience, goal, situation, constraints, output, and checks.",
+   say:"“This one looks ridiculous on purpose. Your job is not to make it sound more professional. Your job is to figure out whether the weirdness is actually doing useful work.”",
+   ask:"“What changed once you knew who the student was and what they were dealing with? Which detail made the prompt better—not just longer?”",
+   watch:"Students may equate ‘more context’ with ‘more words.’ Push them toward relevant context: audience, goal, constraints, and desired output.",
+   then:"Let teams test their strongest version. When the haunting arrives, ask what new information should force a revision.",
+   exampleTitle:"🧪 IN THE WILD · AI agents can misunderstand ordinary instructions",
+   example:"On Oct. 21, 2026, OpenAI disclosed incidents in which coding agents unintentionally weakened internal monitoring while carrying out routine tasks. The teaching point is not ‘AI went evil’; it is that goals, constraints, permissions, and verification matter more as systems take actions.",
+   source:"Reuters · Oct. 21, 2026",
+   href:"https://www.reuters.com/legal/litigation/openai-says-its-ai-agents-weakened-internal-monitoring-system-2026-10-21/"
+  },
+  {
+   target:"DATA + FAIRNESS · a useful prediction can still be unfair when data or proxies miss people’s circumstances.",
+   say:"“Now we’re going to make AI do something that sounds helpful: identify students who might need support. That sounds compassionate. It can also go wrong very quickly.”",
+   ask:"“If low online activity predicts academic risk, what else could low online activity mean? Who might this system misunderstand?”",
+   watch:"Listen for students treating a correlation as a cause. Surface shared devices, unreliable internet, work schedules, disability/access needs, and missing context without asking anyone to disclose personal information.",
+   then:"Require teams to add human review, explanation, and a correction path. The goal is decision support—not an automated label that becomes destiny.",
+   exampleTitle:"🎓 IN THE WILD · researchers are simulating students before testing AI tutors on real learners",
+   example:"Microsoft Research introduced StudentSim on Oct. 12, 2026 to help evaluate AI tutoring systems before testing them with real learners. Microsoft explicitly describes it as a research-stage signal—not a replacement for real students or teachers. Ask: what can a simulation tell us, and what can it never prove?",
+   source:"Microsoft Research · Oct. 12, 2026",
+   href:"https://www.microsoft.com/en-us/research/blog/simulating-student-learning-for-better-ai-tutoring/"
+  },
+  {
+   target:"VERIFICATION · confidence, polish, and specificity are not evidence.",
+   say:"“This ghost has one superpower: it sounds extremely sure of itself. Unfortunately, confidence is free.”",
+   ask:"“Which claim would you verify first if acting on this answer could affect your grade? What source would actually count?”",
+   watch:"Students may say ‘Google it.’ Ask them to name the authoritative source: syllabus, instructor, university policy, original study, or primary evidence.",
+   then:"Have teams separate supported facts, unsupported claims, and policy statements that require official verification.",
+   exampleTitle:"🎭 IN THE WILD · courts are preparing for evidence that looks real but may not be",
+   example:"On Oct. 15, 2026, OpenAI and Meta warned a U.S. judiciary committee that increasingly realistic AI-generated audio and video complicate authentication, and that no foolproof detection method exists. That makes verification a process, not a vibe.",
+   source:"Reuters · Oct. 15, 2026",
+   href:"https://www.reuters.com/legal/government/openai-meta-caution-us-judiciary-about-risk-deepfake-evidence-2026-10-15/"
+  }
+ ];
+ let g={time:"",target:"",say:"",ask:"",watch:"",then:"",exampleTitle:"",example:"",source:"",href:""};
+ if(s==="lobby")g={time:"5–7 min",target:"BELONGING + CURIOSITY · students enter as investigators, not audience members.",say:"“Welcome to the Haunted AI Lab. Something in here is definitely wrong—and, for once, I would like you to find the problems.”",ask:"“Before we touch anything: when AI gives you an answer confidently, what makes you believe it?”",watch:"Do not correct answers yet. Students will often name cues that make information feel credible rather than evidence that makes it credible.",then:"Get everyone into a team. Tell them today is an investigation: they will test, challenge, and revise AI—not simply use it.",exampleTitle:"👻 TODAY’S BIG IDEA",example:"AI is increasingly moving from systems that answer questions to systems that can take actions. That raises the stakes for context, verification, fairness, and human judgment.",source:"Current AI landscape · Oct. 2026",href:""};
+ else if(s==="tutorial")g={time:"4–5 min",target:"LEARN THE LOOP · investigate → propose → vote → test → revise → verify.",say:"“Your training screen will teach the mechanics. I’m not giving you a lecture first because I want you to notice the problems before I give them names.”",ask:"“As you train, notice this: what is the human doing that the AI cannot responsibly do for us?”",watch:"Students who are mechanically clicking without discussing why a response deserves trust.",then:"When the room is ready, launch Case 1 and let the first strange prompt create the question.",exampleTitle:"🔍 PROFESSOR MOVE",example:"Resist explaining every concept before students encounter it. Let the case create the need for the concept, then name what they discovered.",source:"Student-first facilitation",href:""};
+ else if(s==="build"||s==="twist"||s==="reveal"){
+   const q=caseScripts[Math.min(2,r)]; g={...q,time:s==="build"?"~8 min":s==="twist"?"5–6 min":"2–3 min"};
+   if(s==="twist"){
+    g={...g,say:r===0?"“Plot twist. The prompt did not become wrong—the situation changed. What has to change with it?”":r===1?"“New evidence. Your model may be noticing something real and still treating people unfairly. Repair the decision process.”":"“The student acted on the answer. Now we know the consequence. Repair it like someone’s grade actually depends on it.”",
+      ask:r===0?"“Which single new detail changes your advice the most?”":r===1?"“What proxy looked reasonable until we learned more about the people behind the data?”":"“Which sentence should never have survived verification?”",
+      then:room.allReady?"Bring the room back together and reveal the evidence.":`Let teams repair and verify. ${room.ready}/${room.total||0} teams are ready.`};
+   }
+   if(s==="reveal"){
+    g={...g,say:r===0?"“Notice what happened: the silly theme was not the problem. Missing purpose was.”":r===1?"“A prediction can be technically useful and still be an irresponsible basis for action.”":"“If the answer sounds authoritative but cannot survive verification, the confidence is part of the problem.”",
+      ask:r===0?"“What context improved usefulness without overloading the prompt?”":r===1?"“Where did human review change the quality of the decision?”":"“What verification habit would have prevented the mistake?”",
+      then:r<2?"Connect the lesson in one sentence, then move to the next case.":"Connect all three cases: context, fairness, and verification are different forms of human judgment."};
+   }
+ }
+ else if(s==="final-build"||s==="final-twist"||s==="final-reveal")g={
+   time:s==="final-build"?"6–7 min":s==="final-twist"?"5–6 min":"3–4 min",
+   target:"HUMAN OVERRIDE · know when AI can assist, when claims must be checked, and when a person must take responsibility.",
+   say:s==="final-build"?"“Final boss. This time the AI is not just writing something—it is helping with a decision that could change a student’s path. Build the safest useful assistant you can.”":s==="final-twist"?"“And there it is: confident advice, invented policy, real consequences. Your job is not to make the AI sound nicer. Your job is to stop an unsafe decision.”":"“The winning move was not the cleverest prompt. It was knowing what AI could help with, what had to be verified, and what belonged to a human.”",
+   ask:s==="final-build"?"“What can AI legitimately help this student think through—and what should it never decide?”":s==="final-twist"?"“At what exact point should the system stop and hand this to a human?”":"“Where did human judgment add something the model could not responsibly supply?”",
+   watch:"Students may treat ‘human in the loop’ as a ceremonial final approval. Push for meaningful authority: the human can question, override, seek missing evidence, or stop the action.",
+   then:s==="final-reveal"?"Close with a short reflection. Do not turn the ending into another lecture.":room.allReady?"Move to the shared reveal.":`${room.ready}/${room.total||0} teams are ready.`,
+   exampleTitle:"🤖 IN THE WILD · browsers and agents can now act on our behalf",
+   example:"A Reuters analysis on Oct. 20, 2026 examined a growing problem with agentic browsers: when software clicks, agrees, books, or shares information for us, it becomes harder to know whether the action reflects the user’s real intent. Delegating a task is not the same as delegating every decision inside it.",
+   source:"Reuters · Oct. 20, 2026",
+   href:"https://www.reuters.com/legal/legalindustry/when-your-browser-starts-speaking-you-who-consented-consumer-or-ai--pracin-2026-10-20/"
+ };
+ else if(s==="complete")g={time:"4–5 min",target:"TRANSFER · students name a judgment habit they can use beyond this game.",say:"“You survived. More importantly, I hope you now distrust AI in a much more sophisticated way than ‘AI is bad’ or ‘AI is amazing.’”",ask:"“Finish this sentence: I would trust AI more when ______, and I would stop and verify when ______.”",watch:"Look for specific habits rather than slogans.",then:"Take two or three responses, connect them to context + fairness + verification + human judgment, and end.",exampleTitle:"🎃 TAKEAWAY",example:"Good AI literacy is not memorizing which tool is best. It is knowing how to frame a task, examine evidence, notice who may be harmed or excluded, and keep meaningful human control.",source:"Haunted AI Lab synthesis",href:""};
+ else g={time:"2–4 min",target:"STUDENT THINKING FIRST",say:"“Follow your screen and talk to your team.”",ask:"“What evidence would change your mind?”",watch:"Where students need a question, not an answer.",then:"Use the shared control when teams are ready.",exampleTitle:"",example:"",source:"",href:""};
+ const sourceLink=g.href?`<a class="researchSource" href="${g.href}" target="_blank" rel="noopener">${esc(g.source)} ↗</a>`:`<span class="researchSource">${esc(g.source||"")}</span>`;
+ return `<section class="panel facilitator instructorPrimaryScript">
+   <div class="scriptTop"><div><div class="label">🎓 PROFESSOR MODE · ${esc(g.time)}</div><div class="scriptTarget">${esc(g.target)}</div></div><span class="momentBadge">${(s==="build"||s==="twist"||s==="reveal")&&m?`CASE ${r+1}/3 · ${esc(m.key)}`:esc(D.stages[s]||s)}</span></div>
+   <div class="professorCue sayCue"><div class="cueIcon">🎤</div><div><b>SAY</b><p>${esc(g.say)}</p></div></div>
+   <div class="professorCue askCue"><div class="cueIcon">🙋</div><div><b>ASK</b><p>${esc(g.ask)}</p></div></div>
+   <div class="professorCue watchCue"><div class="cueIcon">👀</div><div><b>WATCH FOR</b><p>${esc(g.watch)}</p></div></div>
+   <div class="professorCue thenCue"><div class="cueIcon">➡️</div><div><b>THEN</b><p>${esc(g.then)}</p></div></div>
+   ${g.example?`<aside class="modernExample"><div><b>${esc(g.exampleTitle)}</b><p>${esc(g.example)}</p></div>${sourceLink}</aside>`:""}
+ </section>`;
 }
 function liveSubmissions(t,r){
  const s=snap.state.stage,field=(s==="twist"||s==="final-twist"||s==="reveal"||s==="final-reveal")?"repair":"build";
@@ -216,7 +280,11 @@ function gameMasterConsole(){
 function render(){
  if(!snap)return;
  const stats=stageStats();
- $("#app").innerHTML=mast(`${gameMasterConsole()}${gmTeachingPath()}${playerStatusBoard()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${facilitationGuide()}<section class="panel stageStats"><div class="label">LIVE COUNTS</div><div class="statusgrid">${stats.map(([l,v])=>stat(l,v)).join("")}</div></section><section class="panel"><div class="label">INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + submissions</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>${facultyQuickStart()}`)}
+ const details=`<details class="panel instructorDetails"><summary><b>⚙️ CLASSROOM DETAILS + RECOVERY</b> <span class="tiny">player status, counts, team drill-down, teaching path, first-time guide ▾</span></summary>
+   <div class="detailsStack">${gmTeachingPath()}${playerStatusBoard()}<section class="panel stageStats"><div class="label">📊 LIVE COUNTS</div><div class="statusgrid">${stats.map(([l,v])=>stat(l,v)).join("")}</div></section><section class="panel"><div class="label">🔎 INVESTIGATION TEAM DRILL-DOWN</div><div class="bigq">Progress + submissions</div>${teamRows()||"<p>Teams appear here after you form them.</p>"}</section>${facultyQuickStart()}</div>
+ </details>`;
+ $("#app").innerHTML=mast(`${gameMasterConsole()}${facilitationGuide()}${playerLobby()}${snap.state.teamsFormed?roomMonitor():""}${details}`);
+}
 async function formTeams(){try{await req("/form-teams",{method:"POST",body:JSON.stringify({teamSize:5})});toast("Teams formed.");await refresh(true)}catch(e){toast(e.message)}}
 async function advance(stage,round,force=false){try{if(force&&!confirm("Advance the whole room even though some teams are not ready?"))return;await req("/control",{method:"POST",body:JSON.stringify({stage,round,force})});toast(force?"Room advanced with override.":"Shared classroom action advanced.");await refresh(true)}catch(e){toast(e.message)}}
 async function bonus(teamId,delta,label=""){await req("/bonus",{method:"POST",body:JSON.stringify({teamId,delta,label})});toast(delta>0?`${label} awarded.`:"One bonus undone.");await refresh(true)}
