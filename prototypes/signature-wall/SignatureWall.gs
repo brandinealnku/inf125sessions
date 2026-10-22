@@ -83,18 +83,27 @@ function listSignatures_() {
 
 function submitSignature_(payload) {
   const sh = sheet_();
-  const current = Math.max(0, sh.getLastRow() - 1);
-  if (current >= MAX_SIGNATURES) return { ok: false, error: 'Wall is full', count: current, max: MAX_SIGNATURES };
-
-  const name = String(payload.name || '').trim().slice(0, 30);
+  const name = String(payload.name || '').trim().replace(/\s+/g, ' ').slice(0, 30);
+  const normalizedName = name.toLowerCase();
   const color = /^#[0-9a-fA-F]{6}$/.test(String(payload.color || '')) ? String(payload.color) : '#17214c';
   const strokes = normalizeStrokes_(payload.strokes);
   if (!name) return { ok: false, error: 'Name is required' };
   if (!strokes.length) return { ok: false, error: 'Signature is required' };
 
+  const current = Math.max(0, sh.getLastRow() - 1);
+  if (current > 0) {
+    const existing = sh.getRange(2, 3, current, 1).getValues()
+      .map(r => String(r[0] || '').trim().replace(/\s+/g, ' ').toLowerCase());
+    if (existing.includes(normalizedName)) {
+      return { ok: false, error: 'A signature with this name is already on the wall', duplicate: true, count: current, max: MAX_SIGNATURES };
+    }
+  }
+  if (current >= MAX_SIGNATURES) return { ok: false, error: 'Wall is full', count: current, max: MAX_SIGNATURES };
+
   const id = Utilities.getUuid();
   sh.appendRow([new Date(), id, name, color, JSON.stringify(strokes)]);
-  return { ok: true, id: id, count: current + 1, max: MAX_SIGNATURES };
+  SpreadsheetApp.flush();
+  return { ok: true, id: id, name: name, color: color, strokes: strokes, count: current + 1, max: MAX_SIGNATURES };
 }
 
 function normalizeStrokes_(value) {
