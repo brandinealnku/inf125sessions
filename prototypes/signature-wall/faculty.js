@@ -15,3 +15,19 @@ async function load(){statusEl.textContent='Loading shared records…';statusEl.
 document.getElementById('refresh').onclick=load;
 document.getElementById('download').onclick=()=>{render();const a=document.createElement('a');a.download='INF125-Signature-Wall-2026-09-15.png';a.href=wall.toDataURL('image/png');a.click()};
 render();load();
+async function resetWall(){
+  const token=prompt('Enter the instructor reset token. This is not stored in the browser.');
+  if(!token)return;
+  const confirmText=prompt('This will permanently remove all signatures from the shared wall. Type RESET WALL to continue.');
+  if(confirmText!=='RESET WALL')return alert('Reset cancelled.');
+  statusEl.textContent='Resetting wall…';statusEl.className='';
+  try{
+    const body=new URLSearchParams({action:'reset',token});
+    const r=await fetch(API,{method:'POST',body}),text=await r.text();
+    let data;try{data=JSON.parse(text)}catch(_){throw Error('Server returned an unexpected response')}
+    if(!r.ok||!data.ok)throw Error(data.error||('Server '+r.status));
+    marks=[];render();uniqueEl.textContent='0';rawEl.textContent='0';namesEl.replaceChildren();
+    statusEl.textContent='Wall reset complete. Students can sign again.';statusEl.className='ok';
+  }catch(e){statusEl.textContent='Reset failed: '+e.message;statusEl.className='err'}
+}
+document.getElementById('reset').onclick=resetWall;
