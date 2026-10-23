@@ -27,6 +27,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 .runItem{width:100%;text-align:left;border:0;border-bottom:1px solid #232833;background:transparent;color:#bbb;padding:10px 6px}.runItem.active{color:#fff;background:rgba(242,184,75,.08)}.runItem .time{font-size:10px;color:var(--accent);display:block}.runItem .label{font-size:11px;font-weight:900;display:block}.runItem .title{font-family:Georgia,serif;font-size:14px;display:block;margin-top:2px}
 .helper{position:absolute;z-index:25;left:16px;top:62px;padding:7px 9px;border-radius:9px;background:rgba(0,0,0,.64);font-size:11px;color:#ddd}.notePanel{position:absolute;z-index:60;right:16px;top:64px;width:min(430px,92vw);background:rgba(12,14,20,.98);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 22px 70px rgba(0,0,0,.55);display:none}.notePanel.on{display:block}.notePanel h3{margin:3px 0 10px;font:700 24px Georgia,serif}.notePanel label{display:block;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:10px 0 5px}.notePanel select,.notePanel textarea{width:100%;background:#0e1118;color:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.notePanel textarea{min-height:130px;resize:vertical}.noteActions{display:flex;gap:8px;margin-top:10px}.noteStatus{font-size:11px;color:var(--muted);margin-top:8px}
 @media(max-width:900px){.topbar{grid-template-columns:1fr auto auto}.brand{display:none}.url{grid-column:1/-1;grid-row:2}.console{grid-template-columns:1fr}.stats{text-align:left}.choiceGrid{grid-template-columns:1fr}.resultRow{grid-template-columns:1fr}.pct{text-align:left}}
+.instructorRunbook{grid-column:1/-1;color:#EDF2FF;background:#111829;border:1px solid #68718C;border-radius:12px;margin-top:8px;padding:12px 16px;max-height:33vh;overflow:auto}.instructorRunbook summary{font-size:13px;font-weight:850;color:#89E6F4;cursor:pointer}.instructorRunbook dl{display:grid;grid-template-columns:115px 1fr;gap:8px 15px;margin:12px 0 0}.instructorRunbook dt{font-size:11px;color:#F2BD7C;font-weight:900;letter-spacing:.05em;text-transform:uppercase}.instructorRunbook dd{margin:0;white-space:pre-wrap;line-height:1.45;font-size:14px}.instructorRunbook:focus-within{outline:2px solid #FFE2A9}@media(max-width:760px){.instructorRunbook dl{grid-template-columns:1fr}.instructorRunbook{max-height:40vh}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -39,7 +40,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
     <button id="loadSlides" class="primary">Reload Deck</button>
     <a id="roomLinkTop" class="btn" target="_blank">Projection</a>
     <a id="studentLinkTop" class="btn" target="_blank">Student View</a>
-    <a id="reportLinkTop" class="btn" target="_blank">Session Report</a>
+    <button id="exportReportBtn" class="primary" type="button">Download Responses CSV</button>
     <button id="fullBtn">Fullscreen</button>
   </div>
 
@@ -80,7 +81,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
       <div class="momentTop" id="momentTop">Loading session…</div>
       <div class="momentTitle" id="momentTitle"></div>
     </div>
-    <div class="stats" id="stats"></div>
+    <div class="stats" id="stats"></div><details id="instructorRunbook" class="instructorRunbook" open><summary>🎤 SPEAKER NOTES · CURRENT SLIDE</summary><div id="runbookContent"></div></details>
   </div>
 </div>
 
@@ -180,6 +181,24 @@ function timeline(){
   $('drawer').innerHTML=C.session.steps.map((m,i)=>{const g=m.googleSlides||{},a=Math.max(1,+g.start||i+1),b=Math.max(a,+g.end||a);return '<button class="runItem '+(i===C.snapshot.state.step?'active':'')+'" data-step="'+i+'"><span class="time">'+C.elapsed(i)+'–'+(C.elapsed(i)+(m.minutes||0))+' min · slides '+a+(b!==a?'–'+b:'')+'</span><span class="label">'+C.esc(m.label)+'</span><span class="title">'+C.esc(m.title)+'</span></button>'}).join('');
   $('drawer').querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>go(+b.dataset.step));
 }
+function renderRunbook(x){
+ const r=x.runbook||{},fields=[['SAY',r.say],['ASK NEXT',r.askNext],['STUDENT TASK',r.studentDoes||x.studentTask],['KEY POINT',r.landHere],['WATCH FOR',r.watchFor],['IF STUCK',r.ifStuck],['ADVANCE WHEN',r.advanceWhen],['TRANSITION',r.transition]];
+ const safe=v=>C.esc(String(v||''));
+ document.getElementById('runbookContent').innerHTML='<dl>'+fields.filter(([k,v])=>v).map(([k,v])=>'<dt>'+safe(k)+'</dt><dd>'+safe(v)+'</dd>').join('')+'</dl>';
+}
+function downloadResponsesCsv(){
+ const head=['Session','Step','Question','Student Name','Device','Response','Submitted At'];
+ const quote=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
+ const rows=[head];const session=C.session,answers=C.snapshot.answers||{},participants=C.snapshot.participants||[];
+ const names=new Map(participants.map(p=>[p.device,p.name]));
+ for(let i=0;i<session.steps.length;i++){
+  const step=session.steps[i],items=Object.values(answers[step.key]||{});
+  for(const a of items)rows.push([session.title,i+1,step.title||step.studentTask||step.key,names.get(a.device)||a.name||'Unknown',a.device,Array.isArray(a.response)?a.response.join('; '):a.response,a.updatedAt?new Date(a.updatedAt).toISOString():'']);
+ }
+ const csv='\uFEFF'+rows.map(r=>r.map(quote).join(',')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ghost-in-the-machine-student-responses.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
 function render(){
   const x=s(),st=C.snapshot.state,p=C.participation(),t=runtimeType(x),cfg=deckConfig(),range=phaseRange(st.step);
   $('brand').textContent='SHOWRUNNER · '+String(C.session.title||'GOOGLE SLIDES').toUpperCase();
@@ -195,7 +214,7 @@ function render(){
   $('revealBtn').textContent=st.resultsVisible?'Hide Results':'Show Results';$('revealBtn').style.display=interactive?'inline-block':'none';
   $('phonesBtn').textContent=(st.roomMoment?.type==='interaction')?'Hide Prompt':'Ask Students';$('phonesBtn').style.display=(interactive||t==='passive')?'inline-block':'none';
   $('timerBtn').style.display=(x.intent==='create'||x.label==='CREATE')?'inline-block':'none';$('timerBtn').textContent=st.timerEndsAt?'Stop Timer':'Start '+timerMinutes()+':00';
-  timeline();if(overlayMode==='results')showOverlay('results');else if(overlayMode==='interaction')showOverlay('interaction');
+  renderRunbook(x);timeline();if(overlayMode==='results')showOverlay('results');else if(overlayMode==='interaction')showOverlay('interaction');
 }
 async function setState(p){await C.state(p);await C.refresh();struct='';render()}
 async function go(i){
