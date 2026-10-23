@@ -64,6 +64,26 @@ export class ClassroomSession {
       const active=Object.values(participants).filter(p=>p.lastSeen>=cutoff);
       return json({state,participantCount:active.length,participants:active,answers,sessionEdits:await edits()});
     }
+    // Classroom help queue. Scope is the current isolated Durable Object session.
+    if (method === 'GET' && url.pathname.endsWith('/help')) {
+      const help=(await this.state.storage.get('helpRequests'))||{};
+      return json({requests:Object.values(help).filter(x=>x.status==='open').sort((a,b)=>a.createdAt-b.createdAt)});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/help')) {
+      const body=await request.json().catch(()=>({})),device=String(body.device||'').slice(0,150);
+      const participants=(await this.state.storage.get('participants'))||{};
+      if(!device||!participants[device])return json({error:'Join the classroom first'},400);
+      const help=(await this.state.storage.get('helpRequests'))||{},now=Date.now();
+      if(body.action==='clear'){delete help[device]}
+      else{help[device]={device,name:participants[device].name||'Student',step:(await sessionState()).step,createdAt:help[device]?.createdAt||now,status:'open'};}
+      await this.state.storage.put('helpRequests',help);
+      return json({ok:true,pending:Object.values(help).filter(x=>x.status==='open').length});
+    }
+    if (method === 'POST' && url.pathname.endsWith('/help-resolve')) {
+      const body=await request.json().catch(()=>({})),device=String(body.device||'').slice(0,150);
+      const help=(await this.state.storage.get('helpRequests'))||{};delete help[device];
+      await this.state.storage.put('helpRequests',help);return json({ok:true});
+    }
     if (method === 'GET' && url.pathname.endsWith('/attendance')) {
       const participants=(await this.state.storage.get('participants'))||{}, answers=(await this.state.storage.get('answers'))||{};
       const rows=Object.values(participants).map(p=>{
