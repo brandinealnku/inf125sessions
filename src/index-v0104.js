@@ -6,6 +6,18 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    // Launch a public HTTPS application directly in the classroom projector.
+    if(url.pathname.endsWith('/projector-app')){
+      if(method==='GET')return json({app:(await this.state.storage.get('projectorApp'))||null});
+      if(method==='POST'){
+        const body=await request.json().catch(()=>({}));
+        if(body.action==='clear'){await this.state.storage.delete('projectorApp');return json({ok:true,app:null})}
+        let target;try{target=new URL(String(body.url||''))}catch(_){return json({error:'Enter a valid HTTPS URL'},400)}
+        if(target.protocol!=='https:'||!target.hostname||target.username||target.password||target.href.length>2000)return json({error:'Use a public HTTPS URL without embedded credentials'},400);
+        const app={title:String(body.title||target.hostname).slice(0,90),url:target.href,updatedAt:Date.now()};
+        await this.state.storage.put('projectorApp',app);return json({ok:true,app});
+      }
+    }
     // Ephemeral WebRTC signaling for a single instructor-to-projector demonstration.
     if (url.pathname.endsWith('/demo-signal')) {
       if(method==='GET'){
