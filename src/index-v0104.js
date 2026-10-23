@@ -6,6 +6,16 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    // Instructor-controlled, session-scoped join screen.
+    if(url.pathname.endsWith('/join-screen')){
+      if(method==='GET')return json({visible:!!(await this.state.storage.get('joinScreenVisible'))});
+      if(method==='POST'){
+        const body=await request.json().catch(()=>({}));
+        const visible=body.visible===true;
+        await this.state.storage.put('joinScreenVisible',visible);
+        return json({ok:true,visible});
+      }
+    }
     // Launch a public HTTPS application directly in the classroom projector.
     if(url.pathname.endsWith('/projector-app')){
       if(method==='GET')return json({app:(await this.state.storage.get('projectorApp'))||null});
