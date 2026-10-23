@@ -182,7 +182,9 @@
         "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
         "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
         "transition": "Move to the next investigation stage."
-      }
+      },
+      "actionUrl": "https://brandinealnku.github.io/coi-webai/blind-spot/",
+      "actionLabel": "Open AI Blind Spot ↗"
     },
     {
       "minutes": 12,
@@ -207,7 +209,9 @@
         "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
         "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
         "transition": "Move to the next investigation stage."
-      }
+      },
+      "actionUrl": "https://brandinealnku.github.io/coi-webai/blind-spot/",
+      "actionLabel": "Open AI Blind Spot ↗"
     },
     {
       "minutes": 5,
@@ -297,7 +301,7 @@
       "title": "VIRTUAL VIKINGS",
       "lead": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix.",
       "choices": [],
-      "studentTask": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix.",
+      "studentTask": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix. Your instructor will share the verified experience link in class.",
       "roomInstruction": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix.",
       "googleSlides": {
         "start": 11,
