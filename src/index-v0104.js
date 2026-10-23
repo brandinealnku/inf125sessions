@@ -6,6 +6,30 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    // ShowRunner student help queue (active deployment entry point).
+    // All records remain scoped to the session's Durable Object.
+    if (url.pathname.endsWith('/help') && method === 'GET') {
+      const help=(await this.state.storage.get('helpRequests'))||{};
+      return json({requests:Object.values(help).filter(x=>x.status==='open').sort((a,b)=>a.createdAt-b.createdAt)});
+    }
+    if (url.pathname.endsWith('/help') && method === 'POST') {
+      const body=await request.json().catch(()=>({}));
+      const device=String(body.device||'').slice(0,150);
+      const participants=(await this.state.storage.get('participants'))||{};
+      if (!device || !participants[device]) return json({error:'Join the classroom first'},400);
+      const help=(await this.state.storage.get('helpRequests'))||{};
+      if (body.action==='clear') delete help[device];
+      else help[device]={device,name:participants[device].name||'Student',step:Number(((await this.state.storage.get('state'))||{}).step||0),createdAt:help[device]?.createdAt||Date.now(),status:'open'};
+      await this.state.storage.put('helpRequests',help);
+      return json({ok:true,pending:Object.values(help).filter(x=>x.status==='open').length});
+    }
+    if (url.pathname.endsWith('/help-resolve') && method === 'POST') {
+      const body=await request.json().catch(()=>({}));
+      const help=(await this.state.storage.get('helpRequests'))||{};
+      delete help[String(body.device||'').slice(0,150)];
+      await this.state.storage.put('helpRequests',help);
+      return json({ok:true});
+    }
     // Context Quest live classroom game — individual join + virtual teams
     const cqInitial=()=>({stage:'lobby',round:0,resultsVisible:false,teamsFormed:false,testMode:false,updatedAt:Date.now()});
     const cqState=async()=>(await this.state.storage.get('cqState'))||cqInitial();
