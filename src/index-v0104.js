@@ -6,6 +6,20 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    // Instructor-controlled app sharing; scoped to the active classroom session.
+    if (url.pathname.endsWith('/shared-app') && method === 'GET') {
+      return json({app:(await this.state.storage.get('sharedApp'))||null});
+    }
+    if (url.pathname.endsWith('/shared-app') && method === 'POST') {
+      const body=await request.json().catch(()=>({}));
+      if(body.action==='clear'){await this.state.storage.delete('sharedApp');return json({ok:true,app:null});}
+      let parsed;
+      try{parsed=new URL(String(body.url||''));}catch(_){return json({error:'Enter a valid HTTPS URL'},400);}
+      if(parsed.protocol!=='https:'||!parsed.hostname||parsed.username||parsed.password||parsed.href.length>2000)return json({error:'Use an HTTPS web address without embedded credentials'},400);
+      const app={title:String(body.title||parsed.hostname).trim().slice(0,90),url:parsed.href,description:String(body.description||'').trim().slice(0,180),updatedAt:Date.now()};
+      await this.state.storage.put('sharedApp',app);
+      return json({ok:true,app});
+    }
     // ShowRunner student help queue (active deployment entry point).
     // All records remain scoped to the session's Durable Object.
     if (url.pathname.endsWith('/help') && method === 'GET') {
