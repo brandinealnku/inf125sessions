@@ -6,6 +6,28 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    // Ephemeral WebRTC signaling for a single instructor-to-projector demonstration.
+    if (url.pathname.endsWith('/demo-signal')) {
+      if(method==='GET'){
+        const data=(await this.state.storage.get('demoSignal'))||{};
+        if(data.expiresAt && data.expiresAt<Date.now())return json({demo:null});
+        return json({demo:data.active?data:null});
+      }
+      if(method==='POST'){
+        const body=await request.json().catch(()=>({}));
+        if(body.action==='stop'){await this.state.storage.delete('demoSignal');return json({ok:true});}
+        if(body.action==='offer'&&body.sdp?.type==='offer'&&String(body.sdp.sdp||'').length<100000){
+          const demo={active:true,offer:body.sdp,answer:null,nonce:String(body.nonce||'').slice(0,80),createdAt:Date.now(),expiresAt:Date.now()+30*60*1000};
+          await this.state.storage.put('demoSignal',demo);return json({ok:true});
+        }
+        if(body.action==='answer'&&body.sdp?.type==='answer'){
+          const demo=(await this.state.storage.get('demoSignal'))||{};
+          if(!demo.active||demo.nonce!==body.nonce)return json({error:'Demo is no longer active'},409);
+          demo.answer=body.sdp;await this.state.storage.put('demoSignal',demo);return json({ok:true});
+        }
+        return json({error:'Invalid demo signaling request'},400);
+      }
+    }
     // Instructor-controlled app sharing; scoped to the active classroom session.
     if (url.pathname.endsWith('/shared-app') && method === 'GET') {
       return json({app:(await this.state.storage.get('sharedApp'))||null});
