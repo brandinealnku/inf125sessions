@@ -99,6 +99,7 @@ html,body{background:var(--canvas);color:var(--ink)}
 <script src="/shared-v08.js"></script>
 <script>
 const C=Classroom;
+const instructorPreview=new URLSearchParams(location.search).get('preview')==='1';
 const app=document.getElementById('app');
 const nameKey='classroomName:'+new URLSearchParams(location.search).get('session');
 let studentName=localStorage.getItem(nameKey)||'',lastKey='',selected=[],stopLivePush=null,submitting=false;
@@ -119,7 +120,7 @@ function task(s,f=''){return s.studentTask||f||s.lead||''}
 function elapsedPct(){const total=Math.max(1,C.session.durationMinutes||75),elapsed=C.elapsed(C.snapshot.state.step||0);return Math.max(0,Math.min(100,Math.round(elapsed/total*100)))}
 let helpPending=false;
 async function requestHelp(){try{const action=helpPending?'clear':'request';await C.api('/help',{method:'POST',body:JSON.stringify({device:C.device,action})});helpPending=!helpPending;render(true)}catch(e){alert('Unable to update help request. Please raise your hand.')}}
-function helpBar(){return '<div class="helpBar" role="region" aria-label="Classroom assistance"><span role="status">'+(helpPending?'Your instructor has been notified.':'Need help with this activity?')+'</span><button type="button" onclick="requestHelp()">'+(helpPending?'Cancel request':'✋ Ask for help')+'</button></div>'}
+function helpBar(){if(instructorPreview)return '<div class="helpBar" role="status"><span>INSTRUCTOR PREVIEW · read-only simulation of the current student stage</span></div>';return '<div class="helpBar" role="region" aria-label="Classroom assistance"><span role="status">'+(helpPending?'Your instructor has been notified.':'Need help with this activity?')+'</span><button type="button" onclick="requestHelp()">'+(helpPending?'Cancel request':'✋ Ask for help')+'</button></div>'}
 function chrome(){
   const s=C.current(),state=C.snapshot.state,step=(state.step||0)+1,total=C.session.steps.length,pct=elapsedPct();
   return helpBar()+'<header class="header"><div><div class="brand">'+C.esc(C.session.course||'INF 125')+'</div><div class="subbrand">'+C.esc(C.session.title)+' · Student view</div></div>'+
@@ -169,11 +170,12 @@ async function doJoin(){
     app.innerHTML='<section class="join"><div class="joinCard"><div class="label">JOINED</div><h1 class="joinTitle">You are in the room.</h1><p class="joinLead">The live view had trouble rendering. Refresh this page; your attendance join was already recorded.</p><button class="action" onclick="location.reload()">Refresh live view →</button></div></section>';
   }
 }
-function answered(s){return s.key&&!!localStorage.getItem('answer:'+C.session.id+':'+s.key)}
+function answered(s){return !instructorPreview&&s.key&&!!localStorage.getItem('answer:'+C.session.id+':'+s.key)}
 function look(s){
   app.innerHTML=chrome()+'<section class="card locked"><div class="lockIcon">✓</div><div class="label">LOCKED IN</div><h1>You’re good.</h1><p>'+C.esc(s.afterSubmit||'Keep your answer. Your instructor is bringing the room back together.')+'</p><span class="lookUp">Phone down · eyes up</span></section>';
 }
 async function submit(s,v){
+  if(instructorPreview)return alert('Preview is read-only. Open a separate student window for live testing.');
   const button=document.getElementById('sendBtn')||document.getElementById('commitBtn');
   const original=button?.textContent||'Submit';
   if(submitting)return;
@@ -271,6 +273,7 @@ function startLiveSync(){
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
+    if(instructorPreview){render(true);startLiveSync();return;}
     if(studentName){
       try{
         await C.join(studentName);render(true);startLiveSync();
