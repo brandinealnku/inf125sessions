@@ -290,6 +290,7 @@ function startLiveSync(){
   }
   setInterval(C.heartbeat,30000);
   setInterval(()=>poll(false),1200);
+  refreshSharedExperience();setInterval(refreshSharedExperience,2500);
   window.addEventListener('focus',()=>poll(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll(true)});
   window.addEventListener('pageshow',()=>poll(true));
