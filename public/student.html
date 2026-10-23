@@ -72,6 +72,23 @@ button{touch-action:manipulation}
   .card{padding:19px 18px;border-radius:19px}.title{font-size:clamp(38px,12vw,58px)}
   .welcomeStrip{grid-template-columns:1fr}.progressWrap{margin-top:14px}
 }
+
+/* ShowRunner midnight student theme — high contrast, focus visibility, reduced motion */
+:root{--canvas:#0B0D17;--ink:#F7F8FF;--muted:#CAD2E6;--line:#454B68;--white:#12182B;--blue:#192742;--blueInk:#7DE8FA;--gold:#29223C;--goldInk:#FFD28A;--green:#14362E;--greenInk:#A6F5D3;--coral:#43222E;--coralInk:#FFBACD;--shadow:0 12px 32px rgba(0,0,0,.22)}
+html,body{background:var(--canvas);color:var(--ink)}
+.header{border-bottom-color:#454B68}.brand{color:#F7F8FF}.subbrand,.progressLabel,.progressCount,.support,.hint{color:#CAD2E6}
+.pill{background:#192036;border-color:#596483;color:#F7F8FF}.progressTrack{background:#353B58}.progressTrack span{background:#7DE8FA}
+.card{border:1px solid #454B68}.now{background:#18213A}.now .label{color:#8DEBFA}.move{background:#29223C}.move .label{color:#FFD28A}.after,.locked{background:#14362E}.after .label,.locked .label,.lookUp{color:#B8FFE0}
+.lead,.moveText,.afterText,.locked p{color:#F0F2FC}
+.joinCard{background:#151A2C;border-color:#596483}.joinLead{color:#E2E5F2}.welcomeItem{background:#1D2640;border-color:#596483;color:#E3EAFA}.welcomeItem b{color:#fff}
+.field{background:#11182A;color:#fff;border:2px solid #818EAD}.field::placeholder{color:#CAD2E6}.choice{background:#151D32;color:#fff;border:2px solid #7D89A7}.choice:hover{border-color:#8DEBFA}.choice.selected{background:#183D46;border-color:#8DEBFA;color:#fff}.choice.selected:before{background:#8DEBFA;border-color:#8DEBFA;box-shadow:inset 0 0 0 4px #183D46}
+.action{background:#7DE8FA;color:#08121B;display:block;text-align:center;text-decoration:none}.action:hover{background:#B5F5FF}.action:disabled{opacity:.65}
+.slideStatus{color:#8DEBFA}.error{color:#FFC0BE}.lockIcon{background:#245B4B}
+:where(button,a,input,textarea):focus-visible{outline:3px solid #FFD28A!important;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media(forced-colors:active){.choice.selected{outline:3px solid Highlight}.progressTrack span{background:Highlight}}
+.activityLink{margin:12px 0 20px}.activityLink .action{border:2px solid #8DEBFA}.activityLink small{display:block;margin-top:7px;color:#CAD2E6}
+
 </style>
 </head>
 <body>
@@ -96,6 +113,7 @@ function updateSlideStatus(){
   if(badge)badge.textContent=n?'Slide '+n+(slideCount()?' of '+slideCount():''):'Waiting for the first slide';
 }
 
+function activityLink(s){const url=String(s.actionUrl||'');if(!/^https:\/\//i.test(url))return '';return '<section class="activityLink"><a class="action" href="'+C.esc(url)+'" target="_blank" rel="noopener noreferrer">'+C.esc(s.actionLabel||'Open the interactive experience ↗')+'</a><small>Opens in a new tab. Return here to submit your findings.</small></section>'}
 function task(s,f=''){return s.studentTask||f||s.lead||''}
 function elapsedPct(){const total=Math.max(1,C.session.durationMinutes||75),elapsed=C.elapsed(C.snapshot.state.step||0);return Math.max(0,Math.min(100,Math.round(elapsed/total*100)))}
 function chrome(){
@@ -186,7 +204,7 @@ function vote(s){
   const closed=!!C.snapshot.state.locked;
   app.innerHTML=chrome()+currentCard(s)+moveCard(task(s,'Make your call before you hear what anyone else thinks.'))+
     s.choices.map(c=>'<button class="choice" data-v="'+C.esc(c)+'" '+(closed?'disabled':'')+'>'+C.esc(c)+'</button>').join('')+
-    afterCard()+'<div id="error" class="error">'+(closed?'Responses are closed for this moment.':'')+'</div>';
+    activityLink(s)+afterCard()+'<div id="error" class="error">'+(closed?'Responses are closed for this moment.':'')+'</div>';
   app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>submit(s,b.dataset.v));
 }
 function select(s){
@@ -206,7 +224,7 @@ function select(s){
 function promptView(s){
   const closed=!!C.snapshot.state.locked;
   app.innerHTML=chrome()+currentCard(s)+moveCard(task(s,'Write one thought worth adding to the room.'))+
-    '<textarea id="responseInput" class="field textarea" placeholder="'+C.esc(s.placeholder||'What are you thinking?')+'" '+(closed?'disabled':'')+'></textarea>'+
+    activityLink(s)+'<label class="label" for="responseInput">YOUR RESPONSE</label><textarea id="responseInput" class="field textarea" placeholder="'+C.esc(s.placeholder||'What are you thinking?')+'" '+(closed?'disabled':'')+'></textarea>'+
     '<button class="action" id="sendBtn" '+(closed?'disabled':'')+'>'+(closed?'Responses closed':'Send my response →')+'</button>'+afterCard()+'<div id="error" class="error">'+(closed?'Responses are closed for this moment.':'')+'</div>';
   document.getElementById('sendBtn').onclick=()=>{
     const v=document.getElementById('responseInput').value.trim();
@@ -214,7 +232,7 @@ function promptView(s){
   };
 }
 function passive(s){
-  const action=s.actionUrl?'<a class="action" style="display:block;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="'+C.esc(s.actionUrl)+'">'+C.esc(s.actionLabel||'Open experience →')+'</a>':'';
+  const action=/^https:\/\//i.test(String(s.actionUrl||''))?'<a class="action" style="display:block;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="'+C.esc(s.actionUrl)+'">'+C.esc(s.actionLabel||'Open experience →')+'</a>':'';
   app.innerHTML=chrome()+currentCard(s)+
     '<section class="card move"><div class="label">YOUR MOVE</div><div class="moveText">'+C.esc(task(s,'Look up and stay with the room. There is nothing you need to type right now.'))+'</div></section>'+
     action+'<div class="support"><span>'+(s.actionUrl?'Optional experience':'No response needed')+'</span><strong>'+(s.actionUrl?'Open when instructed ↗':'Eyes up ↑')+'</strong></div>';
