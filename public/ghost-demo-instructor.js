@@ -12,9 +12,10 @@ document.getElementById('demoStart').onclick=async()=>{try{
   stream.getVideoTracks()[0].addEventListener('ended',stop,{once:true});
   pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
   stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+  pc.onconnectionstatechange=()=>{if(!pc)return;if(pc.connectionState==='connected')status('LIVE on projector');else if(['failed','disconnected'].includes(pc.connectionState))status('Video connection failed — use display mirroring as fallback')};
   nonce=crypto.randomUUID();await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
   await C.api('/demo-signal',{method:'POST',body:JSON.stringify({action:'offer',nonce,sdp:pc.localDescription})});
   document.getElementById('demoStop').disabled=false;status('Waiting for projector…');
-  watch=setInterval(async()=>{try{const d=(await C.api('/demo-signal')).demo;if(d?.nonce===nonce&&d.answer&&pc&&!pc.currentRemoteDescription){await pc.setRemoteDescription(d.answer);status('Screen is live on projector')}}catch(e){status('Connection issue: '+String(e.message||e).slice(0,60))}},1300);
+  watch=setInterval(async()=>{try{const d=(await C.api('/demo-signal')).demo;if(d?.nonce===nonce&&d.answer&&pc&&!pc.currentRemoteDescription){await pc.setRemoteDescription(d.answer);status('Connecting video to projector…')}}catch(e){status('Connection issue: '+String(e.message||e).slice(0,60))}},1300);
 }catch(e){status('Could not share: '+String(e.message||e).slice(0,100));await stop()}};
 })();
