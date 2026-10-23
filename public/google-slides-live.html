@@ -247,7 +247,7 @@ $('loadSlides').onclick=loadSlides;
 $('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();
 $('roomLinkTop').onclick=e=>{e.currentTarget.href=roomUrl()};
 $('studentLinkTop').onclick=e=>{e.currentTarget.href=studentUrl()};
-$('reportLinkTop').onclick=e=>{e.currentTarget.href=reportUrl()};
+$('exportReportBtn').onclick=downloadResponsesCsv;
 $('runBtn').onclick=()=>$('drawer').classList.toggle('on');
 $('noteBtn').onclick=()=>{$('notePanel').classList.add('on');$('noteStatus').textContent='Current moment: '+(s().label||s().title||'')};
 $('closeNoteBtn').onclick=()=>{$('notePanel').classList.remove('on');$('noteStatus').textContent=''};
