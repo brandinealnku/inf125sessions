@@ -119,7 +119,28 @@ function activityLink(s){const url=String(s.actionUrl||'');if(!/^https:\/\//i.te
 function task(s,f=''){return s.studentTask||f||s.lead||''}
 function elapsedPct(){const total=Math.max(1,C.session.durationMinutes||75),elapsed=C.elapsed(C.snapshot.state.step||0);return Math.max(0,Math.min(100,Math.round(elapsed/total*100)))}
 let helpPending=false;
-async function requestHelp(){try{const action=helpPending?'clear':'request';await C.api('/help',{method:'POST',body:JSON.stringify({device:C.device,action})});helpPending=!helpPending;render(true)}catch(e){alert('Unable to update help request. Please raise your hand.')}}
+async function requestHelp(){
+  if(instructorPreview)return;
+  const button=document.getElementById('helpButton');
+  if(button){button.disabled=true;button.textContent='Sending…'}
+  const action=helpPending?'clear':'request';
+  async function send(){return C.api('/help',{method:'POST',body:JSON.stringify({device:C.device,action})})}
+  try{
+    try{await send()}catch(firstError){
+      const msg=String(firstError?.message||firstError);
+      if(action==='request'&&/Join the classroom first|400/.test(msg)&&studentName){
+        await C.join(studentName);await send();
+      }else throw firstError;
+    }
+    helpPending=!helpPending;
+    render(true);
+  }catch(e){
+    const message=String(e?.message||'Unknown error');
+    const el=document.getElementById('helpError');
+    if(el)el.textContent='Help request could not be sent ('+message.slice(0,180)+'). Please raise your hand.';
+    if(button){button.disabled=false;button.textContent=helpPending?'Cancel request':'✋ Ask for help'}
+  }
+}
 function helpBar(){if(instructorPreview)return '<div class="helpBar" role="status"><span>INSTRUCTOR PREVIEW · read-only simulation of the current student stage</span></div>';return '<div class="helpBar" role="region" aria-label="Classroom assistance"><span role="status">'+(helpPending?'Your instructor has been notified.':'Need help with this activity?')+'</span><button type="button" onclick="requestHelp()">'+(helpPending?'Cancel request':'✋ Ask for help')+'</button></div>'}
 function chrome(){
   const s=C.current(),state=C.snapshot.state,step=(state.step||0)+1,total=C.session.steps.length,pct=elapsedPct();
