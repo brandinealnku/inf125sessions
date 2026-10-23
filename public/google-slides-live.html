@@ -28,6 +28,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
 .helper{position:absolute;z-index:25;left:16px;top:62px;padding:7px 9px;border-radius:9px;background:rgba(0,0,0,.64);font-size:11px;color:#ddd}.notePanel{position:absolute;z-index:60;right:16px;top:64px;width:min(430px,92vw);background:rgba(12,14,20,.98);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 22px 70px rgba(0,0,0,.55);display:none}.notePanel.on{display:block}.notePanel h3{margin:3px 0 10px;font:700 24px Georgia,serif}.notePanel label{display:block;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:10px 0 5px}.notePanel select,.notePanel textarea{width:100%;background:#0e1118;color:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.notePanel textarea{min-height:130px;resize:vertical}.noteActions{display:flex;gap:8px;margin-top:10px}.noteStatus{font-size:11px;color:var(--muted);margin-top:8px}
 @media(max-width:900px){.topbar{grid-template-columns:1fr auto auto}.brand{display:none}.url{grid-column:1/-1;grid-row:2}.console{grid-template-columns:1fr}.stats{text-align:left}.choiceGrid{grid-template-columns:1fr}.resultRow{grid-template-columns:1fr}.pct{text-align:left}}
 .instructorRunbook{grid-column:1/-1;color:#EDF2FF;background:#111829;border:1px solid #68718C;border-radius:12px;margin-top:8px;padding:12px 16px;max-height:33vh;overflow:auto}.instructorRunbook summary{font-size:13px;font-weight:850;color:#89E6F4;cursor:pointer}.instructorRunbook dl{display:grid;grid-template-columns:115px 1fr;gap:8px 15px;margin:12px 0 0}.instructorRunbook dt{font-size:11px;color:#F2BD7C;font-weight:900;letter-spacing:.05em;text-transform:uppercase}.instructorRunbook dd{margin:0;white-space:pre-wrap;line-height:1.45;font-size:14px}.instructorRunbook:focus-within{outline:2px solid #FFE2A9}@media(max-width:760px){.instructorRunbook dl{grid-template-columns:1fr}.instructorRunbook{max-height:40vh}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.drawerClose{position:sticky;top:0;width:100%;padding:12px;background:#222D44;color:white;border:1px solid #8696B4;border-radius:8px;z-index:2;cursor:pointer}.helpPanel,.studentPreview{display:none;position:absolute;z-index:85;top:66px;right:16px;width:min(430px,92vw);max-height:70vh;overflow:auto;padding:16px;border:1px solid #8794BA;border-radius:12px;background:#121B2E;color:#F5F8FF;box-shadow:0 16px 60px #0009}.helpPanel.on,.studentPreview.on{display:block}.helpPanel button,.studentPreview button{padding:10px 12px;background:#263653;color:#fff;border:1px solid #7385AC;border-radius:8px;cursor:pointer}.helpRequest{border-top:1px solid #51607E;padding:12px 0}.helpRequest b{display:block;margin-bottom:6px}.studentPreview{width:min(470px,94vw)}.studentPreview iframe{display:block;width:100%;height:min(65vh,600px);border:1px solid #8597B1;background:#0B0D17;border-radius:10px}.drawer{z-index:95}.drawer.on{display:block}.console .controls button:focus-visible,.drawer button:focus-visible,.helpPanel button:focus-visible{outline:3px solid #FFE4A0;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -45,7 +46,7 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
   </div>
 
   <div class="helper"><b>Projection is a separate clean screen.</b> Advance Class → moves the phase, student view, and projection slide together.</div>
-  <aside id="notePanel" class="notePanel">
+  <aside id="helpPanel" class="helpPanel" aria-label="Student help requests"><button id="closeHelp" type="button">✕ Close</button><h3>Students requesting help</h3><div id="helpRequests" role="status">No requests</div></aside><aside id="studentPreview" class="studentPreview" aria-label="Student view preview"><button id="closePreview" type="button">✕ Close Student Preview</button><p>Live student screen (preview only; do not submit on behalf of a student)</p><iframe id="studentPreviewFrame" title="Student screen preview" loading="lazy"></iframe></aside><aside id="notePanel" class="notePanel">
     <div class="kicker">Private instructor evidence</div>
     <h3>Capture a quick note.</h3>
     <label for="noteKind">What kind of note?</label>
@@ -61,13 +62,13 @@ button,a.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;bo
     <section id="overlayCard" class="card" aria-live="polite"></section>
   </div>
 
-  <aside id="drawer" class="drawer"></aside>
+  <aside id="drawer" class="drawer" role="dialog" aria-label="Run of show" aria-modal="false"><button id="closeDrawer" type="button" class="drawerClose" aria-label="Close run of show">✕ Close Run of Show</button><div id="drawerItems"></div></aside>
 
   <div id="console" class="console">
     <div class="controls">
       <button id="runBtn">Run of Show</button>
       <button id="noteBtn">+ Instructor Note</button>
-      <button id="backBtn">← Phase</button>
+      <button id="backBtn">← Previous Stage</button><button id="studentPreviewBtn" type="button">👁 Student Preview</button><button id="helpQueueBtn" type="button">✋ Help <span id="helpCount">0</span></button>
       <button id="prevSlideBtn">← Slide</button>
       <button id="nextSlideBtn">Slide →</button>
       <button id="phonesBtn" class="blue">Ask Students</button>
@@ -178,8 +179,8 @@ function showOverlay(mode){
   card.innerHTML=mode==='results'?resultsHtml():interactionHtml();card.classList.add('on');scrim.classList.add('on');
 }
 function timeline(){
-  $('drawer').innerHTML=C.session.steps.map((m,i)=>{const g=m.googleSlides||{},a=Math.max(1,+g.start||i+1),b=Math.max(a,+g.end||a);return '<button class="runItem '+(i===C.snapshot.state.step?'active':'')+'" data-step="'+i+'"><span class="time">'+C.elapsed(i)+'–'+(C.elapsed(i)+(m.minutes||0))+' min · slides '+a+(b!==a?'–'+b:'')+'</span><span class="label">'+C.esc(m.label)+'</span><span class="title">'+C.esc(m.title)+'</span></button>'}).join('');
-  $('drawer').querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>go(+b.dataset.step));
+  $('drawerItems').innerHTML=C.session.steps.map((m,i)=>{const g=m.googleSlides||{},a=Math.max(1,+g.start||i+1),b=Math.max(a,+g.end||a);return '<button class="runItem '+(i===C.snapshot.state.step?'active':'')+'" data-step="'+i+'"><span class="time">'+C.elapsed(i)+'–'+(C.elapsed(i)+(m.minutes||0))+' min · slides '+a+(b!==a?'–'+b:'')+'</span><span class="label">'+C.esc(m.label)+'</span><span class="title">'+C.esc(m.title)+'</span></button>'}).join('');
+  $('drawerItems').querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{ $('drawer').classList.remove('on');go(+b.dataset.step)});
 }
 function renderRunbook(x){
  const r=x.runbook||{},fields=[['SAY',r.say],['ASK NEXT',r.askNext],['STUDENT TASK',r.studentDoes||x.studentTask],['KEY POINT',r.landHere],['WATCH FOR',r.watchFor],['IF STUCK',r.ifStuck],['ADVANCE WHEN',r.advanceWhen],['TRANSITION',r.transition]];
@@ -218,7 +219,8 @@ function render(){
 }
 async function setState(p){await C.state(p);await C.refresh();struct='';render()}
 async function go(i){
-  i=Math.max(0,Math.min(C.session.steps.length-1,i));overlayMode='hidden';showOverlay('hidden');
+  i=Math.max(0,Math.min(C.session.steps.length-1,i));
+  $('drawer').classList.remove('on');overlayMode='hidden';showOverlay('hidden');
   const r=phaseRange(i);currentSlide=r.start;
   await setState({step:i,locked:false,resultsVisible:false,roomMoment:roomMoment('hidden',currentSlide),timerEndsAt:null});
   $('slidesFrame').src=slideUrl(currentSlide);render();
@@ -232,6 +234,7 @@ async function toggleTimer(){
   await setState({timerEndsAt:next,roomMoment:roomMoment(active?'hidden':'timer')});showOverlay(active?'hidden':'interaction');
 }
 function key(){const st=C.snapshot.state;return[st.step,st.locked,st.resultsVisible,st.timerEndsAt||'',st.roomMoment?.type||'',st.roomMoment?.slideNumber||'',st.roomMoment?.deckId||'',responseCount(),C.snapshot.participantCount].join('|')}
+async function refreshHelp(){try{const data=await C.api('/help');const requests=data.requests||[];$('helpCount').textContent=String(requests.length);$('helpQueueBtn').setAttribute('aria-label',requests.length+' students requesting help');$('helpRequests').innerHTML=requests.length?requests.map(p=>'<div class="helpRequest"><b>'+C.esc(p.name)+'</b><span>Stage '+(Number(p.step)+1)+'</span> <button data-help-device="'+C.esc(p.device)+'">Mark resolved</button></div>').join(''):'No pending requests.';$('helpRequests').querySelectorAll('[data-help-device]').forEach(b=>b.onclick=async()=>{await C.api('/help-resolve',{method:'POST',body:JSON.stringify({device:b.dataset.helpDevice})});refreshHelp()})}catch(e){console.warn('Help requests unavailable',e)}}
 async function poll(){
   try{
     await C.refresh();const k=key(),step=Number(C.snapshot.state.step||0),remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0),cfg=deckConfig();
@@ -249,6 +252,11 @@ $('roomLinkTop').onclick=e=>{e.currentTarget.href=roomUrl()};
 $('studentLinkTop').onclick=e=>{e.currentTarget.href=studentUrl()};
 $('exportReportBtn').onclick=downloadResponsesCsv;
 $('runBtn').onclick=()=>$('drawer').classList.toggle('on');
+$('closeDrawer').onclick=()=>$('drawer').classList.remove('on');
+$('studentPreviewBtn').onclick=()=>{const p=$('studentPreview');const open=!p.classList.contains('on');p.classList.toggle('on',open);if(open)$('studentPreviewFrame').src=studentUrl()+'&preview=1'};
+$('closePreview').onclick=()=>$('studentPreview').classList.remove('on');
+$('helpQueueBtn').onclick=()=>$('helpPanel').classList.toggle('on');
+$('closeHelp').onclick=()=>$('helpPanel').classList.remove('on');
 $('noteBtn').onclick=()=>{$('notePanel').classList.add('on');$('noteStatus').textContent='Current moment: '+(s().label||s().title||'')};
 $('closeNoteBtn').onclick=()=>{$('notePanel').classList.remove('on');$('noteStatus').textContent=''};
 $('saveNoteBtn').onclick=async()=>{
@@ -259,7 +267,7 @@ $('saveNoteBtn').onclick=async()=>{
     $('noteText').value='';$('noteStatus').textContent='Saved to the private report appendix.';setTimeout(()=>{$('notePanel').classList.remove('on');$('noteStatus').textContent=''},700)
   }catch(e){$('noteStatus').textContent='Could not save note.'}finally{$('saveNoteBtn').disabled=false}
 };
-$('backBtn').onclick=()=>go(C.snapshot.state.step-1);
+$('backBtn').onclick=()=>go(Math.max(0,Number(C.snapshot.state.step||0)-1));
 $('prevSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide>r.start)setSlide(currentSlide-1)};
 $('nextSlideBtn').onclick=()=>{const r=phaseRange();if(currentSlide<r.end)setSlide(currentSlide+1)};
 $('nextBtn').onclick=()=>go(C.snapshot.state.step+1);
@@ -273,7 +281,7 @@ document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(documen
     lastPhaseStep=Number(C.snapshot.state.step||0);const remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);currentSlide=remoteSlide||phaseRange(lastPhaseStep).start;
     if(cfg.deckId)$('slidesFrame').src=slideUrl(currentSlide);
     if(C.snapshot.state.roomMoment?.deckId!==cfg.deckId){await C.state({roomMoment:{...(C.snapshot.state.roomMoment||{}),type:C.snapshot.state.roomMoment?.type||'hidden',slideNumber:currentSlide,deckId:cfg.deckId}});await C.refresh()}
-    render();struct=key();setInterval(poll,900);
+    render();struct=key();setInterval(poll,900);refreshHelp();setInterval(refreshHelp,2500);
   }catch(e){$('momentTop').textContent='Session failed to load';$('momentTitle').textContent=String(e.message||e)}
 })();
 </script>
