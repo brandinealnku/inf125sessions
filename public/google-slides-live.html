@@ -269,7 +269,7 @@ document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(documen
 (async()=>{
   try{
     await C.loadSession();await C.refresh();
-    const cfg=deckConfig();deckId=cfg.deckId;$('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();$('reportLinkTop').href=reportUrl();
+    const cfg=deckConfig();deckId=cfg.deckId;$('roomLinkTop').href=roomUrl();$('studentLinkTop').href=studentUrl();
     lastPhaseStep=Number(C.snapshot.state.step||0);const remoteSlide=Number(C.snapshot.state.roomMoment?.slideNumber||0);currentSlide=remoteSlide||phaseRange(lastPhaseStep).start;
     if(cfg.deckId)$('slidesFrame').src=slideUrl(currentSlide);
     if(C.snapshot.state.roomMoment?.deckId!==cfg.deckId){await C.state({roomMoment:{...(C.snapshot.state.roomMoment||{}),type:C.snapshot.state.roomMoment?.type||'hidden',slideNumber:currentSlide,deckId:cfg.deckId}});await C.refresh()}
