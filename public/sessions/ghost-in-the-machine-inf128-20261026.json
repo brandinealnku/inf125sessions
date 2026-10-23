@@ -1,0 +1,343 @@
+{
+  "id": "ghost-in-the-machine-inf128-20261026",
+  "title": "Ghost in the Machine: An Interactive AI Literacy Experience",
+  "course": "INF 128 · Principles of Informatics",
+  "description": "75-minute Halloween-week AI literacy guest lecture. Dedicated ShowRunner session mapped to the existing 12-slide Google Slides deck.",
+  "durationMinutes": 75,
+  "version": "0.10.1",
+  "googleSlides": {
+    "deckUrl": "https://docs.google.com/presentation/d/1qgEmSI7_ZZ2DhHw4VVxkP_IaWbkxCdOjreyOe8nGRtU/edit",
+    "slideIds": [
+      "p1",
+      "p2",
+      "p3",
+      "p4",
+      "p5",
+      "p6",
+      "p7",
+      "p8",
+      "p9",
+      "p10",
+      "p11",
+      "p12",
+      "p13"
+    ]
+  },
+  "steps": [
+    {
+      "minutes": 3,
+      "type": "teach",
+      "label": "THE AI SÉANCE",
+      "key": "ghost_01",
+      "title": "THE AI SÉANCE",
+      "lead": "Look up: where did you encounter AI today?",
+      "choices": [],
+      "studentTask": "Look up: where did you encounter AI today?",
+      "roomInstruction": "Look up: where did you encounter AI today?",
+      "googleSlides": {
+        "start": 1,
+        "end": 1
+      },
+      "runbook": {
+        "say": "It's Halloween week, so we're investigating the intelligence inside a machine. What does it truly understand?",
+        "studentDoes": "Look up: where did you encounter AI today?",
+        "askNext": "Who used AI today without opening a chatbot?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 5,
+      "type": "vote",
+      "label": "DOES AI UNDERSTAND?",
+      "key": "ghost_02",
+      "title": "DOES AI UNDERSTAND?",
+      "lead": "Vote: what should you do with an AI answer that sounds confident?",
+      "choices": [
+        "TRUST IT",
+        "IF IT SOUNDS PLAUSIBLE",
+        "VERIFY IMPORTANT CLAIMS",
+        "NEVER TRUST AI"
+      ],
+      "studentTask": "Vote: what should you do with an AI answer that sounds confident?",
+      "roomInstruction": "Vote: what should you do with an AI answer that sounds confident?",
+      "googleSlides": {
+        "start": 2,
+        "end": 2
+      },
+      "runbook": {
+        "say": "Your first instinct matters. Vote independently; we'll compare reasons.",
+        "studentDoes": "Vote: what should you do with an AI answer that sounds confident?",
+        "askNext": "Why can sounding logical be misleading?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 6,
+      "type": "vote",
+      "label": "AI IS BIGGER THAN CHATGPT",
+      "key": "ghost_03",
+      "title": "AI IS BIGGER THAN CHATGPT",
+      "lead": "Which category is responsible for recognizing objects?",
+      "choices": [
+        "RECOMMEND",
+        "RECOGNIZE",
+        "GENERATE",
+        "SUPPORT DECISIONS"
+      ],
+      "studentTask": "Which category is responsible for recognizing objects?",
+      "roomInstruction": "Which category is responsible for recognizing objects?",
+      "googleSlides": {
+        "start": 3,
+        "end": 3
+      },
+      "runbook": {
+        "say": "Google Cloud reading recall: recommendation, recognition, generation, or decision support?",
+        "studentDoes": "Which category is responsible for recognizing objects?",
+        "askNext": "Which system spots a stop sign? Which invents a spooky slogan?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 6,
+      "type": "teach",
+      "label": "CONFIDENT ≠ CORRECT",
+      "key": "ghost_04",
+      "title": "CONFIDENT ≠ CORRECT",
+      "lead": "Name one reason a convincing AI answer may still be inaccurate.",
+      "choices": [],
+      "studentTask": "Name one reason a convincing AI answer may still be inaccurate.",
+      "roomInstruction": "Name one reason a convincing AI answer may still be inaccurate.",
+      "googleSlides": {
+        "start": 4,
+        "end": 4
+      },
+      "runbook": {
+        "say": "IBM reading: fluent, authoritative-sounding answers can invent facts. Verify official claims.",
+        "studentDoes": "Name one reason a convincing AI answer may still be inaccurate.",
+        "askNext": "Where should a student verify a course policy?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 4,
+      "type": "prompt",
+      "label": "PREDICT THE VISION MODEL",
+      "key": "ghost_05",
+      "title": "PREDICT THE VISION MODEL",
+      "lead": "Predict one object a camera model might misclassify, and why.",
+      "choices": [],
+      "studentTask": "Predict one object a camera model might misclassify, and why.",
+      "roomInstruction": "Predict one object a camera model might misclassify, and why.",
+      "googleSlides": {
+        "start": 5,
+        "end": 5
+      },
+      "runbook": {
+        "say": "Make a prediction before the camera goes on. What will be hard to recognize?",
+        "studentDoes": "Predict one object a camera model might misclassify, and why.",
+        "askNext": "What could lighting or angle change?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 6,
+      "type": "teach",
+      "label": "AI BLIND SPOT DEMO",
+      "key": "ghost_06",
+      "title": "AI BLIND SPOT DEMO",
+      "lead": "Watch the projected AI Blind Spot demo and note one limitation.",
+      "choices": [],
+      "studentTask": "Watch the projected AI Blind Spot demo and note one limitation.",
+      "roomInstruction": "Watch the projected AI Blind Spot demo and note one limitation.",
+      "googleSlides": {
+        "start": 6,
+        "end": 6
+      },
+      "runbook": {
+        "say": "Watch the actual model predictions. A classification error is not the same as a generative hallucination.",
+        "studentDoes": "Watch the projected AI Blind Spot demo and note one limitation.",
+        "askNext": "What does object recognition leave out?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 12,
+      "type": "prompt",
+      "label": "BREAK THE MACHINE",
+      "key": "ghost_07",
+      "title": "BREAK THE MACHINE",
+      "lead": "With a partner, predict two objects, test them, change one condition, and report what changed.",
+      "choices": [],
+      "studentTask": "With a partner, predict two objects, test them, change one condition, and report what changed.",
+      "roomInstruction": "With a partner, predict two objects, test them, change one condition, and report what changed.",
+      "googleSlides": {
+        "start": 7,
+        "end": 7
+      },
+      "runbook": {
+        "say": "You are testers: vary one condition, observe, and explain. Pair up; don't photograph people or sensitive data.",
+        "studentDoes": "With a partner, predict two objects, test them, change one condition, and report what changed.",
+        "askNext": "Which single condition changed the prediction?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 5,
+      "type": "prompt",
+      "label": "DATA VS CONTEXT",
+      "key": "ghost_08",
+      "title": "DATA VS CONTEXT",
+      "lead": "What did you know about an object that the AI could not infer from its image?",
+      "choices": [],
+      "studentTask": "What did you know about an object that the AI could not infer from its image?",
+      "roomInstruction": "What did you know about an object that the AI could not infer from its image?",
+      "googleSlides": {
+        "start": 8,
+        "end": 8
+      },
+      "runbook": {
+        "say": "The model had pixels and patterns; you knew the object's purpose and context. Share your evidence.",
+        "studentDoes": "What did you know about an object that the AI could not infer from its image?",
+        "askNext": "Why is a technically correct label not full understanding?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 5,
+      "type": "teach",
+      "label": "THE STUDENT AT RISK",
+      "key": "ghost_09",
+      "title": "THE STUDENT AT RISK",
+      "lead": "Read the fictional university risk alert and consider which context is missing.",
+      "choices": [],
+      "studentTask": "Read the fictional university risk alert and consider which context is missing.",
+      "roomInstruction": "Read the fictional university risk alert and consider which context is missing.",
+      "googleSlides": {
+        "start": 9,
+        "end": 9
+      },
+      "runbook": {
+        "say": "This is a fictional student-support model. Low platform logins prompted a high-risk alert; later evidence shows unreliable internet and strong grades.",
+        "studentDoes": "Read the fictional university risk alert and consider which context is missing.",
+        "askNext": "Is login count a reliable indicator of studying?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 8,
+      "type": "vote",
+      "label": "TRUST, TEST, REVISE, REJECT",
+      "key": "ghost_10",
+      "title": "TRUST, TEST, REVISE, REJECT",
+      "lead": "Which should the institution do FIRST with the AI's risk alert? Defend your decision.",
+      "choices": [
+        "TRUST THE ALERT",
+        "TEST ITS EVIDENCE",
+        "REVISE THE SYSTEM",
+        "REJECT THE CURRENT USE"
+      ],
+      "studentTask": "Which should the institution do FIRST with the AI's risk alert? Defend your decision.",
+      "roomInstruction": "Which should the institution do FIRST with the AI's risk alert? Defend your decision.",
+      "googleSlides": {
+        "start": 10,
+        "end": 10
+      },
+      "runbook": {
+        "say": "Choose your starting action and explain missing evidence, possible harm, and human safeguard.",
+        "studentDoes": "Which should the institution do FIRST with the AI's risk alert? Defend your decision.",
+        "askNext": "What would you test before deciding on an intervention?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 10,
+      "type": "prompt",
+      "label": "VIRTUAL VIKINGS",
+      "key": "ghost_11",
+      "title": "VIRTUAL VIKINGS",
+      "lead": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix.",
+      "choices": [],
+      "studentTask": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix.",
+      "roomInstruction": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix.",
+      "googleSlides": {
+        "start": 11,
+        "end": 11
+      },
+      "runbook": {
+        "say": "Informatics includes usability. Test the existing experience and recommend a concrete improvement. If URL fails, evaluate projected screenshots.",
+        "studentDoes": "Try the confirmed Viking experience if available; report one delight, one friction point, and one fix.",
+        "askNext": "Would the experience convince a prospective student?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Move to the next investigation stage."
+      }
+    },
+    {
+      "minutes": 5,
+      "type": "reflection",
+      "label": "THE FINAL VERDICT",
+      "key": "ghost_12",
+      "title": "THE FINAL VERDICT",
+      "lead": "Finish: Before trusting AI to ___, I would check ___.",
+      "choices": [],
+      "studentTask": "Finish: Before trusting AI to ___, I would check ___.",
+      "roomInstruction": "Finish: Before trusting AI to ___, I would check ___.",
+      "googleSlides": {
+        "start": 12,
+        "end": 12
+      },
+      "runbook": {
+        "say": "Return to the opening mystery. Humans question outputs, check evidence, and own consequential decisions.",
+        "studentDoes": "Finish: Before trusting AI to ___, I would check ___.",
+        "askNext": "What important decision should a person always review?",
+        "landHere": "AI literacy connects model capability, context, verification, fairness and human accountability.",
+        "watchFor": "Students treating AI confidence as evidence or assuming model prediction equals understanding.",
+        "ifStuck": "Pair discussion or raise hands; if demo fails use recorded screenshots and continue the investigation.",
+        "advanceWhen": "Most students have finished, or the scheduled segment time has elapsed.",
+        "transition": "Close with the final student reflection."
+      }
+    }
+  ]
+}
