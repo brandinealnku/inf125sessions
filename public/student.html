@@ -141,7 +141,7 @@ async function requestHelp(){
     if(button){button.disabled=false;button.textContent=helpPending?'Cancel request':'✋ Ask for help'}
   }
 }
-function helpBar(){if(instructorPreview)return '<div class="helpBar" role="status"><span>INSTRUCTOR PREVIEW · read-only simulation of the current student stage</span></div>';return '<div class="helpBar" role="region" aria-label="Classroom assistance"><span role="status">'+(helpPending?'Your instructor has been notified.':'Need help with this activity?')+'</span><button type="button" onclick="requestHelp()">'+(helpPending?'Cancel request':'✋ Ask for help')+'</button></div>'}
+function helpBar(){if(instructorPreview)return '<div class="helpBar" role="status"><span>INSTRUCTOR PREVIEW · read-only simulation of the current student stage</span></div>';return '<div class="helpBar" role="region" aria-label="Classroom assistance"><div><span role="status">'+(helpPending?'Your instructor has been notified.':'Need help with this activity?')+'</span><div id="helpError" class="error" role="alert"></div></div><button id="helpButton" type="button" onclick="requestHelp()">'+(helpPending?'Cancel request':'✋ Ask for help')+'</button></div>'}
 function chrome(){
   const s=C.current(),state=C.snapshot.state,step=(state.step||0)+1,total=C.session.steps.length,pct=elapsedPct();
   return helpBar()+'<header class="header"><div><div class="brand">'+C.esc(C.session.course||'INF 125')+'</div><div class="subbrand">'+C.esc(C.session.title)+' · Student view</div></div>'+
