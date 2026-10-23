@@ -90,6 +90,7 @@ html,body{background:var(--canvas);color:var(--ink)}
 .activityLink{margin:12px 0 20px}.activityLink .action{border:2px solid #8DEBFA}.activityLink small{display:block;margin-top:7px;color:#CAD2E6}
 
 .helpBar{position:sticky;bottom:8px;z-index:20;margin:12px 0;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px;background:#141C2C;border:1px solid #65738F;border-radius:14px}.helpBar button{background:#FFE0A1;color:#192033;border:0;border-radius:10px;padding:12px 16px;font-weight:900;min-height:48px;cursor:pointer}.helpBar button:focus-visible{outline:3px solid #7DE8FA;outline-offset:3px}.helpBar span{font-size:14px;color:#E1E7F5}
+.sharedExperience{background:#173044;border:2px solid #80DFF0;border-radius:15px;padding:16px;margin:15px 0;color:#F5FAFF}.sharedExperience h2{margin:5px 0;font-size:21px}.sharedExperience p{margin:6px 0 12px;line-height:1.5}.sharedExperience a{display:inline-block;background:#8DEBFA;color:#0B1522;padding:13px 17px;font-weight:850;border-radius:9px;text-decoration:none}.sharedExperience a:focus-visible{outline:3px solid #FFDB96;outline-offset:3px}
 </style>
 </head>
 <body>
@@ -102,7 +103,7 @@ const C=Classroom;
 const instructorPreview=new URLSearchParams(location.search).get('preview')==='1';
 const app=document.getElementById('app');
 const nameKey='classroomName:'+new URLSearchParams(location.search).get('session');
-let studentName=localStorage.getItem(nameKey)||'',lastKey='',selected=[],stopLivePush=null,submitting=false;
+let studentName=localStorage.getItem(nameKey)||'',lastKey='',selected=[],stopLivePush=null,submitting=false,sharedExperience=null;
 
 function slideNumber(){
   if(!C.session.googleSlides?.deckUrl)return null;
@@ -142,9 +143,11 @@ async function requestHelp(){
   }
 }
 function helpBar(){if(instructorPreview)return '<div class="helpBar" role="status"><span>INSTRUCTOR PREVIEW · read-only simulation of the current student stage</span></div>';return '<div class="helpBar" role="region" aria-label="Classroom assistance"><div><span role="status">'+(helpPending?'Your instructor has been notified.':'Need help with this activity?')+'</span><div id="helpError" class="error" role="alert"></div></div><button id="helpButton" type="button" onclick="requestHelp()">'+(helpPending?'Cancel request':'✋ Ask for help')+'</button></div>'}
+function sharedAppCard(){if(!sharedExperience)return '';const a=sharedExperience;return '<section class="sharedExperience" aria-label="Shared classroom application"><div class="label">INSTRUCTOR SHARED AN APP</div><h2>'+C.esc(a.title||'Classroom experience')+'</h2><p>'+C.esc(a.description||'Open the experience, then come back here.')+'</p><a href="'+C.esc(a.url)+'" target="_blank" rel="noopener noreferrer">Open '+C.esc(a.title||'Experience')+' ↗</a></section>'}
+async function refreshSharedExperience(){try{const next=(await C.api('/shared-app')).app;const signature=x=>x?x.url+'|'+x.title+'|'+x.description:'';if(signature(next)!==signature(sharedExperience)){sharedExperience=next;render(true)}}catch(_){}}
 function chrome(){
   const s=C.current(),state=C.snapshot.state,step=(state.step||0)+1,total=C.session.steps.length,pct=elapsedPct();
-  return helpBar()+'<header class="header"><div><div class="brand">'+C.esc(C.session.course||'INF 125')+'</div><div class="subbrand">'+C.esc(C.session.title)+' · Student view</div></div>'+
+  return helpBar()+sharedAppCard()+'<header class="header"><div><div class="brand">'+C.esc(C.session.course||'INF 125')+'</div><div class="subbrand">'+C.esc(C.session.title)+' · Student view</div></div>'+
     '<div class="meta"><span class="pill"><span class="dot"></span>Live</span><span class="pill">'+C.snapshot.participantCount+' in room</span></div></header>'+
     '<div class="progressWrap"><span class="progressLabel">SESSION</span><div class="progressTrack"><span style="width:'+pct+'%"></span></div><span class="progressCount">Moment '+step+' of '+total+'</span></div>'+
     (C.session.googleSlides?.deckUrl?'<p id="slideStatus" class="slideStatus" role="status">'+(slideNumber()?'Slide '+slideNumber()+(slideCount()?' of '+slideCount():''):'Waiting for the first slide')+'</p>':'');
