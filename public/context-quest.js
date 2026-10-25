@@ -233,9 +233,9 @@ async function refresh(force=false){
    const stageChanged=next?.state?.stage!==snap?.state?.stage||next?.state?.round!==snap?.state?.round;
    snap=next;
    if(force||stageChanged||sig!==lastSig){
-     lastSig=sig;
      syncPresentation();
      if(!force&&!stageChanged&&isEditing())return;
+     lastSig=sig;
      render();
    }
  }catch(e){console.error(e)}

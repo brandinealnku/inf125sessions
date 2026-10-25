@@ -93,9 +93,9 @@ jobs:
           grep -q 'TEST MODE IS ON' /tmp/context-quest-instructor.js
           grep -q 'TURN TEST MODE ON' /tmp/context-quest-instructor.js
           echo "Checking instructor facilitation runtime"
-          grep -q 'FACILITATION GUIDE' /tmp/context-quest-instructor.js
+          grep -q 'PROFESSOR MODE' /tmp/context-quest-instructor.js
           grep -q 'TEST SANDBOX' /tmp/context-quest-instructor.js
-          grep -q 'ADVANCE WHEN' /tmp/context-quest-instructor.js
+          grep -q 'WATCH FOR' /tmp/context-quest-instructor.js
           grep -q 'START HERE · FIRST-TIME GAME MASTER' /tmp/context-quest-instructor.js
           grep -q 'ROOM PROGRESS' /tmp/context-quest-instructor.js
           grep -q 'Winning answer is selected automatically' /tmp/context-quest-instructor.js
