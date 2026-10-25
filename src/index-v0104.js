@@ -243,7 +243,23 @@ export class ClassroomSession extends BaseClassroomSession {
       const state=await cqState(),teams=await cqTeams(),players=await cqPlayers();
       const rows=Object.values(teams).map(t=>cqHydrate(t,players,state)).sort((a,b)=>(b.position||0)-(a.position||0)||(b.totalPoints||0)-(a.totalPoints||0)||String(a.name).localeCompare(String(b.name)));
       const playerRows=Object.values(players).map(cqPublicPlayer);
-      return json({state,teams:rows,players:playerRows,charms:cqCharms,joined:playerRows.length,playing:playerRows.filter(p=>p.mode==='play').length,watching:playerRows.filter(p=>p.mode==='watch').length,generatedAt:Date.now()});
+      return json({state,presentation:(await this.state.storage.get('cqPresentation'))||{attention:'auto',spotlight:null},teams:rows,players:playerRows,charms:cqCharms,joined:playerRows.length,playing:playerRows.filter(p=>p.mode==='play').length,watching:playerRows.filter(p=>p.mode==='watch').length,generatedAt:Date.now()});
+    }
+    // Presentation is separate from game state: showing a submission never selects it or awards points.
+    if(url.pathname.endsWith('/cq/presentation')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),current=(await this.state.storage.get('cqPresentation'))||{attention:'auto',spotlight:null};
+      if(b.action==='attention'){
+        if(!['auto','up','team','device'].includes(b.mode))return json({error:'Choose auto, up, team, or device'},400);
+        current.attention=b.mode;
+      }else if(b.action==='clear')current.spotlight=null;
+      else if(b.action==='spotlight'){
+        const state=await cqState(),teams=await cqTeams(),team=teams[short(b.teamId,80)],field=b.field;
+        if(!team||!['build','repair'].includes(field))return json({error:'Choose a team answer or repair'},400);
+        const key=cqRoundKey(state.round,String(state.stage).startsWith('final')),r=team.rounds?.[key],proposal=r?.[field+'Proposals']?.[short(b.proposalId,150)];
+        if(!proposal||!proposal.text)return json({error:'That submission is no longer available in this case. Choose another.'},404);
+        current.spotlight={teamId:team.id,teamName:team.name,field,text:short(proposal.text,5000),focus:b.focus==='revise'?'revise':'strength',round:key,at:Date.now()};
+      }else return json({error:'Unknown presentation action'},400);
+      current.updatedAt=Date.now();await this.state.storage.put('cqPresentation',current);return json({ok:true,presentation:current});
     }
     if(url.pathname.endsWith('/cq/join')&&method==='POST'){
       const b=await request.json().catch(()=>({}));if(!b.playerId)return json({error:'playerId is required'},400);
@@ -539,11 +555,13 @@ export class ClassroomSession extends BaseClassroomSession {
         }
       }
 
+      if(next.stage!==current.stage||next.round!==current.round)await this.state.storage.delete('cqPresentation');
       await this.state.storage.put('cqTeams',teams);await this.state.storage.put('cqState',next);return json(next);
     }
     if(url.pathname.endsWith('/cq/bonus')&&method==='POST'){
       const b=await request.json().catch(()=>({})),teams=await cqTeams(),id=short(b.teamId,80),team=teams[id];if(!team)return json({error:'Team not found'},404);
       const delta=Math.max(-1,Math.min(1,Number(b.delta)||0)),label=short(b.label||'',80),now=Date.now();
+      if(delta<0&&(Number(team.bonus)||0)<=0)return json({error:'No bonus points to undo. Case points are protected.'},409);
       team.position=Math.max(0,(Number(team.position)||0)+delta);team.totalPoints=Math.max(0,(Number(team.totalPoints)||0)+delta);team.bonus=(Number(team.bonus)||0)+delta;
       team.awards=Array.isArray(team.awards)?team.awards:[];
       if(delta>0&&label)team.awards.push({label,at:now,round:(await cqState()).round});
@@ -551,7 +569,7 @@ export class ClassroomSession extends BaseClassroomSession {
       teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team});
     }
     if(url.pathname.endsWith('/cq/reset')&&method==='POST'){
-      await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');await this.state.storage.delete('cqPlayers');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
+      await this.state.storage.delete('cqPresentation');await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');await this.state.storage.delete('cqPlayers');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
     }
     if(url.pathname.endsWith('/research/pulse')&&method==='POST'){
       const b=await request.json().catch(()=>({}));

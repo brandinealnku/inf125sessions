@@ -1,0 +1,29 @@
+// Shared, display-only facilitation cues. Gameplay and readiness remain unchanged.
+(function(){
+ const escape=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+ function cue(snapshot,player=null,team=null){
+  const s=snapshot?.state?.stage,p=snapshot?.presentation||{},mode=p.attention||'auto';
+  if(mode==='up'||p.spotlight)return {kind:'up',title:'LOOK UP · CLASS DISCUSSION',text:'Give the Game Master and projected board your attention. Be ready to explain your reasoning. Your work is saved; this cue does not lock submissions.'};
+  if(mode==='team')return {kind:'team',title:'LOOK TO YOUR TEAM · TALK FIRST',text:'Share your evidence and hear each perspective before choosing an answer. Keep personal information private.'};
+  if(mode==='device')return {kind:'device',title:'LOOK AT YOUR DEVICE · CHECK YOUR NEXT ACTION',text:'Follow YOUR NEXT on your screen. Submit, vote, test, or check evidence as directed; if you have finished, help your team.'};
+  if(player?.mode==='watch')return {kind:'up',title:'LOOK UP · OBSERVE THE INVESTIGATION',text:'Follow the projected board and listen to the discussion. Observers do not need to submit or vote.'};
+  if(['reveal','final-reveal','complete'].includes(s))return {kind:'up',title:'LOOK UP · DISCUSS THE EVIDENCE',text:'Compare what changed, explain what you would verify, and listen to other teams. No submission is needed right now.'};
+  if(!s||s==='lobby')return {kind:'device',title:'LOOK AT YOUR DEVICE · GET READY',text:snapshot?.state?.teamsFormed?'Meet your team and choose your team name and Halloween charm.':'Join as an investigator or observer, then wait for the Game Master to form teams.'};
+  if(s==='tutorial')return player?.tutorialDone?{kind:'up',title:'LOOK UP · TRAINING COMPLETE',text:'You are ready. Listen for the Game Master to start the first case.'}:{kind:'device',title:'LOOK AT YOUR DEVICE · INVESTIGATOR TRAINING',text:'Follow the training steps. Try the sample response if you cannot access ChatGPT.'};
+  const final=String(s).startsWith('final'),r=team?.rounds?.[final?'final':String(snapshot?.state?.round||0)]||{},id=player?.id,phase=team?.progressPhase;
+  if(id&&r.excused?.[id])return {kind:'up',title:'LOOK UP · FOLLOW THE CLASS DISCUSSION',text:'You are excused from this case’s required actions. You can still discuss the evidence with your team.'};
+  if(['ready-twist','ready-reveal'].includes(phase))return {kind:'up',title:'LOOK UP · YOUR TEAM IS READY',text:'No more clicks needed. Listen for the Game Master’s reveal and be ready to explain your team’s reasoning.'};
+  const build=['build','final-build','test','final-test'].includes(s),repair=['twist','final-twist','check','final-check'].includes(s);
+  if(build&&(phase==='test'||s==='test'||s==='final-test'))return id&&r.tested?.[id]?{kind:'team',title:'LOOK TO YOUR TEAM · COMPARE RESULTS',text:'Your response review is recorded. Discuss assumptions and evidence while teammates finish.'}:{kind:'device',title:'LOOK AT YOUR DEVICE · REVIEW THE AI RESPONSE',text:'Use the selected prompt in ChatGPT, review a teammate’s result, or open the sample. Then record that you reviewed it.'};
+  if(repair&&(phase==='check'||s==='check'||s==='final-check'))return id&&r.checkBallots?.[id]?{kind:'team',title:'LOOK TO YOUR TEAM · EXPLAIN YOUR CHECK',text:'Your evidence check is recorded. Discuss why you trusted or questioned the response while teammates finish.'}:{kind:'device',title:'LOOK AT YOUR DEVICE · EVIDENCE CHECK',text:'Judge the response against the checks on your screen. Record your own judgment and be ready to explain it.'};
+  if(build||repair){const field=build?'build':'repair',hasAnswers=Object.keys(r[field+'Proposals']||{}).length>0;
+   if(id&&!r[field+'Votes']?.[id]&&hasAnswers)return {kind:'device',title:r[field+'Tie']?'LOOK AT YOUR DEVICE · RESOLVE THE TIE':'LOOK AT YOUR DEVICE · YOUR VOTE IS NEEDED',text:'Read the team’s options, discuss your reasoning, and cast your own vote. Change a vote if needed to resolve a tie.'};
+   if(r[field+'Tie'])return {kind:'team',title:'LOOK TO YOUR TEAM · RESOLVE THE TIE',text:'Discuss the tied options. Someone must change a vote before the team can continue.'};
+   return {kind:'team',title:'LOOK TO YOUR TEAM · INVESTIGATE TOGETHER',text:hasAnswers?'Your vote is recorded. Help teammates compare the options while the team finishes voting.':'Share clues and discuss the task. Then use your device to submit an answer for your team to consider.'};
+  }
+  return {kind:'up',title:'LOOK UP · FOLLOW THE GAME MASTER',text:'Listen for the next instruction and watch the projected board.'};
+ }
+ function banner(snapshot,player,team){const c=cue(snapshot,player,team);return `<section class="attentionCue attention-${c.kind}" role="status" aria-live="polite" aria-atomic="true"><div class="attentionIcon" aria-hidden="true">${c.kind==='up'?'👀':c.kind==='team'?'💬':'📱'}</div><div><strong>${escape(c.title)}</strong><p>${escape(c.text)}</p></div></section>`;}
+ function spotlight(snapshot){const p=snapshot?.presentation?.spotlight;if(!p)return '';return `<section class="panel spotlightCard"><div class="label">🔦 CLASS DISCUSSION · ${p.focus==='revise'?'WHAT COULD WE IMPROVE?':'WHAT WORKS WELL?'}</div><h2>${escape(p.teamName)} · ${p.field==='repair'?'Repair':'Original answer'}</h2><blockquote>${escape(p.text)}</blockquote><p class="spotlightQuestion">${p.focus==='revise'?'Which assumptions, missing perspectives, or unsupported claims could cause harm? How would you improve this?':'What makes this useful for the audience? Which specific choices should we reuse?'}</p><p>Discuss the work and the reasoning; avoid personal judgments about its author.</p></section>`;}
+ window.CQ_FACILITATION={cue,banner,spotlight};
+})();

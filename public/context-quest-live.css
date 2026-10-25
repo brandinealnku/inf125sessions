@@ -280,3 +280,9 @@ body{overflow-x:hidden}
  .professorCue p{font-size:15px}
  .researchSource{white-space:normal}
 }
+
+/* Display-only attention cues and instructor-led submission discussions. */
+.attentionCue{display:flex;align-items:flex-start;gap:14px;margin:14px 0 20px;padding:18px 22px;border:3px solid var(--ink,#171421);border-radius:20px;background:#d8ed82;color:#171421;box-shadow:0 4px 0 #171421}
+.attentionCue strong{display:block;font-size:clamp(17px,2.1vw,24px);line-height:1.25}.attentionCue p{font-size:16px;line-height:1.45;margin:6px 0 0}.attentionIcon{font-size:30px;flex:0 0 36px}.attention-team{background:#bcece5}.attention-device{background:#ffe0aa}
+.spotlightCard{border:4px solid #a8cd49;background:#fff9e9}.spotlightCard h2{font-size:clamp(20px,3vw,32px)}.spotlightCard blockquote{margin:16px 0;padding:18px;border-left:6px solid #7352b4;background:#fff;font-size:clamp(18px,2.3vw,28px);line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.spotlightQuestion{font-weight:800}.teachingTools .field{width:100%;max-width:100%;min-height:48px}.awardTeams{display:grid;gap:12px;margin-top:12px}.awardTeam{padding:14px;border:2px solid #171421;border-radius:14px;background:#fff9e9}.awardTeam .btn{font-size:14px;min-height:44px}.teachingTools .label{margin-top:18px}.attentionCue :focus-visible,.teachingTools :focus-visible{outline:4px solid #171421;outline-offset:4px}
+@media(max-width:600px){.attentionCue{padding:14px;gap:9px}.attentionIcon{font-size:25px;flex-basis:28px}.attentionCue p{font-size:15px}.awardTeam .actions{display:grid;grid-template-columns:1fr 1fr}.spotlightCard blockquote{padding:12px}}

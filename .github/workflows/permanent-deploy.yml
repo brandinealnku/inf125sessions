@@ -35,6 +35,7 @@ jobs:
           node --check public/context-quest-board.js
           node --check public/context-quest-test.js
           node --check public/context-quest-data.js
+          node --check public/context-quest-facilitation.js
       - name: Verify Haunted AI Lab QA regressions
         run: node tests/haunted-qa-regression.mjs
       - name: Deploy Worker to Cloudflare account

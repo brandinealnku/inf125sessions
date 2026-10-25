@@ -52,7 +52,7 @@ function studentGuide(){
  <div><b>WIN THE RIGHT WAY</b><p>Points reward good context, recovery, and evidence—not fancy wording.</p></div>
  </div></details>`;
 }
-function mast(body){const t=team(),p=me(),teamStatus=progressLabel(),mine=personalActionLabel();return `<header class="mast hauntedMast"><div><div class="logo">THE HAUNTED <span>AI LAB</span></div><div class="tiny">🎃 THE HAUNTED AI LAB · YOUR DEVICE = YOUR CONTROLLER</div></div>${p?`<div style="display:flex;gap:7px;flex-wrap:wrap"><span class="teamchip">${esc(p.name)}</span>${t?`<span class="teamchip"><span class="dot" style="background:${t.color}"></span>${esc(t.charm||"👻")} ${esc(t.name)}</span>`:""}${role()?`<span class="teamchip">🔦 ${esc(role())}</span>`:""}${teamStatus?`<span class="teamchip statusChip">TEAM: ${esc(teamStatus)}</span>`:""}${mine?`<span class="teamchip nextChip">YOUR NEXT: ${esc(mine)}</span>`:""}</div>`:""}</header>${studentGuide()}${body}<div class="footer">FIND THE CONTEXT · SUBMIT ONE · VOTE · TEST · SURVIVE THE HAUNTING · VERIFY</div>`}
+function mast(body){const t=team(),p=me(),teamStatus=progressLabel(),mine=personalActionLabel();return `<header class="mast hauntedMast"><div><div class="logo">THE HAUNTED <span>AI LAB</span></div><div class="tiny">🎃 THE HAUNTED AI LAB · YOUR DEVICE = YOUR CONTROLLER</div></div>${p?`<div style="display:flex;gap:7px;flex-wrap:wrap"><span class="teamchip">${esc(p.name)}</span>${t?`<span class="teamchip"><span class="dot" style="background:${t.color}"></span>${esc(t.charm||"👻")} ${esc(t.name)}</span>`:""}${role()?`<span class="teamchip">🔦 ${esc(role())}</span>`:""}${teamStatus?`<span class="teamchip statusChip">TEAM: ${esc(teamStatus)}</span>`:""}${mine?`<span class="teamchip nextChip">YOUR NEXT: ${esc(mine)}</span>`:""}</div>`:""}</header>${presentationRegion()}${studentGuide()}${body}<div class="footer">FIND THE CONTEXT · SUBMIT ONE · VOTE · TEST · SURVIVE THE HAUNTING · VERIFY</div>`}
 function joinScreen(){$("#app").innerHTML=mast(`<section class="panel hero hauntedHero"><div class="tiny">👻 LIVE CLASSROOM AI MYSTERY</div><h1>THE AI LAB<br>IS HAUNTED.</h1><p>Something is wrong in the AI Lab. Confident answers hide missing context, unsupported claims, and unfair assumptions. Join an investigation team, find the clues, test the AI, and stop bad answers before they cause chaos.</p><div class="caseTag">FIRST-YEAR AI INTRO · HALLOWEEN EDITION</div></section><section class="panel"><div class="label">INVESTIGATOR NAME OR NICKNAME</div><input id="playerName" class="field" maxlength="50" placeholder="e.g. Brandi" value="${esc(local.name)}"><div class="label" style="margin-top:16px">ENTER THE LAB</div><div class="actions"><button class="btn purple" onclick="joinGame('play')">🔦 INVESTIGATE</button><button class="btn soft" onclick="joinGame('watch')">👀 OBSERVE</button></div><p><b>INVESTIGATE</b> puts you on a team. <b>OBSERVE</b> lets faculty, staff, and visitors watch without affecting the competition.</p></section>`)}
 async function joinGame(mode){const name=$("#playerName").value.trim();if(!name)return toast("Add your name or nickname.");local.name=name;local.mode=mode;save();await req("/join",{method:"POST",body:JSON.stringify({playerId:local.playerId,name,mode})});await refresh(true)}
 function teamLobby(){
@@ -234,6 +234,7 @@ async function refresh(force=false){
    snap=next;
    if(force||stageChanged||sig!==lastSig){
      lastSig=sig;
+     syncPresentation();
      if(!force&&!stageChanged&&isEditing())return;
      render();
    }
@@ -257,3 +258,5 @@ async function boot(){
  poller=setInterval(refresh,900);setInterval(heartbeat,15000);
 }
 boot();
+function presentationRegion(){return `<div id="classroomAttention">${CQ_FACILITATION.banner(snap,me(),team())}${CQ_FACILITATION.spotlight(snap)}</div>`;}
+function syncPresentation(){const el=document.getElementById('classroomAttention');if(!el)return;const html=CQ_FACILITATION.banner(snap,me(),team())+CQ_FACILITATION.spotlight(snap);if(el.innerHTML!==html)el.innerHTML=html;}
