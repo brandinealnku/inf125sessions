@@ -656,6 +656,12 @@ function addBefore(html, marker, value) { return html.includes(value.match(/(?:h
 export default {
   async fetch(request, env) {
     const url = new URL(request.url); const path = url.pathname.replace(/\/+$/, '') || '/';
+    // Short student-friendly URL for the INF 128 Ghost in the Machine session.
+    if (path === '/join') {
+      const target = new URL('/student', url.origin);
+      target.searchParams.set('session','ghost-in-the-machine-inf128-20261026');
+      return Response.redirect(target.toString(),302);
+    }
     if (path === '/rehearsal') { const u = new URL('/rehearsal-v01019.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/powerpoint-overlay') { const u = new URL('/powerpoint-overlay.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/powerpoint-live') { const u = new URL('/powerpoint-live.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
