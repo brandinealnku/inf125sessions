@@ -6,6 +6,25 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    // Instructor roster management for the current classroom session.
+    if(url.pathname.endsWith('/roster')){
+      const participants=(await this.state.storage.get('participants'))||{};
+      if(method==='GET'){
+        const cutoff=Date.now()-120000;
+        const answers=(await this.state.storage.get('answers'))||{};
+        const rows=Object.values(participants).map(p=>({device:p.device,name:p.name||'Anonymous',active:Number(p.lastSeen||0)>=cutoff,joinedAt:p.joinedAt||null,lastSeen:p.lastSeen||null,responseCount:Object.values(answers).filter(group=>!!group?.[p.device]).length})).sort((a,b)=>Number(b.active)-Number(a.active)||String(a.name).localeCompare(String(b.name)));
+        return json({rows,activeCount:rows.filter(x=>x.active).length});
+      }
+      if(method==='POST'){
+        const body=await request.json().catch(()=>({}));
+        if(body.action!=='remove'||!body.device)return json({error:'Invalid roster action'},400);
+        const device=String(body.device).slice(0,150);
+        if(!participants[device])return json({error:'Participant not found'},404);
+        delete participants[device];await this.state.storage.put('participants',participants);
+        const help=(await this.state.storage.get('helpRequests'))||{};delete help[device];await this.state.storage.put('helpRequests',help);
+        return json({ok:true,removed:device,answersPreserved:true});
+      }
+    }
     // Instructor-controlled, session-scoped join screen.
     if(url.pathname.endsWith('/join-screen')){
       if(method==='GET')return json({visible:!!(await this.state.storage.get('joinScreenVisible'))});
