@@ -3,9 +3,10 @@
  const escape=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  function cue(snapshot,player=null,team=null){
   const s=snapshot?.state?.stage,p=snapshot?.presentation||{},mode=p.attention||'auto';
-  if(mode==='up'||p.spotlight)return {kind:'up',title:'LOOK UP · CLASS DISCUSSION',text:'Give the Game Master and projected board your attention. Be ready to explain your reasoning. Your work is saved; this cue does not lock submissions.'};
+  if(mode==='up'||p.spotlight)return {kind:'up',title:'LOOK UP · CLASS DISCUSSION',text:'Give the Game Master and projected board your attention. Be ready to explain your reasoning. Leave your draft open while the class discusses.'};
   if(mode==='team')return {kind:'team',title:'LOOK TO YOUR TEAM · TALK FIRST',text:'Share your evidence and hear each perspective before choosing an answer. Keep personal information private.'};
   if(mode==='device')return {kind:'device',title:'LOOK AT YOUR DEVICE · CHECK YOUR NEXT ACTION',text:'Follow YOUR NEXT on your screen. Submit, vote, test, or check evidence as directed; if you have finished, help your team.'};
+  if(player?.mode==='play'&&snapshot?.state?.teamsFormed&&!team)return {kind:'device',title:s==='lobby'?'CHOOSE YOUR PHYSICAL TABLE':'ASK THE GAME MASTER FOR A TEAM',text:s==='lobby'?'Join the table where you are sitting. Check the names so you can talk face to face.':'The Game Master can place you with a table for the next case.'};
   if(player?.mode==='watch')return {kind:'up',title:'LOOK UP · OBSERVE THE INVESTIGATION',text:'Follow the projected board and listen to the discussion. Observers do not need to submit or vote.'};
   if(['reveal','final-reveal','complete'].includes(s))return {kind:'up',title:'LOOK UP · DISCUSS THE EVIDENCE',text:'Compare what changed, explain what you would verify, and listen to other teams. No submission is needed right now.'};
   if(!s||s==='lobby')return {kind:'device',title:'LOOK AT YOUR DEVICE · GET READY',text:snapshot?.state?.teamsFormed?'Meet your team and choose your team name and Halloween charm.':'Join as an investigator or observer, then wait for the Game Master to form teams.'};

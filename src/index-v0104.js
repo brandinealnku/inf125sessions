@@ -161,9 +161,23 @@ export class ClassroomSession extends BaseClassroomSession {
       }
       return 'ENTER_LAB';
     };
+    const cqActivity=(player,team,state)=>{
+      const stage=state.stage,key=cqRoundKey(state.round,String(stage).startsWith('final')),r=team.rounds?.[key]||{},id=player.id;
+      if(stage==='lobby')return 'At your table';
+      if(r.excused?.[id])return 'Excused this case';
+      if(stage==='tutorial')return player.tutorialDone?'Training complete':'Needs training';
+      if(['complete','reveal','final-reveal'].includes(stage))return 'Class discussion';
+      const phase=cqTeamPhase(team,key,state),field=stage.includes('twist')?'repair':'build';
+      if(phase==='ready-twist'||phase==='ready-reveal')return 'Ready';
+      if(phase==='test')return r.tested?.[id]?'Reviewed · waiting':'Needs response review';
+      if(phase==='check')return r.checkBallots?.[id]?'Checked · waiting':'Needs evidence check';
+      if(r[field+'Tie'])return 'Resolve tied vote';
+      if(!Object.keys(r[field+'Proposals']||{}).length)return field==='repair'?'Discuss + propose repair':'Discuss + propose answer';
+      return r[field+'Votes']?.[id]?'Voted · waiting':'Needs to vote';
+    };
     const cqHydrate=(team,players,state)=>({
       ...team,
-      members:(team.members||[]).map(id=>cqPublicPlayer(players[id]||{id,name:'Player',mode:'play'})),
+      members:(team.members||[]).map(id=>{const p=players[id]||{id,name:'Player',mode:'play'};return {...cqPublicPlayer(p),activity:cqActivity(p,team,state)};}),
       roles:Object.fromEntries((team.members||[]).map(id=>[id,cqRole(team,id,state.round)])),
       progressPhase:cqTeamPhase(team,cqRoundKey(state.round,String(state.stage).startsWith('final')),state),
       progressKey:cqProgressKey(team,state),
@@ -203,6 +217,7 @@ export class ClassroomSession extends BaseClassroomSession {
     const cqTeamPhase=(team,key,state)=>{
       const r=team.rounds?.[key]||{},members=cqRequiredMembers(team,key),all=(obj)=>members.length>0&&members.every(id=>!!obj?.[id]);
       if(state.stage==='reveal'||state.stage==='final-reveal')return 'revealed';
+      if(!members.length&&(team.members||[]).length)return ['build','final-build'].includes(state.stage)?'ready-twist':['twist','final-twist'].includes(state.stage)?'ready-reveal':'waiting';
       if(state.stage==='twist'||state.stage==='final-twist'){
         if(all(r.checkBallots))return 'ready-reveal';
         if(r.repair)return 'check';
@@ -285,7 +300,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const players=await cqPlayers(),id=short(b.playerId,100),now=Date.now(),existing=players[id]||{},mode=b.mode==='watch'?'watch':'play';
       players[id]={...existing,id,name:short(b.name||existing.name||'Player',50),mode,teamId:mode==='watch'?null:(existing.teamId||null),joinedAt:existing.joinedAt||now,lastSeen:now};
       const state=await cqState(),teams=await cqTeams();
-      if(mode==='play'&&state.teamsFormed&&!players[id].teamId&&Object.keys(teams).length){
+      if(mode==='play'&&state.teamAssignment!=='tables'&&state.teamsFormed&&!players[id].teamId&&Object.keys(teams).length){
         const smallest=Object.values(teams).sort((a,b)=>(a.members?.length||0)-(b.members?.length||0))[0];
         smallest.members=smallest.members||[];smallest.members.push(id);players[id].teamId=smallest.id;teams[smallest.id]=smallest;await this.state.storage.put('cqTeams',teams);
       }
@@ -307,7 +322,7 @@ export class ClassroomSession extends BaseClassroomSession {
           const id='test-player-'+String(i+1);
           const prev=players[id]||{};
           const player={id,name:names[i%names.length]+' '+String(Math.floor(i/names.length)+1),mode:'play',isTest:true,teamId:prev.teamId||null,tutorialDone:state.stage!=='lobby',joinedAt:prev.joinedAt||now+i,lastSeen:now};
-          if(state.teamsFormed&&!player.teamId&&Object.keys(teams).length){
+          if(state.teamAssignment!=='tables'&&state.teamsFormed&&!player.teamId&&Object.keys(teams).length){
             const list=Object.values(teams).sort((x,y)=>(x.members?.length||0)-(y.members?.length||0));
             const smallest=list[0];
             if(smallest){
@@ -394,14 +409,36 @@ export class ClassroomSession extends BaseClassroomSession {
       return json({ok:true,stage:state.stage,simulated:testPlayers.length});
     }
     if(url.pathname.endsWith('/cq/form-teams')&&method==='POST'){
-      const b=await request.json().catch(()=>({})),players=await cqPlayers(),play=Object.values(players).filter(p=>p.mode==='play');
-      if(play.length<2)return json({error:'At least 2 players are needed to form teams'},400);
-      const target=Math.max(2,Math.min(6,Number(b.teamSize)||5)),teamCount=Math.max(2,Math.ceil(play.length/target)),teams={};
-      for(let i=0;i<teamCount;i++){const id='team-'+(i+1);teams[id]={id,name:cqTeamNames[i%cqTeamNames.length],color:cqPalette[i%cqPalette.length],charm:null,customized:false,position:0,totalPoints:0,bonus:0,rounds:{},members:[],stakeholder:['STUDENT','ACADEMIC ADVISOR','PROFESSOR','UNIVERSITY','PARENT','ACCESSIBILITY OFFICE'][i%6]};}
-      play.sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)).forEach((p,i)=>{const id='team-'+((i%teamCount)+1);teams[id].members.push(p.id);players[p.id].teamId=id;});
+      const b=await request.json().catch(()=>({})),players=await cqPlayers(),play=Object.values(players).filter(p=>p.mode==='play'),current=await cqState();
+      if(current.stage!=='lobby')return json({error:'Teams are locked during play. Use Reset only for a new class.'},409);
+      const tables=b.assignment==='tables',target=Math.max(2,Math.min(6,parseInt(b.teamSize,10)||5));
+      if(!tables&&play.length<2)return json({error:'At least 2 players are needed to form teams'},400);
+      const teamCount=tables?Math.max(1,Math.min(12,parseInt(b.tableCount,10)||Math.ceil(play.length/target)||1)):Math.max(2,Math.ceil(play.length/target)),teams={};
+      for(const p of Object.values(players))p.teamId=null;
+      for(let i=0;i<teamCount;i++){const id='team-'+(i+1);teams[id]={id,name:cqTeamNames[i%cqTeamNames.length],tableNumber:tables?i+1:null,capacity:tables?target:null,color:cqPalette[i%cqPalette.length],charm:tables?cqCharms[i%cqCharms.length]:null,customized:tables,position:0,totalPoints:0,bonus:0,rounds:{},members:[],stakeholder:['STUDENT','ACADEMIC ADVISOR','PROFESSOR','UNIVERSITY','PARENT','ACCESSIBILITY OFFICE'][i%6]};}
+      if(!tables)play.sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)).forEach((p,i)=>{const id='team-'+((i%teamCount)+1);teams[id].members.push(p.id);players[p.id].teamId=id;});
       await this.state.storage.put('cqPlayers',players);await this.state.storage.put('cqTeams',teams);
-      const state={...(await cqState()),teamsFormed:true,updatedAt:Date.now()};await this.state.storage.put('cqState',state);
+      const state={...current,teamsFormed:true,teamAssignment:tables?'tables':'balanced',teamSize:target,updatedAt:Date.now()};await this.state.storage.put('cqState',state);
       return json({ok:true,state,teams:Object.values(teams).map(t=>cqHydrate(t,players,state))});
+    }
+    if((url.pathname.endsWith('/cq/choose-team')||url.pathname.endsWith('/cq/assign-player'))&&method==='POST'){
+      const b=await request.json().catch(()=>({})),instructor=url.pathname.endsWith('/cq/assign-player');
+      // Check capacity and membership together so two simultaneous joins cannot take one spot.
+      return this.state.storage.transaction(async storage=>{
+        const state=(await storage.get('cqState'))||cqInitial(),players=(await storage.get('cqPlayers'))||{},teams=(await storage.get('cqTeams'))||{},id=short(b.playerId,100),player=players[id],target=teams[short(b.teamId,80)];
+        if(!state.teamsFormed||!target)return json({error:'Choose an available table.'},404);
+        if(!player||player.mode!=='play')return json({error:'Only investigators can join a team.'},403);
+        if(!instructor&&state.teamAssignment!=='tables')return json({error:'The Game Master assigns teams in this room.'},409);
+        if(state.stage!=='lobby'&&(!instructor||player.teamId))return json({error:'Teams are locked during play. Ask the Game Master to place a late arrival.'},409);
+        if(player.teamId===target.id)return json({ok:true,player:cqPublicPlayer(player)});
+        if(target.capacity&&(target.members||[]).length>=target.capacity)return json({error:'That table is full. Choose another or ask the Game Master.'},409);
+        for(const team of Object.values(teams))team.members=(team.members||[]).filter(mid=>mid!==id);
+        target.members=target.members||[];target.members.push(id);player.teamId=target.id;
+        if(state.stage!=='lobby'){
+          const key=cqRoundKey(state.round,String(state.stage).startsWith('final'));target.rounds=target.rounds||{};target.rounds[key]=target.rounds[key]||{};target.rounds[key].excused={...target.rounds[key].excused,[id]:true};
+        }
+        await storage.put('cqPlayers',players);await storage.put('cqTeams',teams);return json({ok:true,player:cqPublicPlayer(player),team:cqHydrate(target,players,state)});
+      });
     }
     if(url.pathname.endsWith('/cq/team-customize')&&method==='POST'){
       const b=await request.json().catch(()=>({})),players=await cqPlayers(),teams=await cqTeams(),player=players[short(b.playerId,100)];
@@ -525,15 +562,20 @@ export class ClassroomSession extends BaseClassroomSession {
       if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
 
       if(oldStage==='lobby'&&next.stage==='tutorial'){
-        const unfinished=Object.values(teams).filter(t=>!t.customized);
+        const populated=Object.values(teams).filter(t=>(t.members||[]).length);
+        if(!populated.length)return json({error:'Assign at least one investigator to a team before starting.'},409);
+        const unassigned=Object.values(await cqPlayers()).filter(p=>p.mode==='play'&&!p.teamId);
+        if(unassigned.length&&!force)return json({error:`${unassigned.length} investigators still need a table. Assign them or use Advance Anyway.`},409);
+        const unfinished=populated.filter(t=>!t.customized);
         if(unfinished.length&&current.testMode){
           const used=new Set(Object.values(teams).map(t=>t.charm).filter(Boolean));
           for(const t of unfinished){t.charm=t.charm||cqCharms.find(ch=>!used.has(ch))||'🎲';used.add(t.charm);t.customized=true;t.customizedAt=Date.now();t.customizedBy='test-mode';}
-        }else if(unfinished.length)return json({error:`Waiting for ${unfinished.map(t=>t.name).join(', ')} to choose a team name and charm.`},409);
+        }else if(unfinished.length&&!force)return json({error:`Waiting for ${unfinished.map(t=>t.name).join(', ')} to choose a team name and charm.`},409);
       }
 
+      if(oldStage==='tutorial'&&next.stage==='build'&&!force&&!current.testMode){const missing=Object.values(await cqPlayers()).filter(p=>p.mode==='play'&&p.teamId&&!p.tutorialDone);if(missing.length)return json({error:`Waiting for ${missing.map(p=>p.name).join(', ')} to finish training.`},409);}
       const oldFinal=String(oldStage).startsWith('final'),oldKey=cqRoundKey(current.round,oldFinal);
-      const teamList=Object.values(teams);
+      const teamList=Object.values(teams).filter(t=>(t.members||[]).length);
 
       if((oldStage==='tutorial'&&next.stage==='build')||(oldStage==='reveal'&&next.stage==='build')||(oldStage==='reveal'&&next.stage==='final-build')){
         const key=cqRoundKey(next.round,String(next.stage).startsWith('final'));

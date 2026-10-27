@@ -33,7 +33,7 @@ function mast(body){return `<header class="mast"><div><div class="logo">THE HAUN
 function phaseData(){
  const s=snap.state.stage,r=D.rounds[snap.state.round];let title=D.stages[s]||s,sub="";
  if(["build","test","twist","check","reveal"].includes(s)){title=`CASE ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?"Investigation teams are finding clues, voting, and testing.":s==="test"?"Teams are in the Test Chamber.":s==="twist"?"👻 THE HAUNTING: "+r.twist:s==="check"?"EVIDENCE CHECK: audience · goal · constraints · evidence":s==="reveal"?"🔮 EVIDENCE + SCORE REVEAL!":""}
- if(s==="lobby"){title=snap.state.teamsFormed?"ASSEMBLE YOUR INVESTIGATION TEAM":"ENTER THE HAUNTED AI LAB";sub=snap.state.teamsFormed?"Choose your team name + Halloween charm on your device.":"classroom.itsbadlabs.com/context-quest · choose INVESTIGATE or OBSERVE"}
+ if(s==="lobby"){title=snap.state.teamsFormed?"ASSEMBLE YOUR INVESTIGATION TEAM":"ENTER THE HAUNTED AI LAB";sub=snap.state.teamsFormed?"Join your physical table on your device, then check the names below.":"classroom.itsbadlabs.com/context-quest · choose INVESTIGATE or OBSERVE"}
  if(s==="tutorial"){title="🔦 INVESTIGATOR TRAINING";sub="Learn the AI context loop by solving the first mini-case."}
  if(s==="final-build"){title="👾 THE CURSE OF THE CONFIDENT AI";sub="Use every clue: WHO · GOAL · SITUATION · CONSTRAINTS · OUTPUT · CHECK"}
  if(s==="final-test"){title="FINAL TEST";sub="Run the team-selected design."}
@@ -44,12 +44,12 @@ function phaseData(){
  return {title,sub}
 }
 function centerPanel(){
- const {title,sub}=phaseData(),teams=[...(snap.teams||[])].sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
+ const {title,sub}=phaseData(),teams=[...(snap.teams||[])].filter(t=>(t.members||[]).length).sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
  const chips=teams.map((t,i)=>`<div class="boardCenterTeam"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><span><b>#${i+1} ${esc(t.name)}</b><small>SCORE ${t.totalPoints||0} · SPACE ${shownPosition(t)}${shownPosition(t)!==targetPosition(t)?` → ${targetPosition(t)}`:""} · ${esc(D.progressLabels?.[t.progressKey]||String(t.progressKey||"WAITING").replaceAll("_"," "))}${(t.awards||[]).length?` · 🏅 ${t.awards.length}`:""}</small></span></div>`).join("");
  return `<div class="boardCenter"><div class="tiny">THE HAUNTED AI LAB</div><div class="boardCenterTitle">${esc(title)}</div><p>${esc(sub)}</p><div class="boardCenterTeams">${chips||'<span class="mini">Waiting for teams…</span>'}</div></div>`
 }
 function boardSpace(i){
- const [label,type]=BOARD_SPACES[i],coord=COORDS[i],teams=(snap.teams||[]).filter(t=>shownPosition(t)===i);
+ const [label,type]=BOARD_SPACES[i],coord=COORDS[i],teams=(snap.teams||[]).filter(t=>(t.members||[]).length&&shownPosition(t)===i);
  const pieces=teams.map(t=>`<div class="boardPiece" title="${esc(t.name)}" style="--team:${t.color}"><span>${esc(t.charm||"❔")}</span><small>${esc(t.name)}</small></div>`).join("");
  return `<div class="boardSquare type-${type}" style="grid-row:${coord[0]};grid-column:${coord[1]}"><div class="spaceStripe"></div><div class="spaceLabel">${esc(label)}</div><div class="boardPieces">${pieces}</div></div>`
 }
@@ -58,12 +58,12 @@ function board(){
  return `<section class="tabletopWrap"><div class="tabletopBoard">${BOARD_SPACES.map((_,i)=>boardSpace(i)).join("")}${centerPanel()}</div></section>`
 }
 function teamSetup(){
- if(snap.state.stage!=="lobby"||!snap.state.teamsFormed)return"";
- return `<section class="panel"><div class="label">🔮 INVESTIGATION TEAM SETUP</div><div class="teamtiles">${(snap.teams||[]).map(t=>`<div class="teamtile" style="border-color:${t.color}"><div class="teamtileTitle"><span class="boardCharm large" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${t.customized?"READY":"CHOOSING NAME + CHARM…"}</div></div></div><div class="roster">${(t.members||[]).map(m=>`<span class="mini">${esc(m.name)}</span>`).join("")}</div></div>`).join("")}</div></section>`
+ if(!snap.state.teamsFormed||(snap.state.stage!=="lobby"&&snap.state.teamAssignment!=="tables"))return"";
+ return `<section class="panel"><div class="label">🔮 INVESTIGATION TEAM SETUP</div><div class="teamtiles">${(snap.teams||[]).map(t=>`<div class="teamtile" style="border-color:${t.color}"><div class="teamtileTitle"><span class="boardCharm large" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${t.tableNumber?"TABLE "+t.tableNumber+" · ":""}${esc(t.name)}</b><div class="tiny">${t.members?.length||0} STUDENTS · ${t.customized?"SET":"CHOOSING NAME + CHARM…"}</div></div></div><div class="roster">${(t.members||[]).map(m=>`<span class="mini">${esc(m.name)}</span>`).join("")}</div></div>`).join("")}</div></section>`
 }
 function leaders(){
  if(!snap.state.teamsFormed||snap.state.stage==="lobby")return"";
- const teams=[...(snap.teams||[])].sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
+ const teams=[...(snap.teams||[])].filter(t=>(t.members||[]).length).sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0)||(b.boardPosition||0)-(a.boardPosition||0));
  return `<section class="panel"><div class="label">STANDINGS</div><div class="leaderboard">${teams.map((t,i)=>`<div class="leader"><div class="rank">#${i+1}</div><div style="display:flex;gap:10px;align-items:center"><span class="boardCharm" style="--team:${t.color}">${esc(t.charm||"❔")}</span><div><b>${esc(t.name)}</b><div class="tiny">${t.members?.length||0} PLAYERS</div></div></div><div><b>${t.totalPoints||0}</b> pts · space ${shownPosition(t)}${shownPosition(t)!==targetPosition(t)?` → ${targetPosition(t)}`:""}</div><div class="tiny">${esc(D.progressLabels?.[t.progressKey]||String(t.progressKey||"WAITING").replaceAll("_"," "))}</div></div>`).join("")}</div></section>`
 }
 function stableSnapshot(x){if(!x)return"";const y=JSON.parse(JSON.stringify(x));delete y.generatedAt;for(const p of y.players||[])delete p.lastSeen;for(const t of y.teams||[])for(const m of t.members||[])delete m.lastSeen;return JSON.stringify(y)}
