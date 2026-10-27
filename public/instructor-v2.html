@@ -86,6 +86,12 @@ button,a{font:inherit}
 .modernExampleTitle{font-size:11px;font-weight:950;letter-spacing:.10em;text-transform:uppercase;color:#2457a6}
 .modernExample p{margin:7px 0 0;font-size:14px;line-height:1.48;color:#33445f}
 .modernExample a{font-size:11px;font-weight:850;color:#2457a6;text-decoration:none;white-space:nowrap}
+.modernActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.modernShareBtn,.modernClearBtn{border:0;border-radius:10px;padding:10px 13px;font-weight:850;cursor:pointer}
+.modernShareBtn{background:#2457a6;color:#fff}
+.modernClearBtn{background:#e9edf4;color:#33445f}
+.modernShareBtn:disabled,.modernClearBtn:disabled{opacity:.5;cursor:not-allowed}
+.modernShareStatus{margin-top:8px;font-size:12px;font-weight:750;color:#2f7a4b;min-height:18px}
 .profLand{margin-top:12px;border-left:4px solid #f0bf52;padding:9px 12px;background:#fffaf0;border-radius:0 12px 12px 0}
 .profLand b{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8c6410}
 .profLand p{margin:4px 0 0;font-size:14px;line-height:1.45}
@@ -124,7 +130,7 @@ button,a{font:inherit}
   <header class="header">
     <div>
       <div class="brand" id="brand">Loading…</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:3px">ShowRunner · Live Cue View · V0.7</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">ShowRunner · Live Cue View · V0.8</div>
     </div>
     <div class="meta">
       <span><span class="dot"></span>Live</span>
@@ -174,6 +180,11 @@ button,a{font:inherit}
         <aside class="modernExample hidden" id="modernExample">
           <div class="modernExampleTop"><div class="modernExampleTitle" id="modernExampleTitle">🌎 In the wild</div><a id="modernExampleSource" target="_blank" rel="noopener">Source ↗</a></div>
           <p id="modernExampleText"></p>
+          <div class="modernActions">
+            <button class="modernShareBtn" id="modernShareBtn" type="button">📲 Share with Students</button>
+            <button class="modernClearBtn" id="modernClearBtn" type="button">Clear Shared Resource</button>
+          </div>
+          <div class="modernShareStatus" id="modernShareStatus" role="status" aria-live="polite"></div>
         </aside>
         <div class="profLand"><b>💡 Land here</b><p id="profLand">—</p></div>
       </section>
@@ -316,6 +327,36 @@ function currentExample(x){
   }
   return null;
 }
+
+let currentInTheWild=null;
+async function shareInTheWild(){
+  const btn=E('modernShareBtn'),status=E('modernShareStatus');
+  if(!currentInTheWild)return;
+  btn.disabled=true;status.textContent='Sharing to student screens…';
+  try{
+    const payload={
+      url:currentInTheWild.url,
+      title:currentInTheWild.title.replace(/^\S+\s+IN THE WILD\s*·?\s*/i,'').trim()||'In the Wild',
+      description:currentInTheWild.text
+    };
+    await C.api('/shared-app',{method:'POST',body:JSON.stringify(payload)});
+    status.textContent='✓ Shared. Students should see it within a few seconds.';
+    btn.textContent='✓ Shared with Students';
+  }catch(e){
+    status.textContent='Could not share: '+String(e?.message||'Please try again.');
+  }finally{btn.disabled=false}
+}
+async function clearSharedResource(){
+  const btn=E('modernClearBtn'),status=E('modernShareStatus');
+  btn.disabled=true;status.textContent='Clearing shared resource…';
+  try{
+    await C.api('/shared-app',{method:'POST',body:JSON.stringify({action:'clear'})});
+    status.textContent='Shared resource cleared from student screens.';
+    E('modernShareBtn').textContent='📲 Share with Students';
+  }catch(e){
+    status.textContent='Could not clear: '+String(e?.message||'Please try again.');
+  }finally{btn.disabled=false}
+}
 function renderProfessor(x,r){
   E('professorTime').textContent=(C.elapsed(C.snapshot.state.step))+'–'+(C.elapsed(C.snapshot.state.step)+Number(x.minutes||0))+' min';
   E('profSay').textContent=professorSay(x,r);
@@ -324,8 +365,16 @@ function renderProfessor(x,r){
   E('profMove').textContent=safe(r.advanceWhen,'Move when students have produced enough evidence or reasoning to make the next moment useful.');
   E('profLand').textContent=safe(r.landHere||x.teachReveal?.headline,'Make the learning point explicit in one sentence, then keep moving.');
   const ex=currentExample(x),box=E('modernExample');
+  currentInTheWild=ex;
   box.classList.toggle('hidden',!ex);
-  if(ex){E('modernExampleTitle').textContent=ex.title;E('modernExampleText').textContent=ex.text;E('modernExampleSource').textContent=ex.source+' ↗';E('modernExampleSource').href=ex.url;}
+  if(ex){
+    E('modernExampleTitle').textContent=ex.title;
+    E('modernExampleText').textContent=ex.text;
+    E('modernExampleSource').textContent=ex.source+' ↗';
+    E('modernExampleSource').href=ex.url;
+    E('modernShareBtn').textContent='📲 Share with Students';
+    E('modernShareStatus').textContent='';
+  }
 }
 function render(){
   const x=step(),r=rb(),p=C.participation(),n=nextMoment(),state=C.snapshot.state;
@@ -397,6 +446,8 @@ async function poll(force=false){
   }
 }
 E('closeAttendance').onclick=closeAttendance;E('refreshAttendance').onclick=loadAttendance;E('downloadAttendance').onclick=downloadAttendance;E('attendanceModal').onclick=e=>{if(e.target===E('attendanceModal'))closeAttendance()};
+E('modernShareBtn').onclick=shareInTheWild;
+E('modernClearBtn').onclick=clearSharedResource;
 (async()=>{
   try{
     await C.loadSession();
