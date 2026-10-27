@@ -43,6 +43,8 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler@latest deploy
+      - name: Verify physical classroom workflow
+        run: node tests/haunted-classroom-live.mjs
       - name: Verify permanent classroom surfaces
         run: |
           set -e
@@ -61,7 +63,7 @@ jobs:
           printf '%s' "$CQ_JS" > /tmp/context-quest.js
           grep -q 'THE AI LAB' /tmp/context-quest.js
           grep -q 'FORM BALANCED VIRTUAL TEAMS' /tmp/context-quest.js || true
-          grep -q 'YOUR DEVICE = YOUR CONTROLLER' /tmp/context-quest.js
+          grep -q 'YOUR NEXT:' /tmp/context-quest.js
           grep -q 'function isEditing' /tmp/context-quest.js
           grep -q 'REMOVE MY VOTE' /tmp/context-quest.js
           grep -q 'INVESTIGATOR TRAINING' /tmp/context-quest.js
@@ -106,7 +108,7 @@ jobs:
           grep -q 'RESET LIVE ROOM' /tmp/context-quest-instructor.js
           grep -q 'YOUR NEXT SHARED ACTION' /tmp/context-quest-instructor.js
           grep -q 'active students complete' /tmp/context-quest-instructor.js
-          grep -q 'HAVING A PROBLEM' /tmp/context-quest-instructor.js
+          grep -q 'ADVANCE ANYWAY' /tmp/context-quest-instructor.js
           grep -q 'FORCE ROOM FORWARD' /tmp/context-quest-instructor.js
           grep -q 'OPTIONAL DEBRIEF BONUS' /tmp/context-quest-instructor.js
           grep -q 'function stageStats' /tmp/context-quest-instructor.js
