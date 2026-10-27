@@ -39,6 +39,7 @@ jobs:
       - name: Verify Haunted AI Lab QA regressions
         run: node tests/haunted-qa-regression.mjs
       - name: Deploy Worker to Cloudflare account
+        id: deploy_worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -212,6 +213,7 @@ jobs:
 
           echo "Context Quest multiplayer routes, API, runtimes, facilitator guide, and sandbox are reachable."
       - name: Verify Context Quest hybrid team automation
+        if: ${{ !cancelled() && steps.deploy_worker.outcome == 'success' }}
         run: |
           set -e
           BASE="https://classroom.itsbadlabs.com/api/session/context-quest-smoke-$GITHUB_RUN_ID/cq"
@@ -231,6 +233,7 @@ jobs:
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p1","name":"Ghost Hunters","charm":"🎃"}' "$BASE/team-customize" | grep -q '"customized":true'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"playerId":"p2","name":"Prompt Phantoms","charm":"👻"}' "$BASE/team-customize" | grep -q '"customized":true'
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"tutorial","round":0}' "$BASE/control" | grep -q '"stage":"tutorial"'
+          for p in p1 p2 p3 p4; do curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d "{\"playerId\":\"$p\",\"action\":\"tutorialDone\"}" "$BASE/player-action" > /dev/null; done
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{"stage":"build","round":0}' "$BASE/control" | grep -q '"stage":"build"'
 
           # One active answer per player: second submission replaces first.
@@ -293,6 +296,7 @@ jobs:
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$BASE/reset" > /dev/null
           echo "Hybrid flow passed: teams auto-progress internally; Game Master controls shared reveals."
       - name: Verify Context Quest isolated test sandbox
+        if: ${{ !cancelled() && steps.deploy_worker.outcome == 'success' }}
         run: |
           set -e
           SANDBOX="https://classroom.itsbadlabs.com/api/session/context-quest-sandbox-$GITHUB_RUN_ID/cq"
@@ -304,6 +308,7 @@ jobs:
           curl --fail --silent --show-error "$SANDBOX/snapshot" | grep -q '"testMode":true'
           echo "Context Quest sandbox uses its own session and can create a rehearsal room."
       - name: Rehearse Context Quest with 30 concurrent students
+        if: ${{ !cancelled() && steps.deploy_worker.outcome == 'success' }}
         run: |
           set -e
           LOAD="https://classroom.itsbadlabs.com/api/session/context-quest-load-smoke-$GITHUB_RUN_ID/cq"
@@ -319,6 +324,7 @@ jobs:
           curl --fail --silent --show-error -X POST -H 'content-type: application/json' -d '{}' "$LOAD/reset" > /dev/null
           echo "30-student concurrency rehearsal passed."
       - name: Verify Context Quest renders in a browser
+        if: ${{ !cancelled() && steps.deploy_worker.outcome == 'success' }}
         run: |
           set -e
           dump_dom() {
@@ -338,9 +344,9 @@ jobs:
           INST_DOM="$(dump_dom https://classroom.itsbadlabs.com/context-quest/instructor)"
           echo "INSTRUCTOR DOM bytes: ${#INST_DOM}"
           echo "$INST_DOM" | grep -q "GAME MASTER" || { echo "Instructor surface missing Game Master render"; exit 1; }
-          echo "$INST_DOM" | grep -q "FACILITATION GUIDE" || { echo "Instructor facilitation guide did not render"; exit 1; }
+          echo "$INST_DOM" | grep -q "PROFESSOR MODE" || { echo "Instructor facilitation guide did not render"; exit 1; }
           echo "$INST_DOM" | grep -q "GAME CONTROLS" || { echo "Instructor game controls did not render"; exit 1; }
-          echo "$INST_DOM" | grep -q "YOUR NEXT SHARED ACTION" || { echo "Instructor next action did not render"; exit 1; }
+          echo "$INST_DOM" | grep -Eq "YOUR NEXT SHARED ACTION|NEXT: SET UP TABLE GROUPS|CASE CLOSED" || { echo "Instructor next action did not render"; exit 1; }
           echo "$INST_DOM" | grep -q "ROOM READINESS" || { echo "Instructor room readiness did not render"; exit 1; }
           GUEST_LIVE_DOM="$(dump_dom 'https://classroom.itsbadlabs.com/google-slides-live?session=inf128-ai-literacy-guest-2026')"
           echo "INF128 GUEST GOOGLE SLIDES DOM bytes: ${#GUEST_LIVE_DOM}"
