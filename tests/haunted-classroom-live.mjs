@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 const origin=process.env.CLASSROOM_TEST_ORIGIN||'https://classroom.itsbadlabs.com';
 const api=origin+'/api/session/context-quest-flow-'+(process.env.GITHUB_RUN_ID||Date.now())+'/cq';
-async function req(path,body,expected=200){const response=await fetch(api+path,{method:body?'POST':'GET',headers:{'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const text=await response.text();assert.equal(response.status,expected,path+': '+text);return JSON.parse(text);}
+async function req(path,body,expected=200){const response=await fetch(api+path,{method:body?'POST':'GET',headers:{'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const text=await response.text();console.log(path,response.status);assert.equal(response.status,expected,path+': '+text);return JSON.parse(text);}
 try{
  await req('/reset',{});await req('/form-teams',{assignment:'tables',tableCount:3,teamSize:2});
  for(const id of ['a','b','c'])await req('/join',{playerId:id,name:'Flow '+id,mode:'play'});
  await req('/join',{playerId:'watch',name:'Flow observer',mode:'watch'});
+ const beforeJoin=await req('/snapshot');console.log('Setup:',JSON.stringify({state:beforeJoin.state,teams:beforeJoin.teams.map(t=>({id:t.id,members:t.members.length}))}));assert.equal(beforeJoin.state.teamsFormed,true);assert.equal(beforeJoin.teams.length,3);
  await req('/choose-team',{playerId:'a',teamId:'team-1'});await req('/choose-team',{playerId:'b',teamId:'team-1'});
  await req('/choose-team',{playerId:'c',teamId:'team-1'},409);await req('/choose-team',{playerId:'watch',teamId:'team-2'},403);
  await req('/control',{stage:'tutorial',round:0},409);

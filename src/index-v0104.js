@@ -434,7 +434,7 @@ export class ClassroomSession extends BaseClassroomSession {
         if(target.capacity&&(target.members||[]).length>=target.capacity)return json({error:'That table is full. Choose another or ask the Game Master.'},409);
         for(const team of Object.values(teams))team.members=(team.members||[]).filter(mid=>mid!==id);
         target.members=target.members||[];target.members.push(id);player.teamId=target.id;
-        if(state.stage!=='lobby'){
+        if(!['lobby','tutorial'].includes(state.stage)){
           const key=cqRoundKey(state.round,String(state.stage).startsWith('final'));target.rounds=target.rounds||{};target.rounds[key]=target.rounds[key]||{};target.rounds[key].excused={...target.rounds[key].excused,[id]:true};
         }
         await storage.put('cqPlayers',players);await storage.put('cqTeams',teams);return json({ok:true,player:cqPublicPlayer(player),team:cqHydrate(target,players,state)});

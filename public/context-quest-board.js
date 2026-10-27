@@ -33,7 +33,7 @@ function mast(body){return `<header class="mast"><div><div class="logo">THE HAUN
 function phaseData(){
  const s=snap.state.stage,r=D.rounds[snap.state.round];let title=D.stages[s]||s,sub="";
  if(["build","test","twist","check","reveal"].includes(s)){title=`CASE ${snap.state.round+1} / 3 · ${r.icon} ${r.key}`;sub=s==="build"?"Investigation teams are finding clues, voting, and testing.":s==="test"?"Teams are in the Test Chamber.":s==="twist"?"👻 THE HAUNTING: "+r.twist:s==="check"?"EVIDENCE CHECK: audience · goal · constraints · evidence":s==="reveal"?"🔮 EVIDENCE + SCORE REVEAL!":""}
- if(s==="lobby"){title=snap.state.teamsFormed?"ASSEMBLE YOUR INVESTIGATION TEAM":"ENTER THE HAUNTED AI LAB";sub=snap.state.teamsFormed?"Join your physical table on your device, then check the names below.":"classroom.itsbadlabs.com/context-quest · choose INVESTIGATE or OBSERVE"}
+ if(s==="lobby"){title=snap.state.teamsFormed?"ASSEMBLE YOUR INVESTIGATION TEAM":"ENTER THE HAUNTED AI LAB";sub=snap.state.teamsFormed?(snap.state.teamAssignment==="tables"?"Join your physical table on your device, then check the names below.":"Choose your team name + Halloween charm on your device."):"classroom.itsbadlabs.com/context-quest · choose INVESTIGATE or OBSERVE"}
  if(s==="tutorial"){title="🔦 INVESTIGATOR TRAINING";sub="Learn the AI context loop by solving the first mini-case."}
  if(s==="final-build"){title="👾 THE CURSE OF THE CONFIDENT AI";sub="Use every clue: WHO · GOAL · SITUATION · CONSTRAINTS · OUTPUT · CHECK"}
  if(s==="final-test"){title="FINAL TEST";sub="Run the team-selected design."}
