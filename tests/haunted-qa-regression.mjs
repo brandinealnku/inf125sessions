@@ -122,3 +122,10 @@ vm.runInContext(`snap.players[0].teamId='team-1';snap.teams[0].members.push({id:
 assert.ok(vm.runInContext('teamRoster()',studentContext).includes('Needs to vote'));assert.ok(vm.runInContext('teamLobby()',studentContext).includes('CHANGE TABLE'));
 assert.ok(vm.runInContext('roleCard()',studentContext).startsWith('<details'));assert.ok(vm.runInContext("mast('TASK')",studentContext).indexOf('TASK')<vm.runInContext("mast('TASK')",studentContext).indexOf('HOW TO PLAY'));
 console.log('PASS: student table chooser, visible teammate names/status, optional roles and simplified task-first layout.');
+// Once an answer exists, voting is primary; alternative drafting remains optional.
+vm.runInContext(readFileSync(new URL('../public/context-quest-data.js',import.meta.url),'utf8'),studentContext);
+vm.runInContext(`Object.assign(D,window.CQ_DATA);snap.state.stage='build';snap.state.round=0;snap.teams[0].progressPhase='build';snap.teams[0].rounds={'0':{buildProposals:{x:{id:'x',playerId:'b',name:'Blair',text:'A team answer'}},buildVotes:{}}};render();`,studentContext);
+assert.ok(studentApp.innerHTML.indexOf('VOTE FOR THIS')<studentApp.innerHTML.indexOf('<details class="alternateAnswer">'));
+vm.runInContext(`snap.state.round=1;snap.teams[0].rounds={'1':{buildProposals:{x:{id:'x',playerId:'b',name:'Blair',text:'A fairness proposal'}},buildVotes:{}}};render();`,studentContext);
+assert.ok(studentApp.innerHTML.indexOf('Share this with your table before voting.')<studentApp.innerHTML.indexOf('<details class="alternateAnswer">'));
+console.log('PASS: primary voting action, optional alternative drafts, and visible private clues during team voting.');
