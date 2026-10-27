@@ -426,7 +426,7 @@ export class ClassroomSession extends BaseClassroomSession {
       // Check capacity and membership together so two simultaneous joins cannot take one spot.
       return this.state.storage.transaction(async storage=>{
         const state=(await storage.get('cqState'))||cqInitial(),players=(await storage.get('cqPlayers'))||{},teams=(await storage.get('cqTeams'))||{},id=short(b.playerId,100),player=players[id],target=teams[short(b.teamId,80)];
-        if(!state.teamsFormed||!target)return json({error:'Choose an available table.'},404);
+        if(!state.teamsFormed||!target)return json({error:'Choose an available table.',details:{teamsFormed:!!state.teamsFormed,requestedTable:short(b.teamId,80),availableTables:Object.keys(teams)}},404);
         if(!player||player.mode!=='play')return json({error:'Only investigators can join a team.'},403);
         if(!instructor&&state.teamAssignment!=='tables')return json({error:'The Game Master assigns teams in this room.'},409);
         if(state.stage!=='lobby'&&(!instructor||player.teamId))return json({error:'Teams are locked during play. Ask the Game Master to place a late arrival.'},409);
