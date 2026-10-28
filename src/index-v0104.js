@@ -9,7 +9,20 @@ export class ClassroomSession extends BaseClassroomSession {
     // heartbeats, setup, and votes cannot overwrite a newer map with a stale copy.
     if(new URL(request.url).pathname.includes('/cq/')){
       const previous=this.cqQueue||Promise.resolve();
-      const next=previous.then(()=>this.handleRequest(request));
+      const next=previous.then(async()=>{
+        const path=new URL(request.url).pathname;
+        if(request.method==='GET'){
+          if(path.endsWith('/cq/diagnostics'))return json({recent:(await this.state.storage.get('cqAudit'))||[]});
+          return this.handleRequest(request);
+        }
+        const before=(await this.state.storage.get('cqState'))||null;
+        const response=await this.handleRequest(request);
+        const after=(await this.state.storage.get('cqState'))||null,teams=(await this.state.storage.get('cqTeams'))||{};
+        const recent=(await this.state.storage.get('cqAudit'))||[];
+        recent.push({at:Date.now(),action:path.split('/').pop(),status:response.status,before:before?.stage||null,after:after?.stage||null,round:after?.round??null,teams:Object.keys(teams).length});
+        await this.state.storage.put('cqAudit',recent.slice(-50));
+        return response;
+      });
       this.cqQueue=next.then(()=>undefined,()=>undefined);
       return next;
     }
