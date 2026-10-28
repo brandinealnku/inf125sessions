@@ -561,7 +561,8 @@ export class ClassroomSession extends BaseClassroomSession {
       if(Number.isFinite(b.round))next.round=Math.max(0,Math.min(3,Number(b.round)));
       if(typeof b.resultsVisible==='boolean')next.resultsVisible=b.resultsVisible;
 
-      if(oldStage==='lobby'&&next.stage==='tutorial'){
+      if(oldStage==='lobby'&&(next.stage==='tutorial'||next.stage==='build')){
+        if(next.stage==='build'&&next.round!==0)return json({error:'Start with Case 1.'},409);
         const populated=Object.values(teams).filter(t=>(t.members||[]).length);
         if(!populated.length)return json({error:'Assign at least one investigator to a team before starting.'},409);
         const unassigned=Object.values(await cqPlayers()).filter(p=>p.mode==='play'&&!p.teamId);
@@ -577,7 +578,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const oldFinal=String(oldStage).startsWith('final'),oldKey=cqRoundKey(current.round,oldFinal);
       const teamList=Object.values(teams).filter(t=>(t.members||[]).length);
 
-      if((oldStage==='tutorial'&&next.stage==='build')||(oldStage==='reveal'&&next.stage==='build')||(oldStage==='reveal'&&next.stage==='final-build')){
+      if((oldStage==='lobby'&&next.stage==='build')||(oldStage==='tutorial'&&next.stage==='build')||(oldStage==='reveal'&&next.stage==='build')||(oldStage==='reveal'&&next.stage==='final-build')){
         const key=cqRoundKey(next.round,String(next.stage).startsWith('final'));
         for(const t of teamList){t.rounds=t.rounds||{};t.rounds[key]=t.rounds[key]||{};t.rounds[key].phase='build';}
       }

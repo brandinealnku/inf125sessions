@@ -129,3 +129,19 @@ assert.ok(studentApp.innerHTML.indexOf('VOTE FOR THIS')<studentApp.innerHTML.ind
 vm.runInContext(`snap.state.round=1;snap.teams[0].rounds={'1':{buildProposals:{x:{id:'x',playerId:'b',name:'Blair',text:'A fairness proposal'}},buildVotes:{}}};render();`,studentContext);
 assert.ok(studentApp.innerHTML.indexOf('Share this with your table before voting.')<studentApp.innerHTML.indexOf('<details class="alternateAnswer">'));
 console.log('PASS: primary voting action, optional alternative drafts, and visible private clues during team voting.');
+// Direct classroom start enforces seating and begins Case 1 without fabricating tutorial completion.
+await call('reset',{});
+let quickResponse=await worker.fetch(new Request('https://test/cq/control',{method:'POST',body:JSON.stringify({stage:'build',round:0})}));assert.equal(quickResponse.status,409);
+await call('form-teams',{assignment:'tables',tableCount:2,teamSize:5});
+await call('join',{playerId:'quick-a',name:'Quick Alex',mode:'play'});await call('join',{playerId:'quick-b',name:'Quick Blair',mode:'play'});
+await call('choose-team',{playerId:'quick-a',teamId:'team-1'});
+quickResponse=await worker.fetch(new Request('https://test/cq/control',{method:'POST',body:JSON.stringify({stage:'build',round:0})}));assert.equal(quickResponse.status,409);
+await call('choose-team',{playerId:'quick-b',teamId:'team-1'});
+quickResponse=await worker.fetch(new Request('https://test/cq/control',{method:'POST',body:JSON.stringify({stage:'build',round:1})}));assert.equal(quickResponse.status,409);
+await call('control',{stage:'build',round:0});let quickSnap=await call('snapshot');assert.equal(quickSnap.state.stage,'build');assert.equal(quickSnap.state.round,0);assert.ok(quickSnap.players.every(p=>!p.tutorialDone));assert.equal(quickSnap.teams.find(t=>t.id==='team-1').progressPhase,'build');
+await call('player-action',{playerId:'quick-a',action:'proposeBuild',text:'Give relevant context and verify important claims.'});
+await call('player-action',{playerId:'quick-a',action:'voteBuild',proposalId:'quick-a-build'});
+quickSnap=await call('snapshot');assert.equal(quickSnap.teams.find(t=>t.id==='team-1').members.find(m=>m.id==='quick-b').activity,'Needs to vote');
+vm.runInContext(`snap={state:{stage:'lobby',teamsFormed:true},players:[],teams:[{id:'team-1',name:'Ghost Hunters',customized:true,members:[{id:'a',name:'Alex'}]}]};`,gm);
+const quickControls=vm.runInContext('sharedControls()',gm);assert.ok(quickControls.includes('START GAME · CASE 1'));assert.ok(quickControls.includes('START OPTIONAL TRAINING'));assert.ok(quickControls.indexOf('START GAME · CASE 1')<quickControls.indexOf('START OPTIONAL TRAINING'));
+console.log('PASS: direct Case 1 start, seating gate, round gate, no fabricated training, required individual voting, optional training retained.');
