@@ -145,3 +145,22 @@ quickSnap=await call('snapshot');assert.equal(quickSnap.teams.find(t=>t.id==='te
 vm.runInContext(`snap={state:{stage:'lobby',teamsFormed:true},players:[],teams:[{id:'team-1',name:'Ghost Hunters',customized:true,members:[{id:'a',name:'Alex'}]}]};`,gm);
 const quickControls=vm.runInContext('sharedControls()',gm);assert.ok(quickControls.includes('START GAME · CASE 1'));assert.ok(quickControls.includes('START OPTIONAL TRAINING'));assert.ok(quickControls.indexOf('START GAME · CASE 1')<quickControls.indexOf('START OPTIONAL TRAINING'));
 console.log('PASS: direct Case 1 start, seating gate, round gate, no fabricated training, required individual voting, optional training retained.');
+// Concurrent joins must not overwrite other players while the room is being set up.
+await call('reset',{});
+await Promise.all(Array.from({length:20},(_,i)=>call('join',{playerId:'crowd-'+i,name:'Crowd '+i,mode:'play'})));
+let crowdSnap=await call('snapshot');assert.equal(crowdSnap.players.length,20,'Every concurrent join must be retained');
+await Promise.all([call('form-teams',{assignment:'tables',tableCount:4,teamSize:5}),call('join',{playerId:'during-setup',name:'During setup',mode:'play'})]);
+crowdSnap=await call('snapshot');assert.equal(crowdSnap.players.length,21);assert.equal(crowdSnap.teams.length,4);
+console.log('PASS: simultaneous joins and team setup preserve all participants.');
+await call('reset',{});await call('form-teams',{assignment:'tables',tableCount:1,teamSize:2});
+await Promise.all(['a','b'].map(id=>call('join',{playerId:id,name:id,mode:'play'})));
+await Promise.all(['a','b'].map(playerId=>call('choose-team',{playerId,teamId:'team-1'})));
+await call('control',{stage:'build',round:0});await call('player-action',{playerId:'a',action:'proposeBuild',text:'Context and checks'});
+await Promise.all(['a','b'].map(playerId=>call('player-action',{playerId,action:'voteBuild',proposalId:'a-build'})).concat(call('heartbeat',{playerId:'a'})));
+let parallelSnap=await call('snapshot');assert.equal(parallelSnap.teams[0].progressPhase,'test');assert.equal(Object.keys(parallelSnap.teams[0].rounds['0'].buildVotes).length,2);
+await Promise.all(['a','b'].map(playerId=>call('player-action',{playerId,action:'tested'})));
+await call('control',{stage:'twist',round:0});await call('player-action',{playerId:'a',action:'proposeRepair',text:'Repair with human review'});
+await Promise.all(['a','b'].map(playerId=>call('player-action',{playerId,action:'voteRepair',proposalId:'a-repair'})));
+await Promise.all(['a','b'].map(playerId=>call('player-action',{playerId,action:'checks',checks:[true,false,true,false]})));
+await call('control',{stage:'reveal',round:0});parallelSnap=await call('snapshot');assert.equal(parallelSnap.teams[0].totalPoints,1);assert.equal(Object.keys(parallelSnap.teams[0].rounds['0'].checkBallots).length,2);
+console.log('PASS: concurrent votes, heartbeat, response reviews and evidence checks are all retained.');

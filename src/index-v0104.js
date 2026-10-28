@@ -5,6 +5,17 @@ const short=(v,n=500)=>String(v??'').slice(0,n);
 
 export class ClassroomSession extends BaseClassroomSession {
   async fetch(request) {
+    // CQ stores player/team maps. Serialize room operations so overlapping joins,
+    // heartbeats, setup, and votes cannot overwrite a newer map with a stale copy.
+    if(new URL(request.url).pathname.includes('/cq/')){
+      const previous=this.cqQueue||Promise.resolve();
+      const next=previous.then(()=>this.handleRequest(request));
+      this.cqQueue=next.then(()=>undefined,()=>undefined);
+      return next;
+    }
+    return this.handleRequest(request);
+  }
+  async handleRequest(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
     // Instructor roster management for the current classroom session.
     if(url.pathname.endsWith('/roster')){
