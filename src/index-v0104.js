@@ -11,6 +11,15 @@ export class ClassroomSession extends BaseClassroomSession {
       const previous=this.cqQueue||Promise.resolve();
       const next=previous.then(async()=>{
         const path=new URL(request.url).pathname;
+        const storedState=await this.state.storage.get('cqState');
+        const storedTeams=(await this.state.storage.get('cqTeams'))||{};
+        const checkpoint=await this.state.storage.get('cqCheckpoint');
+        if(checkpoint?.state?.teamsFormed&&(!storedState||(storedState.teamsFormed&&!Object.keys(storedTeams).length))){
+          await this.state.storage.put('cqState',checkpoint.state);
+          await this.state.storage.put('cqTeams',checkpoint.teams);
+          await this.state.storage.put('cqPlayers',checkpoint.players);
+          await this.state.storage.put('cqPresentation',checkpoint.presentation);
+        }
         if(request.method==='GET'){
           if(path.endsWith('/cq/diagnostics'))return json({recent:(await this.state.storage.get('cqAudit'))||[]});
           return this.handleRequest(request);
@@ -21,6 +30,9 @@ export class ClassroomSession extends BaseClassroomSession {
         const recent=(await this.state.storage.get('cqAudit'))||[];
         recent.push({at:Date.now(),action:path.split('/').pop(),status:response.status,before:before?.stage||null,after:after?.stage||null,round:after?.round??null,teams:Object.keys(teams).length});
         await this.state.storage.put('cqAudit',recent.slice(-50));
+        if(response.ok&&after){
+          await this.state.storage.put('cqCheckpoint',{state:after,teams,players:(await this.state.storage.get('cqPlayers'))||{},presentation:(await this.state.storage.get('cqPresentation'))||{attention:'auto',spotlight:null}});
+        }
         return response;
       });
       this.cqQueue=next.then(()=>undefined,()=>undefined);
@@ -655,7 +667,7 @@ export class ClassroomSession extends BaseClassroomSession {
       teams[id]=team;await this.state.storage.put('cqTeams',teams);return json({ok:true,team});
     }
     if(url.pathname.endsWith('/cq/reset')&&method==='POST'){
-      await this.state.storage.delete('cqPresentation');await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');await this.state.storage.delete('cqPlayers');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
+      await this.state.storage.delete('cqCheckpoint');await this.state.storage.delete('cqPresentation');await this.state.storage.delete('cqState');await this.state.storage.delete('cqTeams');await this.state.storage.delete('cqPlayers');const initial=cqInitial();await this.state.storage.put('cqState',initial);return json({ok:true,state:initial});
     }
     if(url.pathname.endsWith('/research/pulse')&&method==='POST'){
       const b=await request.json().catch(()=>({}));

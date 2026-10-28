@@ -164,3 +164,8 @@ await Promise.all(['a','b'].map(playerId=>call('player-action',{playerId,action:
 await Promise.all(['a','b'].map(playerId=>call('player-action',{playerId,action:'checks',checks:[true,false,true,false]})));
 await call('control',{stage:'reveal',round:0});parallelSnap=await call('snapshot');assert.equal(parallelSnap.teams[0].totalPoints,1);assert.equal(Object.keys(parallelSnap.teams[0].rounds['0'].checkBallots).length,2);
 console.log('PASS: concurrent votes, heartbeat, response reviews and evidence checks are all retained.');
+// Recover a missing active room from its last committed checkpoint; an intentional reset stays reset.
+const retained=await call('snapshot');data.delete('cqState');data.delete('cqTeams');
+const restored=await call('snapshot');assert.deepEqual(restored.state,retained.state);assert.equal(restored.teams[0].totalPoints,1);assert.equal(restored.players.length,2);
+await call('reset',{});const resetSnapshot=await call('snapshot');assert.equal(resetSnapshot.state.teamsFormed,false);assert.equal(resetSnapshot.teams.length,0);assert.equal(resetSnapshot.players.length,0);
+console.log('PASS: active room recovery preserves scores and players; explicit reset does not restore old work.');
