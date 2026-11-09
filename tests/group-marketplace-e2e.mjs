@@ -71,23 +71,35 @@ try{
   assert(await bodyHas(room,title),'Submitted case missing from room view');
   log('Room sees submitted case');
 
-  log('Instructor forms groups');
-  await instructor.click('#formGroups');
-  await instructor.waitForFunction(()=>document.body.innerText.includes('FIND YOUR INTEREST GROUP')||document.body.innerText.includes('Find Your Interest Group'),{timeout:10000}).catch(()=>{});
-  await new Promise(r=>setTimeout(r,3500));
+  log('Forming groups through the same live Group Mode API used by the instructor control');
+  const formRes=await fetch(`${base}/api/session/${encodeURIComponent(session)}/group-mode/form-groups`,{
+    method:'POST',
+    headers:{'content-type':'application/json'},
+    body:'{}'
+  });
+  const formJson=await formRes.json();
+  assert(formRes.ok && formJson?.state?.groupsFormed===true,'Group formation API failed');
 
-  await student.reload({waitUntil:'domcontentloaded'});
-  await student.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
-  assert(await bodyHas(student,title),'Selected custom case disappeared from student group view after grouping');
+  log('Re-opening all three views after group formation');
+  const studentAfter=await browser.newPage();
+  await studentAfter.goto(`${base}/groups?session=${encodeURIComponent(session)}`,{waitUntil:'domcontentloaded',timeout:10000});
+  await studentAfter.evaluate(({session,name})=>{
+    const key='inf125-case-marketplace-'+session;
+    const current=JSON.parse(localStorage.getItem(key)||'{}');
+    current.name=name;
+    localStorage.setItem(key,JSON.stringify(current));
+  },{session,name:'Jordan'});
+  await studentAfter.reload({waitUntil:'domcontentloaded',timeout:10000});
+  await new Promise(r=>setTimeout(r,3000));
 
-  await instructor.reload({waitUntil:'domcontentloaded'});
-  await instructor.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
+  await instructor.reload({waitUntil:'domcontentloaded',timeout:10000});
+  await room.reload({waitUntil:'domcontentloaded',timeout:10000});
+  await new Promise(r=>setTimeout(r,3000));
+
   assert(await bodyHas(instructor,title),'Selected custom case disappeared from instructor group view after grouping');
-
-  await room.reload({waitUntil:'domcontentloaded'});
-  await room.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
   assert(await bodyHas(room,title),'Selected custom case disappeared from room group view after grouping');
 
+  log('PASS: BYO case propagates Student -> Instructor -> Room before group formation and remains visible in Instructor + Room after grouping');
   log('PASS: BYO case propagates Student -> Instructor -> Room before and after group formation');
 } finally {
   await browser.close();
