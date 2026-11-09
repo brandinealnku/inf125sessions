@@ -85,5 +85,10 @@ function roomView(){
 async function refresh(){try{snap=await req('/snapshot');lastError='';if(VIEW==='student'&&local.name&&!me()){const j=await req('/join',{method:'POST',body:JSON.stringify({device:local.device,name:local.name})});snap=j.snapshot}render()}catch(e){lastError=e.message;render()}}
 function render(){if(VIEW==='instructor')return instructorView();if(VIEW==='room')return roomView();if(!local.name||!snap||!me())return joinView();studentView()}
 if(VIEW==='student')setInterval(()=>{if(local.name)req('/heartbeat',{method:'POST',body:JSON.stringify({device:local.device})}).catch(()=>{})},30000);
-refresh();setInterval(()=>{ if(VIEW!=='student'||local.name) refresh(); },2500);
+refresh();
+setInterval(()=>{
+  const active=document.activeElement;
+  const editing=VIEW==='student' && active && ['INPUT','TEXTAREA','SELECT'].includes(active.tagName);
+  if(!editing && (VIEW!=='student'||local.name)) refresh();
+},2500);
 </script></body></html>
