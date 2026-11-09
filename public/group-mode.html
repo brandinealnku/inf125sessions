@@ -43,6 +43,25 @@ function marketplaceView(){
 function toggleVote(id){local.draftVotes=local.draftVotes||[];if(local.draftVotes.includes(id))local.draftVotes=local.draftVotes.filter(x=>x!==id);else if(local.draftVotes.length<2)local.draftVotes.push(id);else{document.getElementById('voteMsg').textContent='You only get two votes. Remove one before choosing another.';return}save();marketplaceView()}
 async function saveVotes(){try{const j=await req('/vote',{method:'POST',body:JSON.stringify({device:local.device,caseIds:local.draftVotes})});document.getElementById('voteMsg').textContent='Votes saved ✓';await refresh()}catch(e){document.getElementById('voteMsg').textContent=e.message}}
 const val=id=>document.getElementById(id)?.value.trim()||'';
+const DRAFT_KEY=STORE+'-draft';
+function readDraft(){try{return JSON.parse(sessionStorage.getItem(DRAFT_KEY)||'{}')}catch(_){return {}}}
+function writeDraft(){
+  if(VIEW!=='student')return;
+  const ids=['groupText','benefit','stakeholders','lens','decision','safeguard','topic','question','stakeholder','evidenceNeed','interest','pTitle','pField','pQuestion','pDescription','pSource'];
+  const draft=readDraft();
+  for(const id of ids){const el=document.getElementById(id);if(el)draft[id]=el.value;}
+  sessionStorage.setItem(DRAFT_KEY,JSON.stringify(draft));
+}
+function restoreDraft(){
+  if(VIEW!=='student')return;
+  const draft=readDraft();
+  for(const [id,value] of Object.entries(draft)){const el=document.getElementById(id);if(el && !el.value)el.value=value;}
+}
+function clearDraft(ids=[]){
+  const draft=readDraft();
+  if(!ids.length)sessionStorage.removeItem(DRAFT_KEY);
+  else{for(const id of ids)delete draft[id];sessionStorage.setItem(DRAFT_KEY,JSON.stringify(draft));}
+}
 async function propose(){try{await req('/proposal',{method:'POST',body:JSON.stringify({device:local.device,title:val('pTitle'),field:val('pField'),question:val('pQuestion'),description:val('pDescription'),source:val('pSource')})});document.getElementById('proposalMsg').textContent='Added to the marketplace ✓ Now you can vote for it.';await refresh()}catch(e){document.getElementById('proposalMsg').textContent=e.message}}
 function studentView(){
  const phase=snap?.state?.phase||'marketplace',p=me();if(!p)return joinView();if(phase==='marketplace')return marketplaceView();
@@ -52,7 +71,7 @@ function studentView(){
  if(phase==='visit')body=groupActivity(g,'11/17 HIGH SCHOOL VISIT',g.visitPrompt,'Agree on your strongest recommendation. One teammate saves the group response.','visit');
  if(phase==='ethics')body=ethicsActivity(g);if(phase==='critique')body=critiqueActivity(g);if(phase==='signature')body=signatureActivity(g);
  if(phase==='close')body='<section class="card hero"><div class="tiny">WRAP-UP</div><h1>You chose it. You argued it. Now use the thinking.</h1><p>Before you leave, make sure you know what you still need to finish for Sunday’s Signature Assignment.</p></section>';
- app.className='student';app.innerHTML='<div class="shell">'+header('GROUP '+g.id+' · '+g.zone)+body+'<div class="footer">Your group was formed from student interest + balanced room size.</div></div>';wireStudent(phase)
+ app.className='student';app.innerHTML='<div class="shell">'+header('GROUP '+g.id+' · '+g.zone)+body+'<div class="footer">Your group was formed from student interest + balanced room size.</div></div>';wireStudent(phase);restoreDraft()
 }
 function waitingView(){app.className='student';app.innerHTML='<div class="shell">'+header('GROUPS FORMING')+'<section class="card hero"><div class="tiny">BALLOTS ARE IN</div><h1>We’re forming the groups.</h1><p>Stay on this screen. Your case, room zone, and role will appear automatically.</p></section></div>'}
 function groupActivity(g,kicker,prompt,helper,phase){const existing=snap.responses?.[phase]?.[g.id]?.text||'';return '<section class="card hero" style="background:linear-gradient(135deg,#111827,'+g.color+')"><div class="tiny">'+esc(kicker)+'</div><h1>'+esc(prompt)+'</h1><p>'+esc(helper)+'</p></section><section class="card"><div class="label">YOUR GROUP’S BEST IDEA</div><textarea id="groupText" class="field" rows="6">'+esc(existing)+'</textarea><div class="actions" style="margin-top:12px"><button class="btn" id="submitGroup">SAVE GROUP RESPONSE</button></div><p id="saveMsg" class="status"></p></section>'}
@@ -60,8 +79,8 @@ function ethicsActivity(g){const e=snap.responses?.ethics?.[g.id]?.fields||{},te
 function critiqueActivity(g){const targetId=snap.critiqueMap?.[g.id],target=snap.groups.find(x=>x.id===targetId),source=snap.responses?.ethics?.[targetId],mine=snap.responses?.critique?.[g.id]?.text||'';const sourceText=source?(Object.entries(source.fields||{}).map(([k,v])=>k.toUpperCase()+': '+v).join('\n')+'\n\nREASONING: '+(source.text||'')):'That group has not saved a decision yet.';return '<section class="card hero"><div class="tiny">CROSS-GROUP CHALLENGE</div><h1>Stress-test Group '+esc(targetId)+'’s reasoning.</h1><p>'+esc(target?.caseTitle||'Another case')+'</p></section><section class="card"><div class="response">'+esc(sourceText)+'</div><div class="label">LEAVE ONE CHALLENGE</div><textarea id="groupText" class="field" rows="5" placeholder="Challenge an assumption, missed stakeholder, underestimated risk, or safeguard.">'+esc(mine)+'</textarea><div class="actions" style="margin-top:12px"><button class="btn" id="submitGroup">SAVE CHALLENGE</button></div><p id="saveMsg" class="status"></p></section>'}
 function signatureActivity(g){return '<section class="card hero"><div class="tiny">GEN ED SIGNATURE ASSIGNMENT · DUE SUNDAY</div><h1>Did today’s case give you a topic—or sharpen one you already had?</h1><p>Your infographic needs a specific issue, credible evidence, multiple perspectives, benefits, risks, and responsible choices.</p></section><section class="card"><div class="label">DID THIS CASE HELP?</div><select id="interest" class="field"><option>YES — I may use this topic</option><option>MAYBE — it gave me another idea</option><option>NO — I have a different topic</option></select><div class="label">MY LIKELY TOPIC</div><input id="topic" class="field" placeholder="Specific issue, not just a category"><div class="label">MY RESEARCHABLE QUESTION</div><textarea id="question" class="field" rows="3"></textarea><div class="grid"><div><div class="label">STAKEHOLDER I NEED TO UNDERSTAND</div><input id="stakeholder" class="field"></div><div><div class="label">I NEED CREDIBLE EVIDENCE ABOUT…</div><input id="evidenceNeed" class="field"></div></div><div class="actions" style="margin-top:12px"><button class="btn" id="saveSignature">SAVE MY START</button></div><p id="saveMsg" class="status">Remember: at least 2 credible, non-AI sources.</p></section>'}
 function wireStudent(phase){const submit=document.getElementById('submitGroup');if(submit)submit.onclick=()=>saveGroup(phase,{});const eth=document.getElementById('submitEthics');if(eth)eth.onclick=()=>saveGroup('ethics',{benefit:val('benefit'),stakeholders:val('stakeholders'),lens:val('lens'),decision:val('decision'),safeguard:val('safeguard')});const sig=document.getElementById('saveSignature');if(sig)sig.onclick=saveSignature}
-async function saveGroup(phase,fields){try{await req('/response',{method:'POST',body:JSON.stringify({device:local.device,phase,text:val('groupText'),fields})});document.getElementById('saveMsg').textContent='Saved ✓';await refresh()}catch(e){document.getElementById('saveMsg').textContent=e.message}}
-async function saveSignature(){try{await req('/individual',{method:'POST',body:JSON.stringify({device:local.device,kind:'signature',topic:val('topic'),question:val('question'),stakeholder:val('stakeholder'),evidenceNeed:val('evidenceNeed'),interest:val('interest')})});document.getElementById('saveMsg').textContent='Saved ✓ You now have a starting point for Sunday.';await refresh()}catch(e){document.getElementById('saveMsg').textContent=e.message}}
+async function saveGroup(phase,fields){writeDraft();try{await req('/response',{method:'POST',body:JSON.stringify({device:local.device,phase,text:val('groupText'),fields})});clearDraft(['groupText','benefit','stakeholders','lens','decision','safeguard']);document.getElementById('saveMsg').textContent='Saved ✓';await refresh()}catch(e){document.getElementById('saveMsg').textContent=e.message}}
+async function saveSignature(){writeDraft();try{await req('/individual',{method:'POST',body:JSON.stringify({device:local.device,kind:'signature',topic:val('topic'),question:val('question'),stakeholder:val('stakeholder'),evidenceNeed:val('evidenceNeed'),interest:val('interest')})});clearDraft(['topic','question','stakeholder','evidenceNeed','interest']);document.getElementById('saveMsg').textContent='Saved ✓ You now have a starting point for Sunday.';await refresh()}catch(e){document.getElementById('saveMsg').textContent=e.message}}
 function instructorView(){
  const phase=snap?.state?.phase||'marketplace',formed=!!snap?.state?.groupsFormed;
  const controls=formed?'<section class="card"><div class="phaseTitle">RUN THE SESSION</div><div class="actions">'+['groups','visit','ethics','critique','signature','close'].map(p=>'<button class="btn phase '+(phase===p?'active':'')+'" data-phase="'+p+'">'+esc(phaseNames[p])+'</button>').join('')+'</div></section>':'<section class="card"><div class="phaseTitle">CASE MARKETPLACE</div><div class="actions"><button class="btn" id="formGroups">FORM 4 INTEREST-BASED GROUPS</button></div><p class="status">Use this after most students have joined and voted. Top four cases win; preferences are honored while group sizes stay balanced.</p></section>';
@@ -89,6 +108,7 @@ refresh();
 setInterval(()=>{
   const active=document.activeElement;
   const editing=VIEW==='student' && active && ['INPUT','TEXTAREA','SELECT'].includes(active.tagName);
+  if(VIEW==='student') writeDraft();
   if(!editing && (VIEW!=='student'||local.name)) refresh();
 },2500);
 </script></body></html>
