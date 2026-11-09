@@ -1,0 +1,54 @@
+name: Group Mode Live Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/group-mode-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify Group Mode live routes and API
+        env:
+          BASE: https://classroom.itsbadlabs.com
+          SESSION: group-mode-smoke-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          for path in groups groups/instructor groups/room; do
+            echo "Checking $BASE/$path"
+            curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$BASE/$path?session=$SESSION" | grep -q "INF 125"
+          done
+
+          API="$BASE/api/session/$SESSION/group-mode"
+
+          echo "Checking empty snapshot"
+          curl --fail --silent --show-error "$API/snapshot" | jq -e '.state.phase == "arrival" and (.groups|length) == 4' >/dev/null
+
+          echo "Joining five test students"
+          for row in "d1|Alice" "d2|Bob" "d3|Casey" "d4|Devon" "d5|Eli"; do
+            device="${row%%|*}"; name="${row#*|}"
+            curl --fail --silent --show-error -X POST "$API/join" -H 'content-type: application/json' --data "{\"device\":\"$device\",\"name\":\"$name\"}" >/dev/null
+          done
+
+          SNAP="$(curl --fail --silent --show-error "$API/snapshot")"
+          printf '%s' "$SNAP" | jq -e '
+            (.people|length) == 5 and
+            ([.groups[].members|length] | max) - ([.groups[].members|length] | min) <= 1
+          ' >/dev/null
+
+          echo "Advancing to visit phase"
+          curl --fail --silent --show-error -X POST "$API/phase" -H 'content-type: application/json' --data '{"phase":"visit"}' | jq -e '.phase == "visit"' >/dev/null
+
+          echo "Saving a group response"
+          curl --fail --silent --show-error -X POST "$API/response" -H 'content-type: application/json' --data '{"device":"d1","phase":"visit","text":"Make the visitors do a hands-on AI challenge."}' | jq -e '.ok == true' >/dev/null
+
+          curl --fail --silent --show-error "$API/snapshot" | jq -e '.responses.visit.A.text | length > 0' >/dev/null
+
+          echo "Resetting isolated smoke session"
+          curl --fail --silent --show-error -X POST "$API/reset" -H 'content-type: application/json' --data '{}' | jq -e '.ok == true' >/dev/null
+
+          echo "Group Mode live smoke test passed."
