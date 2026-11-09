@@ -1,4 +1,4 @@
-import { handleEthicsLab } from './ethics-lab-api.js';
+import { handleEthicsLab, isEthicsInstructor } from './ethics-lab-api.js';
 import baseHandler, { ClassroomSession as BaseClassroomSession } from './index-v0103.js';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
@@ -49,7 +49,8 @@ export class ClassroomSession extends BaseClassroomSession {
   }
   async handleRequest(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
-    if(url.pathname.includes('/ethics-lab/')) return handleEthicsLab(request,this.state.storage);
+    if(url.pathname.includes('/ethics-lab/')) return handleEthicsLab(request,this.state.storage,{pin:this.env?.INF125_INSTRUCTOR_PIN||'',delegate:r=>this.handleRequest(r)});
+    if(url.pathname.includes('/inf125-nov10-ethics/group-mode/') && method==='POST' && /\/(form-groups|phase|reset)$/.test(url.pathname)) { if(!await isEthicsInstructor(request,this.env?.INF125_INSTRUCTOR_PIN||'')) return json({error:'Instructor sign-in required'},401); }
     // Instructor roster management for the current classroom session.
     if(url.pathname.endsWith('/roster')){
       const participants=(await this.state.storage.get('participants'))||{};
@@ -216,6 +217,12 @@ export class ClassroomSession extends BaseClassroomSession {
     const gmProposals=async()=>(await this.state.storage.get('gmProposals'))||{};
     const gmVotes=async()=>(await this.state.storage.get('gmVotes'))||{};
     const gmCases=async()=>{
+      if(url.pathname.includes('/inf125-nov10-ethics/')) return [
+        {id:'seed-education',title:'Perfect AI Tutor',field:'Education',question:'What student data should a personalized AI tutor be allowed to use?',description:'A university offers an AI tutor that accesses grades, assignments, Canvas activity, accommodations, and study habits. Students using it improve academically. What data should remain private?',source:''},
+        {id:'seed-privacy',title:'Employee AI Monitoring',field:'Workplace privacy',question:'What should employees know, control, appeal, or refuse?',description:'AI analyzes company email, transcripts, keyboard activity, and project data to score employees. Managers believe this makes evaluations more objective.',source:''},
+        {id:'seed-hiring',title:'AI Hiring',field:'Jobs and fairness',question:'What should companies require before using AI scores to select interviewees?',description:'An AI system ranks 20,000 applicants using résumés and video interviews. Recruiters save time, but some demographic groups consistently receive lower scores.',source:''},
+        {id:'seed-creativity',title:'AI Art',field:'Art and ownership',question:'What should count as meaningful authorship, permission, or compensation?',description:'An image model learns from millions of online images. An artist discovers that users can generate images resembling their style without permission or payment.',source:''}
+      ];
       const proposals=await gmProposals();
       return [...gmSeeds,...Object.values(proposals).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))];
     };
@@ -271,8 +278,8 @@ export class ClassroomSession extends BaseClassroomSession {
       for(const ids of Object.values(votes))for(const id of (Array.isArray(ids)?ids:[]))counts[id]=(counts[id]||0)+1;
       const ranked=[...cases].sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||((a.id.startsWith('custom-')?0:1)-(b.id.startsWith('custom-')?0:1))||(a.createdAt||0)-(b.createdAt||0)||String(a.title).localeCompare(String(b.title)));
       const selected=[];for(const c of ranked){if((counts[c.id]||0)>0&&selected.length<4)selected.push(c.id);}
-      for(const c of gmSeeds){if(selected.length>=4)break;if(!selected.includes(c.id))selected.push(c.id);}
-      const groupCases=Object.fromEntries(gmZones.map((z,i)=>[z.id,selected[i]||gmSeeds[i]?.id]));
+      for(const c of cases){if(selected.length>=4)break;if(!selected.includes(c.id))selected.push(c.id);}
+      const groupCases=url.pathname.includes('/inf125-nov10-ethics/')?{A:'seed-education',B:'seed-privacy',C:'seed-hiring',D:'seed-creativity'}:Object.fromEntries(gmZones.map((z,i)=>[z.id,selected[i]||gmSeeds[i]?.id]));
       const groupCounts=Object.fromEntries(gmZones.map(z=>[z.id,0])),n=Object.keys(people).length,maxSize=Math.max(1,Math.ceil(n/4));
       const rows=Object.values(people).sort((a,b)=>{
         const ap=(votes[a.device]||[]).filter(id=>selected.includes(id)).length,bp=(votes[b.device]||[]).filter(id=>selected.includes(id)).length;
