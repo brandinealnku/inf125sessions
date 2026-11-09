@@ -18,12 +18,12 @@ async function bodyHas(page,s){
 try{
   const student=await browser.newPage();
   log('Opening student view');
-  await student.goto(`${base}/groups?session=${encodeURIComponent(session)}`,{waitUntil:'networkidle2',timeout:30000});
-  await student.waitForSelector('#name',{timeout:15000});
+  await student.goto(`${base}/groups?session=${encodeURIComponent(session)}`,{waitUntil:'domcontentloaded',timeout:10000});
+  await student.waitForSelector('#name',{timeout:10000});
   await student.type('#name','Jordan',{delay:35});
   assert((await student.$eval('#name',el=>el.value))==='Jordan','Student name field did not retain typed text');
   await student.click('#joinBtn');
-  await student.waitForSelector('#pTitle',{timeout:15000});
+  await student.waitForSelector('#pTitle',{timeout:10000});
   log('Student entered marketplace');
 
   const title='AI + Personalized Social Media Feeds';
@@ -43,8 +43,8 @@ try{
 
   log('Submitting Bring Your Own Case');
   await student.click('#proposeBtn');
-  await student.waitForFunction(t=>document.body.innerText.includes(t),{timeout:15000},title);
-  await student.waitForFunction(()=>document.body.innerText.includes('YOUR CASE'),{timeout:15000});
+  await student.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
+  await student.waitForFunction(()=>document.body.innerText.includes('YOUR CASE'),{timeout:10000});
   assert(await bodyHas(student,title),'Submitted case not visible to student');
   assert(await bodyHas(student,'YOUR CASE'),'Submitted case not marked YOUR CASE');
   log('Student sees submitted case');
@@ -52,40 +52,40 @@ try{
   const saveVotes=await student.$('#saveVotes');
   assert(saveVotes,'Save My Votes button missing');
   await saveVotes.click();
-  await student.waitForFunction(()=>document.body.innerText.includes('Votes saved'),{timeout:15000});
+  await student.waitForFunction(()=>document.body.innerText.includes('Votes saved'),{timeout:10000});
   log('Student vote saved');
 
   const instructor=await browser.newPage();
   log('Opening instructor view');
-  await instructor.goto(`${base}/groups/instructor?session=${encodeURIComponent(session)}`,{waitUntil:'networkidle2',timeout:30000});
-  await instructor.waitForFunction(t=>document.body.innerText.includes(t),{timeout:15000},title);
+  await instructor.goto(`${base}/groups/instructor?session=${encodeURIComponent(session)}`,{waitUntil:'domcontentloaded',timeout:10000});
+  await instructor.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
   assert(await bodyHas(instructor,'INSTRUCTOR'),'Instructor view did not render instructor controls');
   assert(await bodyHas(instructor,title),'Submitted case missing from instructor view');
   log('Instructor sees submitted case');
 
   const room=await browser.newPage();
   log('Opening room view');
-  await room.goto(`${base}/groups/room?session=${encodeURIComponent(session)}`,{waitUntil:'networkidle2',timeout:30000});
-  await room.waitForFunction(t=>document.body.innerText.includes(t),{timeout:15000},title);
+  await room.goto(`${base}/groups/room?session=${encodeURIComponent(session)}`,{waitUntil:'domcontentloaded',timeout:10000});
+  await room.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
   assert(await bodyHas(room,'CASE MARKETPLACE'),'Room view did not render marketplace');
   assert(await bodyHas(room,title),'Submitted case missing from room view');
   log('Room sees submitted case');
 
   log('Instructor forms groups');
   await instructor.click('#formGroups');
-  await instructor.waitForFunction(()=>document.body.innerText.includes('FIND YOUR INTEREST GROUP')||document.body.innerText.includes('Find Your Interest Group'),{timeout:15000}).catch(()=>{});
+  await instructor.waitForFunction(()=>document.body.innerText.includes('FIND YOUR INTEREST GROUP')||document.body.innerText.includes('Find Your Interest Group'),{timeout:10000}).catch(()=>{});
   await new Promise(r=>setTimeout(r,3500));
 
-  await student.reload({waitUntil:'networkidle2'});
-  await student.waitForFunction(t=>document.body.innerText.includes(t),{timeout:15000},title);
+  await student.reload({waitUntil:'domcontentloaded'});
+  await student.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
   assert(await bodyHas(student,title),'Selected custom case disappeared from student group view after grouping');
 
-  await instructor.reload({waitUntil:'networkidle2'});
-  await instructor.waitForFunction(t=>document.body.innerText.includes(t),{timeout:15000},title);
+  await instructor.reload({waitUntil:'domcontentloaded'});
+  await instructor.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
   assert(await bodyHas(instructor,title),'Selected custom case disappeared from instructor group view after grouping');
 
-  await room.reload({waitUntil:'networkidle2'});
-  await room.waitForFunction(t=>document.body.innerText.includes(t),{timeout:15000},title);
+  await room.reload({waitUntil:'domcontentloaded'});
+  await room.waitForFunction(t=>document.body.innerText.includes(t),{timeout:10000},title);
   assert(await bodyHas(room,title),'Selected custom case disappeared from room group view after grouping');
 
   log('PASS: BYO case propagates Student -> Instructor -> Room before and after group formation');
