@@ -38,6 +38,12 @@ export class ClassroomSession extends BaseClassroomSession {
       this.cqQueue=next.then(()=>undefined,()=>undefined);
       return next;
     }
+    if(new URL(request.url).pathname.includes('/group-mode/')){
+      const previous=this.gmQueue||Promise.resolve();
+      const next=previous.then(()=>this.handleRequest(request));
+      this.gmQueue=next.then(()=>undefined,()=>undefined);
+      return next;
+    }
     return this.handleRequest(request);
   }
   async handleRequest(request) {
@@ -143,6 +149,71 @@ export class ClassroomSession extends BaseClassroomSession {
       await this.state.storage.put('helpRequests',help);
       return json({ok:true});
     }
+    // Group Mode — lightweight physical-zone + virtual-team orchestration for INF 125.
+    const gmGroups=[
+      {id:'A',zone:'RED ZONE',color:'#dc4b5f',caseTitle:'Case A — AI Hiring',visitPrompt:'What should the high school students actually DO while they are with us?'},
+      {id:'B',zone:'BLUE ZONE',color:'#2f80ed',caseTitle:'Case B — The Perfect AI Tutor',visitPrompt:'What should the high school students LEAVE knowing or thinking about?'},
+      {id:'C',zone:'PURPLE ZONE',color:'#7654d8',caseTitle:'Case C — AI Art',visitPrompt:'What should INF 125 students LEAD instead of Brandi?'},
+      {id:'D',zone:'GOLD ZONE',color:'#d89b24',caseTitle:'Case D — Employee AI Monitoring',visitPrompt:'What would make the visit feel FUN instead of like more school?'}
+    ];
+    const gmRoles=['FACILITATOR','RECORDER','SKEPTIC','REPORTER','EVIDENCE CHECKER'];
+    const gmInitial=()=>({phase:'arrival',updatedAt:Date.now()});
+    const gmState=async()=>(await this.state.storage.get('gmState'))||gmInitial();
+    const gmPeople=async()=>(await this.state.storage.get('gmPeople'))||{};
+    const gmResponses=async()=>(await this.state.storage.get('gmResponses'))||{};
+    const gmIndividual=async()=>(await this.state.storage.get('gmIndividual'))||{};
+    const gmHydrate=async()=>{
+      const state=await gmState(),people=await gmPeople(),responses=await gmResponses(),individual=await gmIndividual(),cutoff=Date.now()-180000;
+      const groups=gmGroups.map(g=>({...g,members:Object.values(people).filter(p=>p.groupId===g.id).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)).map(p=>({...p,active:(p.lastSeen||0)>=cutoff})),response:responses?.[state.phase]?.[g.id]||null,ethicsResponse:responses?.ethics?.[g.id]||null,critiqueResponse:responses?.critique?.[g.id]||null}));
+      const critiqueMap={A:'B',B:'C',C:'D',D:'A'};
+      return {state,groups,people:Object.values(people),responses,critiqueMap,signatureReady:Object.values(individual).filter(x=>x?.signature?.question||x?.signature?.topic).length,individualCount:Object.keys(individual).length};
+    };
+    if(url.pathname.endsWith('/group-mode/snapshot')&&method==='GET')return json(await gmHydrate());
+    if(url.pathname.endsWith('/group-mode/join')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),device=short(b.device,140),name=short(b.name||'',50).trim();
+      if(!device||!name)return json({error:'Name and device are required'},400);
+      const people=await gmPeople(),now=Date.now();
+      if(people[device]){
+        people[device]={...people[device],name,lastSeen:now};await this.state.storage.put('gmPeople',people);
+        return json({ok:true,person:people[device],snapshot:await gmHydrate()});
+      }
+      const counts=Object.fromEntries(gmGroups.map(g=>[g.id,Object.values(people).filter(p=>p.groupId===g.id).length]));
+      const min=Math.min(...Object.values(counts)),groupId=gmGroups.find(g=>counts[g.id]===min).id,seat=counts[groupId];
+      const person={device,name,groupId,role:gmRoles[seat%gmRoles.length],joinedAt:now,lastSeen:now};
+      people[device]=person;await this.state.storage.put('gmPeople',people);
+      return json({ok:true,person,snapshot:await gmHydrate()});
+    }
+    if(url.pathname.endsWith('/group-mode/heartbeat')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),device=short(b.device,140),people=await gmPeople();
+      if(people[device]){people[device].lastSeen=Date.now();await this.state.storage.put('gmPeople',people);}
+      return json({ok:true});
+    }
+    if(url.pathname.endsWith('/group-mode/phase')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),allowed=['arrival','visit','ethics','critique','signature','close'];
+      if(!allowed.includes(b.phase))return json({error:'Invalid phase'},400);
+      const next={phase:b.phase,updatedAt:Date.now()};await this.state.storage.put('gmState',next);return json(next);
+    }
+    if(url.pathname.endsWith('/group-mode/response')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),people=await gmPeople(),person=people[short(b.device,140)];
+      if(!person)return json({error:'Join Group Mode first'},400);
+      const state=await gmState(),phase=short(b.phase||state.phase,30);
+      if(!['visit','ethics','critique'].includes(phase))return json({error:'This phase does not accept a group response'},400);
+      const responses=await gmResponses();responses[phase]=responses[phase]||{};
+      responses[phase][person.groupId]={groupId:person.groupId,phase,text:short(b.text||'',3000),fields:b.fields&&typeof b.fields==='object'?Object.fromEntries(Object.entries(b.fields).slice(0,12).map(([k,v])=>[short(k,60),short(v,700)])):null,submittedBy:person.name,updatedAt:Date.now()};
+      await this.state.storage.put('gmResponses',responses);return json({ok:true,response:responses[phase][person.groupId]});
+    }
+    if(url.pathname.endsWith('/group-mode/individual')&&method==='POST'){
+      const b=await request.json().catch(()=>({})),device=short(b.device,140),people=await gmPeople(),person=people[device];
+      if(!person)return json({error:'Join Group Mode first'},400);
+      const all=await gmIndividual();all[device]=all[device]||{device,name:person.name,groupId:person.groupId};
+      const kind=short(b.kind||'signature',30);all[device][kind]={topic:short(b.topic||'',500),question:short(b.question||'',900),stakeholder:short(b.stakeholder||'',500),evidenceNeed:short(b.evidenceNeed||'',700),updatedAt:Date.now()};
+      await this.state.storage.put('gmIndividual',all);return json({ok:true});
+    }
+    if(url.pathname.endsWith('/group-mode/reset')&&method==='POST'){
+      for(const key of ['gmState','gmPeople','gmResponses','gmIndividual'])await this.state.storage.delete(key);
+      const initial=gmInitial();await this.state.storage.put('gmState',initial);return json({ok:true,state:initial});
+    }
+
     // Context Quest live classroom game — individual join + virtual teams
     const cqInitial=()=>({stage:'lobby',round:0,resultsVisible:false,teamsFormed:false,testMode:false,updatedAt:Date.now()});
     const cqState=async()=>(await this.state.storage.get('cqState'))||cqInitial();
@@ -760,6 +831,9 @@ export default {
       target.searchParams.set('session','ghost-in-the-machine-inf128-20261026');
       return Response.redirect(target.toString(),302);
     }
+    if (path === '/groups' || path === '/groups/student') { const u = new URL('/group-mode.html', request.url); u.searchParams.set('view','student'); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/groups/instructor') { const u = new URL('/group-mode.html', request.url); u.searchParams.set('view','instructor'); return env.ASSETS.fetch(new Request(u, request)); }
+    if (path === '/groups/room') { const u = new URL('/group-mode.html', request.url); u.searchParams.set('view','room'); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/rehearsal') { const u = new URL('/rehearsal-v01019.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/powerpoint-overlay') { const u = new URL('/powerpoint-overlay.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/powerpoint-live') { const u = new URL('/powerpoint-live.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
