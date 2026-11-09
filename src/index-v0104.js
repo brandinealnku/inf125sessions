@@ -157,14 +157,55 @@ export class ClassroomSession extends BaseClassroomSession {
       {id:'D',zone:'GOLD ZONE',color:'#d89b24',visitPrompt:'What would make the visit feel FUN instead of like more school?'}
     ];
     const gmSeeds=[
-      {id:'seed-hiring',title:'AI + Hiring / Work',field:'Work & Careers',question:'Should AI help decide who gets hired, promoted, evaluated, or fired?',description:'Hiring screens, recorded interviews, performance scores, and workplace decisions.'},
-      {id:'seed-education',title:'AI + Education',field:'Education',question:'How much should AI tutors know about students, and when does AI help versus replace learning?',description:'Personalized tutors, student records, learning support, and academic judgment.'},
-      {id:'seed-creativity',title:'AI + Creativity',field:'Art & Media',question:'Who should own, credit, or be compensated for AI-generated creative work?',description:'Art, music, writing, video, training data, authorship, and style.'},
-      {id:'seed-privacy',title:'AI + Privacy / Surveillance',field:'Privacy',question:'When does useful personalization or monitoring become too invasive?',description:'Tracking, biometrics, workplace monitoring, location, and personal data.'},
-      {id:'seed-health',title:'AI + Healthcare',field:'Health',question:'What medical decisions should AI be allowed to influence?',description:'Diagnosis, treatment recommendations, patient data, access, and accountability.'},
-      {id:'seed-deepfakes',title:'AI + Deepfakes / Information',field:'Media & Society',question:'When should AI-generated or manipulated content have to be disclosed?',description:'Deepfakes, misinformation, synthetic media, trust, and transparency.'}
-    ];
-    const gmRoles=['FACILITATOR','STAKEHOLDER ADVOCATE','SKEPTIC','REPORTER','EVIDENCE CHECKER'];
+      {
+        id:'seed-hiring',
+        title:'Workday AI Hiring Lawsuit',
+        field:'Work & Careers',
+        question:'If an AI screening system repeatedly rejects qualified applicants, who should be responsible for proving that the system is fair?',
+        description:'REAL CASE · Job applicant Derek Mobley sued Workday, alleging its AI-powered hiring tools discriminated based on race, age, and disability. In June 2026, a federal judge allowed major parts of the case to continue, making it an important test of who can be held responsible when employers rely on automated screening.',
+        source:'https://www.investing.com/news/stock-market-news/workday-must-face-california-lawsuit-over-ai-bias-in-job-screening-tools-4753723'
+      },
+      {
+        id:'seed-education',
+        title:'AI Tutor: Better Help or Less Learning?',
+        field:'Education',
+        question:'Should colleges roll out AI tutors if they make help easier to access but may also reduce students’ participation in normal course activities?',
+        description:'REAL CASE · A 2026 randomized university study followed 2,379 undergraduates using a course-integrated generative AI tutor. In the study, students with tutor access showed lower course grades and much lower learning-management-system participation, raising questions about whether convenient AI help can sometimes displace productive learning.',
+        source:'https://www.iza.org/en/publications/dp/18989/the-effects-of-course-integrated-ai-tutoring-on-student-performance-and-engagement-a-randomized-university-trial'
+      },
+      {
+        id:'seed-creativity',
+        title:'Elvis, Eminem Rights Holders Sue AI Music Generator Suno',
+        field:'Art, Music & Media',
+        question:'Should an AI company be allowed to train on copyrighted songs without permission if it uses them to learn how to generate new music?',
+        description:'REAL CASE · On November 9, 2026, copyright owners associated with Elvis Presley and Eminem filed separate federal lawsuits against AI music generator Suno. They allege copyrighted music was used improperly to train the system, putting ownership, permission, compensation, and AI creativity directly in conflict.',
+        source:'https://www.reuters.com/legal/legalindustry/elvis-eminem-copyright-owners-sue-suno-over-ai-training-2026-11-09/'
+      },
+      {
+        id:'seed-privacy',
+        title:'Meta Tracks Employee Mouse Movements and Keystrokes for AI Training',
+        field:'Workplace Privacy',
+        question:'Should an employer be allowed to record how employees click, type, and use work applications in order to train future AI agents?',
+        description:'REAL CASE · In 2026, Meta told U.S. employees it would use software to capture work-related mouse movements, clicks, keystrokes, and occasional screen snapshots to improve AI agents. The program created a difficult tradeoff between building better AI systems and employees’ privacy, consent, and concern about how the data might later be used.',
+        source:'https://www.investing.com/news/world-news/exclusivemeta-to-start-capturing-employee-mouse-movements-keystrokes-for-ai-training-data-4630342'
+      },
+      {
+        id:'seed-health',
+        title:'AI Navigation in Surgery: Who Is Responsible When Guidance Is Wrong?',
+        field:'Healthcare',
+        question:'How much should surgeons trust AI-assisted navigation, and who should be accountable when the technology gives inaccurate guidance?',
+        description:'REAL CASE · A 2026 Reuters investigation examined reports involving AI-enabled medical devices, including a sinus-surgery navigation system. FDA reports described malfunctions and injuries allegedly connected to inaccurate instrument-location guidance, while manufacturers disputed whether the AI caused those harms. The case raises questions about testing, oversight, human judgment, and accountability.',
+        source:'https://www.reuters.com/investigations/ai-enters-operating-room-reports-arise-botched-surgeries-misidentified-body-2026-02-09/'
+      },
+      {
+        id:'seed-deepfakes',
+        title:'Candidate Accused of Using AI to Fake Political Endorsements',
+        field:'Media, Politics & Information',
+        question:'When AI-generated political content looks real, should creating it be treated as protected persuasion, deceptive speech, or fraud?',
+        description:'REAL CASE · In 2026, a former New York City Council candidate was charged after prosecutors alleged he used AI to create fake political endorsements, a fabricated news story, manipulated images, and endorsement videos. The case asks where creative political messaging ends and deliberate deception begins.',
+        source:'https://apnews.com/article/995585d736361c976611f8846db171a2'
+      }
+    ];    const gmRoles=['FACILITATOR','STAKEHOLDER ADVOCATE','SKEPTIC','REPORTER','EVIDENCE CHECKER'];
     const gmInitial=()=>({phase:'marketplace',groupsFormed:false,selectedCaseIds:[],updatedAt:Date.now()});
     const gmState=async()=>(await this.state.storage.get('gmState'))||gmInitial();
     const gmPeople=async()=>(await this.state.storage.get('gmPeople'))||{};
