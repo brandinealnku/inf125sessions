@@ -1,0 +1,26 @@
+name: Group Marketplace Browser E2E
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/group-marketplace-e2e.mjs'
+      - '.github/workflows/group-marketplace-e2e.yml'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install puppeteer-core@24
+      - name: Run student -> instructor -> room browser test
+        env:
+          BASE: https://classroom.itsbadlabs.com
+          SESSION: group-marketplace-browser-${{ github.run_id }}
+          CHROME: /usr/bin/google-chrome
+        run: node tests/group-marketplace-e2e.mjs
