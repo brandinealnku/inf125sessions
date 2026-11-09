@@ -1,3 +1,4 @@
+import { handleEthicsLab } from './ethics-lab-api.js';
 import baseHandler, { ClassroomSession as BaseClassroomSession } from './index-v0103.js';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
@@ -48,6 +49,7 @@ export class ClassroomSession extends BaseClassroomSession {
   }
   async handleRequest(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
+    if(url.pathname.includes('/ethics-lab/')) return handleEthicsLab(request,this.state.storage);
     // Instructor roster management for the current classroom session.
     if(url.pathname.endsWith('/roster')){
       const participants=(await this.state.storage.get('participants'))||{};
@@ -937,6 +939,7 @@ export default {
       target.searchParams.set('session','ghost-in-the-machine-inf128-20261026');
       return Response.redirect(target.toString(),302);
     }
+    if (path === '/ethics-lab' || path === '/ethics-lab/student' || path === '/ethics-lab/instructor' || path === '/ethics-lab/room') { const u = new URL('/ethics-lab.html', request.url); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/groups' || path === '/groups/student') { const u = new URL('/group-mode.html', request.url); u.searchParams.set('view','student'); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/groups/instructor') { const u = new URL('/group-mode.html', request.url); u.searchParams.set('view','instructor'); return env.ASSETS.fetch(new Request(u, request)); }
     if (path === '/groups/room') { const u = new URL('/group-mode.html', request.url); u.searchParams.set('view','room'); return env.ASSETS.fetch(new Request(u, request)); }
