@@ -80,7 +80,7 @@ export async function handleEthicsLab(request,storage,opts={}){
    const s=await state();if(s.phase!==2)return js({error:'Form groups during the 25–45 minute activity.'},409);
    if(typeof opts.delegate!=='function')return js({error:'Group mode unavailable'},503);
    const u=new URL(request.url);u.pathname=u.pathname.replace(/ethics-lab\/form-groups$/,'group-mode/form-groups');
-   const result=await opts.delegate(new Request(u.toString(),{method:'POST',headers:{'content-type':'application/json','cookie':request.headers.get('cookie')||''},body:'{}'}));
+   const result=await opts.delegate(new Request(u.toString(),{method:'POST',headers:{'content-type':'application/json','cookie':request.headers.get('cookie')||'','x-inf125-instructor-key':request.headers.get('x-inf125-instructor-key')||''},body:'{}'}));
    if(!result.ok)return result;
    const gm=await gmState();await storage.put('gmState',{...gm,phase:'ethics',updatedAt:Date.now()});
    return js({ok:true});
