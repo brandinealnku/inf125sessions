@@ -4,7 +4,7 @@
 </style></head><body><main id="app" class="wrap"><div class="card">Connecting to the classroom…</div></main>
 <script>
 'use strict';
-const SESSION='inf125-nov10-ethics-v2',API='/api/session/'+SESSION+'/ethics-lab/',GM='/api/session/'+SESSION+'/group-mode/',ZONES=[['A','Red','#dc4b5f'],['B','Blue','#2f80ed'],['C','Purple','#7654d8'],['D','Gold','#d89b24']];
+const SESSION='inf125-nov10-real-cases-v3',API='/api/session/'+SESSION+'/ethics-lab/',GM='/api/session/'+SESSION+'/group-mode/',ZONES=[['A','Red','#dc4b5f'],['B','Blue','#2f80ed'],['C','Purple','#7654d8'],['D','Gold','#d89b24']];
 const VIEW=location.pathname.endsWith('/instructor')?'instructor':location.pathname.endsWith('/room')?'room':'student';
 const instructorKeyStore='inf125-instructor-link-key';
 const incomingKey=new URLSearchParams(location.hash.slice(1)).get('access');
