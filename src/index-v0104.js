@@ -50,7 +50,7 @@ export class ClassroomSession extends BaseClassroomSession {
   async handleRequest(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
     if(url.pathname.includes('/ethics-lab/')) return handleEthicsLab(request,this.state.storage,{pin:this.env?.INF125_INSTRUCTOR_PIN||'',delegate:r=>this.handleRequest(r)});
-    if(url.pathname.includes('/inf125-nov10-ethics-v2/group-mode/') && method==='POST' && /\/(form-groups|phase|reset)$/.test(url.pathname)) { if(!await isEthicsInstructor(request,this.env?.INF125_INSTRUCTOR_PIN||'')) return json({error:'Instructor sign-in required'},401); }
+    if(url.pathname.includes('/inf125-nov10-real-cases-v3/group-mode/') && method==='POST' && /\/(form-groups|phase|reset)$/.test(url.pathname)) { if(!await isEthicsInstructor(request,this.env?.INF125_INSTRUCTOR_PIN||'')) return json({error:'Instructor sign-in required'},401); }
     // Instructor roster management for the current classroom session.
     if(url.pathname.endsWith('/roster')){
       const participants=(await this.state.storage.get('participants'))||{};
@@ -217,12 +217,107 @@ export class ClassroomSession extends BaseClassroomSession {
     const gmProposals=async()=>(await this.state.storage.get('gmProposals'))||{};
     const gmVotes=async()=>(await this.state.storage.get('gmVotes'))||{};
     const gmCases=async()=>{
-      if(url.pathname.includes('/inf125-nov10-ethics-v2/')) return [
-        {id:'seed-education',title:'Perfect AI Tutor',field:'Education',question:'What student data should a personalized AI tutor be allowed to use?',description:'A university offers an AI tutor that accesses grades, assignments, Canvas activity, accommodations, and study habits. Students using it improve academically. What data should remain private?',source:''},
-        {id:'seed-privacy',title:'Employee AI Monitoring',field:'Workplace privacy',question:'What should employees know, control, appeal, or refuse?',description:'AI analyzes company email, transcripts, keyboard activity, and project data to score employees. Managers believe this makes evaluations more objective.',source:''},
-        {id:'seed-hiring',title:'AI Hiring',field:'Jobs and fairness',question:'What should companies require before using AI scores to select interviewees?',description:'An AI system ranks 20,000 applicants using résumés and video interviews. Recruiters save time, but some demographic groups consistently receive lower scores.',source:''},
-        {id:'seed-creativity',title:'AI Art',field:'Art and ownership',question:'What should count as meaningful authorship, permission, or compensation?',description:'An image model learns from millions of online images. An artist discovers that users can generate images resembling their style without permission or payment.',source:''}
-      ];
+      if(url.pathname.includes('/inf125-nov10-real-cases-v3/')) return [
+  {
+    "id": "real-tutor-trial",
+    "title": "AI Tutor Trial: Lower Grades?",
+    "field": "Education",
+    "date": "October 2026",
+    "status": "Published study",
+    "question": "Should colleges roll out AI tutors before demonstrating improved learning?",
+    "description": "A randomized University of Maryland trial involving 2,379 undergraduates found that students offered a course-integrated AI tutor earned lower grades in comparable course sections and used course materials less. The result raises questions about when convenience undermines learning.",
+    "tradeoff": "Immediate help and access versus deeper learning and student independence.",
+    "source": "https://edsi.umd.edu/news/students-offered-ai-tutor-got-lower-grades-and-disengaged-course-materials-university-maryland"
+  },
+  {
+    "id": "real-workday-hiring",
+    "title": "Workday AI Screening Lawsuit",
+    "field": "Hiring & careers",
+    "date": "June 2026",
+    "status": "Pending lawsuit; allegations not proven",
+    "question": "Who must show that an automated hiring system treats applicants fairly?",
+    "description": "A federal judge said Workday must face claims alleging its AI-powered job-screening tools discriminated against certain applicants, including people with disabilities. The ruling allowed claims to proceed; it did not establish unlawful discrimination.",
+    "tradeoff": "Faster screening versus fairness, explainability and appeals.",
+    "source": "https://www.investing.com/news/stock-market-news/workday-must-face-california-lawsuit-over-ai-bias-in-job-screening-tools-4753723"
+  },
+  {
+    "id": "real-meta-tracking",
+    "title": "Meta Pauses Employee AI Tracking",
+    "field": "Workplace privacy",
+    "date": "June 2026",
+    "status": "Program paused during security investigation",
+    "question": "Should AI developers collect detailed employee activity to train agents?",
+    "description": "Meta began collecting employee mouse movements, clicks, keystrokes and some screen content to train AI agents. After worker concerns and reported security problems, Meta said in June it was pausing the program while investigating. Meta said it had no evidence of improper access.",
+    "tradeoff": "Training capable workplace agents versus privacy, consent and information security.",
+    "source": "https://www.investing.com/news/stock-market-news/meta-to-pause-internal-mousetracking-tech-while-examining-data-security-issues-4754412"
+  },
+  {
+    "id": "real-suno-music",
+    "title": "Elvis & Eminem Rights Holders Sue Suno",
+    "field": "Music & creativity",
+    "date": "November 2026",
+    "status": "Lawsuits; allegations not proven",
+    "question": "Should an AI music company need permission before training on protected music?",
+    "description": "Rights holders associated with Elvis Presley and Eminem filed lawsuits against AI music generator Suno alleging that protected music was used improperly in training. Filing a lawsuit does not establish infringement.",
+    "tradeoff": "Creative experimentation versus consent, copyright and artist compensation.",
+    "source": "https://www.reuters.com/legal/legalindustry/elvis-eminem-copyright-owners-sue-suno-over-ai-training-2026-11-09/"
+  },
+  {
+    "id": "real-surgery-navigation",
+    "title": "AI Guidance and Reported Surgical Injuries",
+    "field": "Healthcare safety",
+    "date": "February 2026",
+    "status": "Investigation; causation not established",
+    "question": "What evidence should hospitals require before relying on AI-assisted surgery guidance?",
+    "description": "Reuters reviewed reports involving AI-enabled medical devices, including sinus-surgery navigation. FDA adverse-event reports described injuries allegedly connected to incorrect instrument-location guidance, but these reports do not establish that AI caused those injuries; manufacturers disputed causal claims.",
+    "tradeoff": "Surgical assistance versus uncertain failure modes and patient safety.",
+    "source": "https://www.reuters.com/investigations/ai-enters-operating-room-reports-arise-botched-surgeries-misidentified-body-2026-02-09/"
+  },
+  {
+    "id": "real-face-arrest",
+    "title": "Wrongful Arrest After Facial-Recognition Match",
+    "field": "Policing & civil rights",
+    "date": "June 2026",
+    "status": "Ongoing lawsuit",
+    "question": "What human verification should police require before acting on an AI face match?",
+    "description": "The ACLU filed a lawsuit for Robert Dillon, who was arrested in Florida after police relied on an AI-assisted facial-recognition result from a grainy photo that incorrectly suggested he was a suspect. The case concerns safeguards and responsibility for false matches.",
+    "tradeoff": "Faster investigations versus accuracy, civil rights and false arrests.",
+    "source": "https://www.aclu.org/cases/dillon-v-city-of-jacksonville-beach"
+  },
+  {
+    "id": "real-legal-citations",
+    "title": "AI-Invented Citations in Court",
+    "field": "Law & accountability",
+    "date": "September 2026",
+    "status": "Documented errors and sanctions",
+    "question": "Who is accountable when AI-generated legal research cites nonexistent cases?",
+    "description": "Reuters documented fabricated and inaccurate AI-related legal citations in court filings and judicial work. Lawyers have faced warnings and fines for submitting unchecked material. AI tools may speed research but professional responsibilities still require verification.",
+    "tradeoff": "Faster drafting versus accuracy, due process and professional duty.",
+    "source": "https://www.reuters.com/legal/government/ai-error-ridden-court-filings-surge-despite-three-years-court-sanctions-2026-09-17/"
+  },
+  {
+    "id": "real-listening-ads",
+    "title": "FTC: AI Active-Listening Ad Claims",
+    "field": "Marketing & privacy",
+    "date": "August 2026",
+    "status": "FTC settlements finalized",
+    "question": "What proof should advertisers need before claiming AI listens to consumer conversations?",
+    "description": "The FTC finalized settlements after alleging Cox Media Group and two marketing firms misled customers by promoting an AI-powered ad service allegedly using conversations captured from smart devices. The FTC said it was not actually based on voice data and consumers had not opted in.",
+    "tradeoff": "AI marketing claims versus honesty, consent and customer trust.",
+    "source": "https://www.ftc.gov/news-events/news/press-releases/2026/08/ftc-finalizes-orders-cox-media-group-two-other-firms-settling-charges-they-deceived-customers-about"
+  },
+  {
+    "id": "real-political-deepfake",
+    "title": "Candidate Charged Over Alleged Fake AI Endorsements",
+    "field": "Media & democracy",
+    "date": "June 2026",
+    "status": "Criminal charges, not a conviction",
+    "question": "Where does AI political expression end and deceptive impersonation begin?",
+    "description": "Prosecutors charged a former New York City Council candidate after alleging AI-created fake political endorsements, news articles and manipulated images. The candidate raised free-speech concerns; the charges are allegations, not a finding of guilt.",
+    "tradeoff": "Creative expression versus deception and voter trust.",
+    "source": "https://apnews.com/article/995585d736361c976611f8846db171a2"
+  }
+];
       const proposals=await gmProposals();
       return [...gmSeeds,...Object.values(proposals).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))];
     };
@@ -233,7 +328,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const byId=Object.fromEntries(cases.map(c=>[c.id,c]));
       const groups=gmZones.map(z=>{
         const caseId=state.groupCases?.[z.id]||null,c=caseId?byId[caseId]:null;
-        return {...z,caseId,caseTitle:c?.title||'Case not selected yet',caseQuestion:c?.question||'',caseField:c?.field||'',caseDescription:c?.description||'',caseSource:c?.source||'',proposedBy:c?.proposedBy||'',members:Object.values(people).filter(p=>p.groupId===z.id).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)).map(p=>({...p,active:(p.lastSeen||0)>=cutoff})),response:responses?.[state.phase]?.[z.id]||null,ethicsResponse:responses?.ethics?.[z.id]||null,critiqueResponse:responses?.critique?.[z.id]||null};
+        return {...z,caseId,caseTitle:c?.title||'Case not selected yet',caseQuestion:c?.question||'',caseField:c?.field||'',caseDescription:c?.description||'',caseSource:c?.source||'',caseStatus:c?.status||'',caseDate:c?.date||'',caseTradeoff:c?.tradeoff||'',proposedBy:c?.proposedBy||'',members:Object.values(people).filter(p=>p.groupId===z.id).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)).map(p=>({...p,active:(p.lastSeen||0)>=cutoff})),response:responses?.[state.phase]?.[z.id]||null,ethicsResponse:responses?.ethics?.[z.id]||null,critiqueResponse:responses?.critique?.[z.id]||null};
       });
       const critiqueMap={A:'B',B:'C',C:'D',D:'A'};
       return {state,groups,people:Object.values(people),cases:caseRows,voteCounts,totalBallots:Object.keys(votes).length,responses,critiqueMap,signatureReady:Object.values(individual).filter(x=>x?.signature?.question||x?.signature?.topic).length,individualCount:Object.keys(individual).length};
@@ -279,7 +374,7 @@ export class ClassroomSession extends BaseClassroomSession {
       const ranked=[...cases].sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0)||((a.id.startsWith('custom-')?0:1)-(b.id.startsWith('custom-')?0:1))||(a.createdAt||0)-(b.createdAt||0)||String(a.title).localeCompare(String(b.title)));
       const selected=[];for(const c of ranked){if((counts[c.id]||0)>0&&selected.length<4)selected.push(c.id);}
       for(const c of cases){if(selected.length>=4)break;if(!selected.includes(c.id))selected.push(c.id);}
-      const groupCases=url.pathname.includes('/inf125-nov10-ethics-v2/')?{A:'seed-education',B:'seed-privacy',C:'seed-hiring',D:'seed-creativity'}:Object.fromEntries(gmZones.map((z,i)=>[z.id,selected[i]||gmSeeds[i]?.id]));
+      const groupCases=Object.fromEntries(gmZones.map((z,i)=>[z.id,selected[i]||cases[i]?.id]));
       const groupCounts=Object.fromEntries(gmZones.map(z=>[z.id,0])),n=Object.keys(people).length,maxSize=Math.max(1,Math.ceil(n/4));
       const rows=Object.values(people).sort((a,b)=>{
         const ap=(votes[a.device]||[]).filter(id=>selected.includes(id)).length,bp=(votes[b.device]||[]).filter(id=>selected.includes(id)).length;

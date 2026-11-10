@@ -42,7 +42,7 @@ export async function handleEthicsLab(request,storage,opts={}){
    if(!pin||pin.length<12)return js({error:'Instructor PIN not configured. Set the INF125_INSTRUCTOR_PIN Worker secret (12+ characters).'},503);
    const body=await request.json().catch(()=>({}));if(str(body.pin,256)!==pin)return js({error:'Incorrect instructor PIN'},401);
    const stamp=String(Date.now()),token=stamp+'.'+await sign(pin,stamp);
-   return new Response(JSON.stringify({ok:true}),{headers:{'content-type':'application/json','cache-control':'no-store','set-cookie':`inf125_admin=${token}; Path=/api/session/inf125-nov10-ethics-v2; HttpOnly; Secure; SameSite=Strict; Max-Age=36000`}});
+   return new Response(JSON.stringify({ok:true}),{headers:{'content-type':'application/json','cache-control':'no-store','set-cookie':`inf125_admin=${token}; Path=/api/session/inf125-nov10-real-cases-v3; HttpOnly; Secure; SameSite=Strict; Max-Age=36000`}});
  }
  if(op==='login-api'&&method==='POST')return js({error:'Invalid endpoint'},404);
  if(op==='auth'&&method==='GET')return js({authorized,configured:pin.length>=12||!!INSTRUCTOR_LINK_DIGEST});
