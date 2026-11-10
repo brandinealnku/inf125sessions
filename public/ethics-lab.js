@@ -36,6 +36,13 @@ function casePanel(c,compact=false){
  const source=c.source||c.caseSource||'',date=c.date||c.caseDate||'',status=c.status||c.caseStatus||'',tradeoff=c.tradeoff||c.caseTradeoff||'',title=c.title||c.caseTitle||'Case study',description=c.description||c.caseDescription||'';
  return '<section class="soft" style="margin:10px 0"><div class="row"><strong>'+esc(title)+'</strong><span class="tag">REAL CASE · '+esc(date||'2026')+'</span></div><p>'+esc(description)+'</p>'+(status?'<p class="quiet"><b>What is established:</b> '+esc(status)+'</p>':'')+(tradeoff?'<p><b>TRADEOFF:</b> '+esc(tradeoff)+'</p>':'')+'<p><b>DECISION:</b> '+esc(c.question||c.caseQuestion||'What should decision-makers do?')+'</p>'+(source?'<p><a href="'+esc(source)+'" target="_blank" rel="noopener noreferrer">Read the source article / case record</a></p>':'')+'</section>';
 }
+const fiveLenses=[
+ ['Fairness','Who benefits, and who might be disadvantaged by the AI decision?'],
+ ['Privacy','What information is collected, inferred, stored, or shared?'],
+ ['Transparency','Can affected people tell when AI is involved and understand its role?'],
+ ['Ownership','Who created or contributed the work, and who controls or receives credit?'],
+ ['Accountability','Who verifies results, handles appeals, and takes responsibility for harm?']
+];
 const guideContent=[
  {title:'Today’s focus: When should we trust AI decisions?',lead:'New topic: real-world AI ethics. Explore → question → judge → apply.',steps:['Think of a decision that AI could influence: hiring, education, healthcare, privacy, or creative work.','Individually consider who benefits, who could be harmed, and what evidence you would need.','Compare with a partner: What is the difference between “Can AI do this?” and “Should AI do this?”'],close:'Opening opinion: which AI decision would you most want to challenge, and why?'},
  {title:'Slides 14–18: Make a defensible decision',lead:'Your job is NOT to find the “right” answer. It is to explain a responsible decision.',steps:['BENEFIT — What problem does the AI solve?','STAKEHOLDERS — Name at least three groups affected.','ETHICS LENS — Which concern matters most, and why?','YOUR CALL — Yes, No, or Only under certain conditions?','SAFEGUARD — Require one specific rule that would make it more responsible.'],close:'Ethical is not always the same as legal. Law asks what is permitted; ethics asks what should be done; policy asks what an organization will allow.'},
