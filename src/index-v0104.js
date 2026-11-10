@@ -50,7 +50,7 @@ export class ClassroomSession extends BaseClassroomSession {
   async handleRequest(request) {
     const url=new URL(request.url),method=request.method.toUpperCase();
     if(url.pathname.includes('/ethics-lab/')) return handleEthicsLab(request,this.state.storage,{pin:this.env?.INF125_INSTRUCTOR_PIN||'',delegate:r=>this.handleRequest(r)});
-    if(url.pathname.includes('/inf125-nov10-ethics-v2/group-mode/') && method==='POST' && /\/(form-groups|phase|reset)$/.test(url.pathname)) { if(!await isEthicsInstructor(request,this.env?.INF125_INSTRUCTOR_PIN||'')) return json({error:'Instructor sign-in required'},401); }
+    if(url.pathname.includes('/inf125-nov10-real-cases-v3/group-mode/') && method==='POST' && /\/(form-groups|phase|reset)$/.test(url.pathname)) { if(!await isEthicsInstructor(request,this.env?.INF125_INSTRUCTOR_PIN||'')) return json({error:'Instructor sign-in required'},401); }
     // Instructor roster management for the current classroom session.
     if(url.pathname.endsWith('/roster')){
       const participants=(await this.state.storage.get('participants'))||{};
@@ -217,7 +217,7 @@ export class ClassroomSession extends BaseClassroomSession {
     const gmProposals=async()=>(await this.state.storage.get('gmProposals'))||{};
     const gmVotes=async()=>(await this.state.storage.get('gmVotes'))||{};
     const gmCases=async()=>{
-      if(url.pathname.includes('/inf125-nov10-ethics-v2/')) return [
+      if(url.pathname.includes('/inf125-nov10-real-cases-v3/')) return [
   {
     "id": "real-tutor-trial",
     "title": "AI Tutor Trial: Lower Grades?",
