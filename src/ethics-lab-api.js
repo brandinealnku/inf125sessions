@@ -17,7 +17,18 @@ const TIMEOUT=1000*60*60*10;
 const buffer64=x=>btoa(String.fromCharCode(...new Uint8Array(x))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 async function sign(pin,payload){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),{name:'HMAC',hash:'SHA-256'},false,['sign']);return buffer64(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(payload)));}
 async function authed(request,pin){if(!pin||pin.length<12)return false;const cookie=(request.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('inf125_admin='));if(!cookie)return false;const parts=decodeURIComponent(cookie.slice('inf125_admin='.length)).split('.');if(parts.length!==2)return false;const stamp=Number(parts[0]);if(!Number.isFinite(stamp)||stamp>Date.now()+60000||Date.now()-stamp>TIMEOUT)return false;return(await sign(pin,parts[0]))===parts[1];}
-export const isEthicsInstructor=authed;
+// Instructor link: only the SHA-256 digest of the 256-bit capability is committed.
+// Never store the raw capability in GitHub or an HTML/JS asset.
+const INSTRUCTOR_LINK_DIGEST='7a97c4c6680010c98699f0d3ab5425c975e4be5cac2a4669197bab7e47742148';
+async function privateLinkAuth(request){
+ const key=request.headers.get('x-inf125-instructor-key')||'';
+ if(!/^[A-Za-z0-9_-]{40,64}$/.test(key))return false;
+ const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key))),x=>x.toString(16).padStart(2,'0')).join('');
+ let mismatch=0;for(let i=0;i<digest.length;i++)mismatch|=digest.charCodeAt(i)^INSTRUCTOR_LINK_DIGEST.charCodeAt(i);
+ return mismatch===0;
+}
+async function instructorAuthorized(request,pin){return await privateLinkAuth(request)||await authed(request,pin);}
+export const isEthicsInstructor=instructorAuthorized;
 export async function handleEthicsLab(request,storage,opts={}){
  const url=new URL(request.url),op=url.pathname.split('/').pop(),method=request.method.toUpperCase();
  const state=async()=>await storage.get('nov10Stage')||initial();
@@ -26,7 +37,7 @@ export async function handleEthicsLab(request,storage,opts={}){
  const gmState=async()=>await storage.get('gmState')||{phase:'marketplace',groupsFormed:false};
  const groupResponses=async()=>await storage.get('gmResponses')||{};
  const pin=opts.pin||'';
- const authorized=await authed(request,pin);
+ const authorized=await instructorAuthorized(request,pin);
  if(op==='login'&&method==='POST'){
    if(!pin||pin.length<12)return js({error:'Instructor PIN not configured. Set the INF125_INSTRUCTOR_PIN Worker secret (12+ characters).'},503);
    const body=await request.json().catch(()=>({}));if(str(body.pin,256)!==pin)return js({error:'Incorrect instructor PIN'},401);
@@ -34,7 +45,7 @@ export async function handleEthicsLab(request,storage,opts={}){
    return new Response(JSON.stringify({ok:true}),{headers:{'content-type':'application/json','cache-control':'no-store','set-cookie':`inf125_admin=${token}; Path=/api/session/inf125-nov10-ethics-v2; HttpOnly; Secure; SameSite=Strict; Max-Age=36000`}});
  }
  if(op==='login-api'&&method==='POST')return js({error:'Invalid endpoint'},404);
- if(op==='auth'&&method==='GET')return js({authorized,configured:pin.length>=12});
+ if(op==='auth'&&method==='GET')return js({authorized,configured:pin.length>=12||!!INSTRUCTOR_LINK_DIGEST});
  if(op==='snapshot'&&method==='GET'){
    const s=await state(),a=await responses(),gm=await gmState(),gPeople=await people(),gr=await groupResponses();
    const per=phases.map((_,i)=>Object.values(a).filter(x=>x.phase===i).length);
